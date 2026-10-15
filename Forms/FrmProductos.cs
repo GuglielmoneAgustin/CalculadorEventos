@@ -36,12 +36,37 @@ namespace ProyectoEventos.Forms
 
         private void CargarComboCategoria()
         {
+            cmbEnumCategoria.FormattingEnabled = true;
+            cmbEnumCategoria.Format += FormatearEnum;
             cmbEnumCategoria.DataSource = Enum.GetValues(typeof(CategoriasProductos));
         }
 
         private void CargarComboRestriccion()
         {
+            cmbEnumRestriccion.FormattingEnabled = true;
+            cmbEnumRestriccion.Format += FormatearEnum;
             cmbEnumRestriccion.DataSource = Enum.GetValues(typeof(RestriccionesAlimenticias));
+        }
+
+        // Los combos guardan el valor de la enumeración pero muestran el texto con tildes
+        private void FormatearEnum(object? sender, ListControlConvertEventArgs e)
+        {
+            e.Value = TextoEnum.Texto(e.ListItem);
+        }
+
+        private void dgvProductos_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.ColumnIndex < 0)
+            {
+                return;
+            }
+
+            string columna = dgvProductos.Columns[e.ColumnIndex].Name;
+            if (columna == "Categoria" || columna == "Restriccion")
+            {
+                e.Value = TextoEnum.Texto(e.Value);
+                e.FormattingApplied = true;
+            }
         }
 
         private void CargarGrilla()
@@ -59,7 +84,7 @@ namespace ProyectoEventos.Forms
         private void MostrarGrilla()
         {
             dgvProductos.DataSource = null;
-            dgvProductos.DataSource = Busqueda.Filtrar(productos, txtBuscar.Text, p => new[] { p.Nombre, p.Categoria.ToString(), p.Restriccion.ToString() });
+            dgvProductos.DataSource = Busqueda.Filtrar(productos, txtBuscar.Text, p => new[] { p.Nombre, TextoEnum.Categoria(p.Categoria), TextoEnum.Restriccion(p.Restriccion) });
             dgvProductos.Columna("Id").Visible = false;
             dgvProductos.Columna("PrecioAdulto").HeaderText = "Precio adulto";
             dgvProductos.Columna("PrecioNino").HeaderText = "Precio niño";

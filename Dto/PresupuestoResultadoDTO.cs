@@ -16,10 +16,10 @@ namespace ProyectoEventos.Dto
         public int CantidadAdultos { get; set; }
         public int CantidadNinos { get; set; }
 
-        // Para mostrar en las grillas: "adultos + niños"
-        public string Invitados
+        // Total de invitados (adultos + niños), para mostrar en las grillas
+        public int Invitados
         {
-            get { return CantidadAdultos + " + " + CantidadNinos; }
+            get { return CantidadAdultos + CantidadNinos; }
         }
 
         public decimal CostoTotal { get; set; }

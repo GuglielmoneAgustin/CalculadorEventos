@@ -148,7 +148,7 @@ namespace ProyectoEventos.Forms
             // 
             lblPrecioAdulto.AutoSize = true;
             lblPrecioAdulto.Margin = new Padding(3, 12, 3, 3);
-            lblPrecioAdulto.Text = "Precio Adulto :";
+            lblPrecioAdulto.Text = "Precio adulto :";
             lblPrecioAdulto.Name = "lblPrecioAdulto";
             lblPrecioAdulto.TabIndex = 2;
             // 
@@ -163,7 +163,7 @@ namespace ProyectoEventos.Forms
             // 
             lblPrecioNino.AutoSize = true;
             lblPrecioNino.Margin = new Padding(3, 12, 3, 3);
-            lblPrecioNino.Text = "Precio Niño :";
+            lblPrecioNino.Text = "Precio niño :";
             lblPrecioNino.Name = "lblPrecioNino";
             lblPrecioNino.TabIndex = 4;
             // 
@@ -178,7 +178,7 @@ namespace ProyectoEventos.Forms
             // 
             lblEnumCategoria.AutoSize = true;
             lblEnumCategoria.Margin = new Padding(3, 12, 3, 3);
-            lblEnumCategoria.Text = "Categorias :";
+            lblEnumCategoria.Text = "Categoría :";
             lblEnumCategoria.Name = "lblEnumCategoria";
             lblEnumCategoria.TabIndex = 6;
             // 
@@ -193,7 +193,7 @@ namespace ProyectoEventos.Forms
             // 
             lblEnumRestriccion.AutoSize = true;
             lblEnumRestriccion.Margin = new Padding(3, 12, 3, 3);
-            lblEnumRestriccion.Text = "Restricciones :";
+            lblEnumRestriccion.Text = "Restricción :";
             lblEnumRestriccion.Name = "lblEnumRestriccion";
             lblEnumRestriccion.TabIndex = 8;
             // 
@@ -255,6 +255,7 @@ namespace ProyectoEventos.Forms
             dgvProductos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvProductos.Name = "dgvProductos";
             dgvProductos.TabIndex = 14;
+            dgvProductos.CellFormatting += dgvProductos_CellFormatting;
             // 
             // btnVolver
             // 
@@ -275,7 +276,7 @@ namespace ProyectoEventos.Forms
             Controls.Add(tlpRaiz);
             MinimumSize = new Size(1000, 650);
             Name = "FrmProductos";
-            Text = "Gestion de Productos";
+            Text = "Gestión de productos";
             WindowState = FormWindowState.Maximized;
             Load += FrmProductos_Load;
             ((System.ComponentModel.ISupportInitialize)numPrecioAdulto).EndInit();

@@ -254,7 +254,7 @@ namespace ProyectoEventos.Forms
             Controls.Add(tlpRaiz);
             MinimumSize = new Size(1000, 650);
             Name = "FrmLugares";
-            Text = "Gestion de Lugares";
+            Text = "Gestión de lugares";
             WindowState = FormWindowState.Maximized;
             Load += FrmLugares_Load;
             ((System.ComponentModel.ISupportInitialize)numCosto).EndInit();

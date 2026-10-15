@@ -157,7 +157,7 @@ namespace ProyectoEventos.Forms
             ClientSize = new Size(1280, 720);
             Controls.Add(tlpRaiz);
             Name = "FrmPresupuestos";
-            Text = "Presupuestos del Evento";
+            Text = "Presupuestos del evento";
             Load += FrmPresupuestos_Load;
             ((System.ComponentModel.ISupportInitialize)dgvPresupuestos).EndInit();
             flowBotones.ResumeLayout(false);

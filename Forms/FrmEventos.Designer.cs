@@ -175,7 +175,7 @@ namespace ProyectoEventos.Forms
             ClientSize = new Size(1100, 620);
             Controls.Add(tlpRaiz);
             Name = "FrmEventos";
-            Text = "Gestion de Eventos";
+            Text = "Gestión de eventos";
             WindowState = FormWindowState.Maximized;
             Load += FrmEventos_Load;
             ((System.ComponentModel.ISupportInitialize)dgvEventos).EndInit();

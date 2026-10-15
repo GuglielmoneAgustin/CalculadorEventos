@@ -140,7 +140,7 @@ namespace ProyectoEventos.Forms
             // 
             lblDni.AutoSize = true;
             lblDni.Margin = new Padding(3, 12, 3, 3);
-            lblDni.Text = "Dni :";
+            lblDni.Text = "DNI :";
             lblDni.Name = "lblDni";
             lblDni.TabIndex = 2;
             // 
@@ -168,7 +168,7 @@ namespace ProyectoEventos.Forms
             // 
             lblTelefono.AutoSize = true;
             lblTelefono.Margin = new Padding(3, 12, 3, 3);
-            lblTelefono.Text = "Telefono :";
+            lblTelefono.Text = "Teléfono :";
             lblTelefono.Name = "lblTelefono";
             lblTelefono.TabIndex = 6;
             // 
@@ -250,7 +250,7 @@ namespace ProyectoEventos.Forms
             Controls.Add(tlpRaiz);
             MinimumSize = new Size(1000, 650);
             Name = "FrmClientes";
-            Text = "Gestion de Clientes";
+            Text = "Gestión de clientes";
             WindowState = FormWindowState.Maximized;
             Load += FrmClientes_Load;
             ((System.ComponentModel.ISupportInitialize)dgvClientes).EndInit();

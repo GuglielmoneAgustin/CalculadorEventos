@@ -197,7 +197,7 @@ namespace ProyectoEventos.Forms
             // 
             lbldgvServiciosAdicionales.AutoSize = true;
             lbldgvServiciosAdicionales.Margin = new Padding(3, 12, 3, 3);
-            lbldgvServiciosAdicionales.Text = "Servicios Adicionales";
+            lbldgvServiciosAdicionales.Text = "Servicios adicionales";
             lbldgvServiciosAdicionales.Name = "lbldgvServiciosAdicionales";
             lbldgvServiciosAdicionales.TabIndex = 9;
             // 
@@ -234,7 +234,7 @@ namespace ProyectoEventos.Forms
             Controls.Add(tlpRaiz);
             MinimumSize = new Size(1000, 650);
             Name = "FrmServiciosAdicionales";
-            Text = "Gestion de Servicios Adicionales";
+            Text = "Gestión de servicios adicionales";
             WindowState = FormWindowState.Maximized;
             Load += FrmServiciosAdicionales_Load;
             ((System.ComponentModel.ISupportInitialize)numMonto).EndInit();

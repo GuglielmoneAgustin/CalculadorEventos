@@ -199,6 +199,18 @@ namespace ProyectoEventos.Forms
                 return;
             }
 
+            // Uno ya cancelado no se confirma: el controlador avisa que ya está cancelado
+            if (seleccionado.Estado != EstadoPresupuesto.Cancelado)
+            {
+                string pregunta = seleccionado.Estado == EstadoPresupuesto.Aprobado
+                    ? "El presupuesto N° " + seleccionado.Id + " está APROBADO. ¿Seguro que desea cancelarlo?"
+                    : "¿Seguro que desea cancelar el presupuesto N° " + seleccionado.Id + "?";
+                if (!Mensajes.Confirmar(pregunta))
+                {
+                    return;
+                }
+            }
+
             try
             {
                 controlador.Cancelar(idEvento, seleccionado.Id);
