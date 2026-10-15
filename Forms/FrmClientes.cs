@@ -47,6 +47,10 @@ namespace ProyectoEventos.Forms
         {
             dgvClientes.DataSource = null;
             dgvClientes.DataSource = Busqueda.Filtrar(clientes, txtBuscar.Text, c => new[] { c.Nombre, c.Dni, c.Mail, c.Telefono });
+            dgvClientes.Columna("Id").Visible = false;
+            dgvClientes.Columna("Dni").HeaderText = "DNI";
+            dgvClientes.Columna("Telefono").HeaderText = "Teléfono";
+            dgvClientes.Columna("CantidadEventos").HeaderText = "Eventos";
             dgvClientes.Columna("Descripcion").Visible = false;
 
             if (dgvClientes.Rows.Count > 0)

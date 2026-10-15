@@ -19,7 +19,8 @@ namespace ProyectoEventos.Domain
         private readonly List<Presupuesto> presupuestos;
         private int proximoIdItemMenu;
         private int proximoIdPresupuesto;
-        private bool requierePresupuestoNuevo;
+        // Datos, menú o servicios del evento cambiaron después del último presupuesto generado
+        private bool huboCambiosDesdeUltimoPresupuesto;
 
         public Evento(int id, Cliente cliente, Lugar lugar, DateTime fecha, decimal horasDuracion, int cantidadAdultos, int cantidadNinos)
         {
@@ -30,7 +31,6 @@ namespace ProyectoEventos.Domain
             proximoIdItemMenu = 1;
             proximoIdPresupuesto = 1;
             ActualizarDatos(cliente, lugar, fecha, horasDuracion, cantidadAdultos, cantidadNinos);
-            requierePresupuestoNuevo = true;
         }
 
         public int Id { get; private set; }
@@ -75,9 +75,15 @@ namespace ProyectoEventos.Domain
             get { return Fecha.AddHours((double)HorasDuracion); }
         }
 
+        // Hace falta uno nuevo cuando no hay ningún presupuesto vigente
+        // (todavía no se generó ninguno, o cambió el evento o algún precio).
         public bool RequierePresupuestoNuevo
         {
-            get { return requierePresupuestoNuevo; }
+            get
+            {
+                Presupuesto? ultimo = ObtenerUltimoPresupuesto();
+                return ultimo == null || !EsVigente(ultimo);
+            }
         }
 
         // Única forma de cambiar los datos generales: se validan todos juntos (rangos y capacidad del lugar)
@@ -288,7 +294,7 @@ namespace ProyectoEventos.Domain
             Presupuesto presupuesto = new Presupuesto(proximoIdPresupuesto, this, fechaGeneracion);
             proximoIdPresupuesto++;
             presupuestos.Add(presupuesto);
-            requierePresupuestoNuevo = false;
+            huboCambiosDesdeUltimoPresupuesto = false;
             return presupuesto;
         }
 
@@ -309,7 +315,8 @@ namespace ProyectoEventos.Domain
             return presupuesto;
         }
 
-        // Controla que el presupuesto se pueda aprobar (en espera y vigente) sin modificar nada.
+        // Controla que el presupuesto se pueda aprobar sin modificar nada: tiene que estar en espera o
+        // cancelado (por ejemplo, el cliente se arrepintió) y seguir vigente.
         // No tiene en cuenta si ya hay otro aprobado: eso lo decide quien aprueba (reemplazar o no).
         public Presupuesto ValidarAprobacion(int idPresupuesto)
         {
@@ -318,7 +325,7 @@ namespace ProyectoEventos.Domain
 
             if (!EsVigente(presupuesto))
             {
-                throw new ReglaNegocioException("El presupuesto está desactualizado: el evento cambió después de generarlo. Genere un presupuesto nuevo.");
+                throw new ReglaNegocioException("El presupuesto está desactualizado: el evento o los precios cambiaron después de generarlo. Actualice el presupuesto para obtener uno con los valores actuales.");
             }
             return presupuesto;
         }
@@ -361,17 +368,42 @@ namespace ProyectoEventos.Domain
             return presupuestos.Find(presupuesto => presupuesto.Estado == EstadoPresupuesto.Aprobado);
         }
 
-        // Vigente = es el último generado y el evento no cambió desde entonces.
+        // Vigente = es el último generado, el evento no cambió desde entonces y los precios
+        // actuales (lugar, productos y servicios) son los mismos que se cotizaron.
+        // Un presupuesto aprobado conserva sus precios aunque deje de estar vigente.
         public bool EsVigente(Presupuesto presupuesto)
         {
-            return !requierePresupuestoNuevo && presupuestos.Count > 0 && presupuestos[presupuestos.Count - 1] == presupuesto;
+            return presupuesto == ObtenerUltimoPresupuesto()
+                && !huboCambiosDesdeUltimoPresupuesto
+                && presupuesto.CoincidenPreciosCon(this);
+        }
+
+        public decimal CalcularSubtotalServicios()
+        {
+            decimal total = 0m;
+            foreach (ServicioAdicional servicio in servicios)
+            {
+                total += servicio.Monto;
+            }
+            return total;
+        }
+
+        // El presupuesto que representa al evento: el aprobado o, si no hay, el último generado.
+        public Presupuesto? ObtenerPresupuestoDeReferencia()
+        {
+            return ObtenerPresupuestoAprobado() ?? ObtenerUltimoPresupuesto();
+        }
+
+        private Presupuesto? ObtenerUltimoPresupuesto()
+        {
+            return presupuestos.Count == 0 ? null : presupuestos[presupuestos.Count - 1];
         }
 
         // Los presupuestos ya generados no se tocan (son una foto de lo que se cotizó);
         // solo se marca que hace falta generar uno nuevo con los datos actuales.
         private void MarcarCambioPendienteDePresupuesto()
         {
-            requierePresupuestoNuevo = true;
+            huboCambiosDesdeUltimoPresupuesto = true;
         }
 
         private static void ValidarHorasDuracion(decimal valor)

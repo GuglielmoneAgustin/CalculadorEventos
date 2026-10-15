@@ -101,6 +101,7 @@ namespace ProyectoEventos.Service
             dto.Mail = cliente.Mail;
             dto.Telefono = cliente.Telefono;
             dto.Descripcion = cliente.ObtenerDescripcion();
+            dto.CantidadEventos = eventoRepositorio.ContarEventosDeCliente(cliente.Id);
             return dto;
         }
     }

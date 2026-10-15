@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using ProyectoEventos.Common;
 
 namespace ProyectoEventos.Dto
@@ -14,6 +14,16 @@ namespace ProyectoEventos.Dto
         public decimal HorasDuracion { get; set; }
         public int CantidadAdultos { get; set; }
         public int CantidadNinos { get; set; }
+
+        // Para mostrar en las grillas: "adultos + niños"
+        public string Invitados
+        {
+            get { return CantidadAdultos + " + " + CantidadNinos; }
+        }
+
         public EstadoPresupuesto? EstadoPresupuesto { get; set; }
+
+        // Total del presupuesto aprobado; si no hay, el del último generado; null si no hay ninguno.
+        public decimal? Total { get; set; }
     }
 }

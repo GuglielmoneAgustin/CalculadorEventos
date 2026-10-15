@@ -47,6 +47,8 @@ namespace ProyectoEventos.Forms
         {
             dgvServicios.DataSource = null;
             dgvServicios.DataSource = Busqueda.Filtrar(servicios, txtBuscar.Text, s => new[] { s.Nombre, s.Descripcion });
+            dgvServicios.Columna("Id").Visible = false;
+            dgvServicios.Columna("Descripcion").HeaderText = "Descripción";
             dgvServicios.Columna("Monto").DefaultCellStyle.Format = Formato.Moneda;
 
             if (dgvServicios.Rows.Count > 0)

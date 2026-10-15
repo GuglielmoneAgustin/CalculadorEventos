@@ -60,6 +60,11 @@ namespace ProyectoEventos.Forms
         {
             dgvProductos.DataSource = null;
             dgvProductos.DataSource = Busqueda.Filtrar(productos, txtBuscar.Text, p => new[] { p.Nombre, p.Categoria.ToString(), p.Restriccion.ToString() });
+            dgvProductos.Columna("Id").Visible = false;
+            dgvProductos.Columna("PrecioAdulto").HeaderText = "Precio adulto";
+            dgvProductos.Columna("PrecioNino").HeaderText = "Precio niño";
+            dgvProductos.Columna("Categoria").HeaderText = "Categoría";
+            dgvProductos.Columna("Restriccion").HeaderText = "Restricción";
             dgvProductos.Columna("PrecioAdulto").DefaultCellStyle.Format = Formato.Moneda;
             dgvProductos.Columna("PrecioNino").DefaultCellStyle.Format = Formato.Moneda;
 

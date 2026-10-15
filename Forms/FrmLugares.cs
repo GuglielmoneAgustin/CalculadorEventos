@@ -47,6 +47,9 @@ namespace ProyectoEventos.Forms
         {
             dgvLugares.DataSource = null;
             dgvLugares.DataSource = Busqueda.Filtrar(lugares, txtBuscar.Text, l => new[] { l.Nombre, l.Ubicacion });
+            dgvLugares.Columna("Id").Visible = false;
+            dgvLugares.Columna("CostoBase").HeaderText = "Costo base";
+            dgvLugares.Columna("Ubicacion").HeaderText = "Ubicación";
             dgvLugares.Columna("CostoBase").DefaultCellStyle.Format = Formato.Moneda;
             dgvLugares.Columna("Descripcion").Visible = false;
 

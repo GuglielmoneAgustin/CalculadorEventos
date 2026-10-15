@@ -21,6 +21,11 @@ namespace ProyectoEventos.Repository
             return elementos.Exists(evento => evento.TieneCliente(idCliente));
         }
 
+        public int ContarEventosDeCliente(int idCliente)
+        {
+            return elementos.Count(evento => evento.TieneCliente(idCliente));
+        }
+
         public bool TieneLugarAsociado(int idLugar)
         {
             return elementos.Exists(evento => evento.TieneLugar(idLugar));

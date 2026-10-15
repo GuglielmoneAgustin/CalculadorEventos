@@ -199,6 +199,7 @@ namespace ProyectoEventos.Service
             dto.CantidadAdultos = evento.CantidadAdultos;
             dto.CantidadNinos = evento.CantidadNinos;
             dto.EstadoPresupuesto = evento.ObtenerEstadoPresupuesto();
+            dto.Total = evento.ObtenerPresupuestoDeReferencia()?.CalcularTotal();
             return dto;
         }
     }

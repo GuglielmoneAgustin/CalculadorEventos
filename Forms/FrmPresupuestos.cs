@@ -49,6 +49,12 @@ namespace ProyectoEventos.Forms
             dgvPresupuestos.DataSource = controlador.ObtenerPorEvento(idEvento);
 
             dgvPresupuestos.Columna("IdEvento").Visible = false;
+            // Cliente y lugar ya figuran arriba de la grilla (son los mismos en todas las filas)
+            dgvPresupuestos.Columna("NombreCliente").Visible = false;
+            dgvPresupuestos.Columna("NombreLugar").Visible = false;
+            // Se muestran juntos en la columna "Invitados"
+            dgvPresupuestos.Columna("CantidadAdultos").Visible = false;
+            dgvPresupuestos.Columna("CantidadNinos").Visible = false;
             // La vigencia se muestra junto al estado (ver CellFormatting)
             dgvPresupuestos.Columna("Vigente").Visible = false;
 
@@ -59,60 +65,36 @@ namespace ProyectoEventos.Forms
                 dgvPresupuestos.ClearSelection();
                 dgvPresupuestos.CurrentCell = null;
             }
-            ActualizarBotones();
         }
 
-        // Cada acción se habilita solo si tiene sentido para el presupuesto seleccionado:
-        // aprobar = en espera y vigente; cancelar = no cancelado; imprimir = cualquiera.
-        private void ActualizarBotones()
-        {
-            PresupuestoResultadoDTO? seleccionado = ObtenerPresupuestoSeleccionado();
-            btnAprobar.Enabled = seleccionado != null && seleccionado.Estado == EstadoPresupuesto.EnEspera && seleccionado.Vigente;
-            btnCancelar.Enabled = seleccionado != null && seleccionado.Estado != EstadoPresupuesto.Cancelado;
-            btnImprimir.Enabled = seleccionado != null;
-        }
-
-        private void dgvPresupuestos_CurrentCellChanged(object? sender, EventArgs e)
-        {
-            ActualizarBotones();
-        }
-
-        // Encabezados legibles, monto a la derecha con moneda y fecha con formato local
+        // Encabezados legibles, monto a la derecha con moneda y fechas con formato local
         private void DarFormatoColumnas()
         {
-            DataGridViewColumn? costo = dgvPresupuestos.Columns["CostoTotal"];
-            if (costo != null)
-            {
-                costo.HeaderText = "Costo total";
-                costo.DefaultCellStyle.Format = Formato.Moneda;
-                costo.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-                costo.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;
-                costo.HeaderCell.Style.Padding = new Padding(0, 0, 10, 0);
-                costo.DefaultCellStyle.Padding = new Padding(0, 0, 10, 0);
-            }
+            dgvPresupuestos.Columna("Id").HeaderText = "N°";
+            dgvPresupuestos.Columna("Id").FillWeight = 35;
+            dgvPresupuestos.Columna("Estado").FillWeight = 160;
 
-            DataGridViewColumn? fecha = dgvPresupuestos.Columns["FechaGeneracion"];
-            if (fecha != null)
-            {
-                fecha.HeaderText = "Fecha de generación";
-                fecha.DefaultCellStyle.Format = Formato.FechaHora;
-            }
+            DataGridViewColumn costo = dgvPresupuestos.Columna("CostoTotal");
+            costo.HeaderText = "Costo total";
+            costo.DefaultCellStyle.Format = Formato.Moneda;
+            costo.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            costo.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;
+            costo.HeaderCell.Style.Padding = new Padding(0, 0, 10, 0);
+            costo.DefaultCellStyle.Padding = new Padding(0, 0, 10, 0);
 
-            DataGridViewColumn? cliente = dgvPresupuestos.Columns["NombreCliente"];
-            if (cliente != null)
-            {
-                cliente.HeaderText = "Cliente";
-            }
+            DataGridViewColumn fecha = dgvPresupuestos.Columna("FechaGeneracion");
+            fecha.HeaderText = "Fecha de generación";
+            fecha.DefaultCellStyle.Format = Formato.FechaHora;
 
-            DataGridViewColumn? lugar = dgvPresupuestos.Columns["NombreLugar"];
-            if (lugar != null)
-            {
-                lugar.HeaderText = "Lugar";
-            }
+            // Fecha del evento tal como quedó cotizada (puede diferir entre presupuestos)
+            DataGridViewColumn fechaEvento = dgvPresupuestos.Columna("FechaEvento");
+            fechaEvento.HeaderText = "Fecha del evento";
+            fechaEvento.DefaultCellStyle.Format = Formato.FechaHora;
         }
 
         // Colorea la celda de Estado: verde = aprobado, terracota = cancelado, arena = en espera.
-        // Si el evento cambió después de generar el presupuesto, se aclara que está desactualizado.
+        // Si el evento o los precios cambiaron después de generarlo, se aclara que está desactualizado
+        // (un aprobado igual mantiene los precios que se cotizaron).
         private void dgvPresupuestos_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
         {
             if (e.RowIndex < 0 || e.ColumnIndex < 0 ||
@@ -123,8 +105,7 @@ namespace ProyectoEventos.Forms
 
             EstadoPresupuestoVista.Aplicar(e, estado, dgvPresupuestos.DefaultCellStyle.Font ?? dgvPresupuestos.Font);
 
-            if (estado != EstadoPresupuesto.Cancelado
-                && dgvPresupuestos.Rows[e.RowIndex].DataBoundItem is PresupuestoResultadoDTO presupuesto
+            if (dgvPresupuestos.Rows[e.RowIndex].DataBoundItem is PresupuestoResultadoDTO presupuesto
                 && !presupuesto.Vigente)
             {
                 e.Value = EstadoPresupuestoVista.Texto(estado) + " (desactualizado)";
@@ -161,6 +142,27 @@ namespace ProyectoEventos.Forms
                 }
 
                 controlador.Aprobar(idEvento, seleccionado.Id, reemplazar);
+                CargarGrillaPresupuestos();
+            }
+            catch (NegocioException ex)
+            {
+                Mensajes.Advertencia(ex.Message);
+            }
+        }
+
+        // Genera un presupuesto con los datos y precios actuales, si el último ya no está vigente.
+        private void btnActualizar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                PresupuestoResultadoDTO? generado = controlador.Generar(idEvento);
+                if (generado == null)
+                {
+                    Mensajes.Informacion("El presupuesto ya está actualizado: tiene los datos y precios actuales del evento.");
+                    return;
+                }
+
+                Mensajes.Informacion("Presupuesto actualizado: se generó el N° " + generado.Id + " con los valores actuales.");
                 CargarGrillaPresupuestos();
             }
             catch (NegocioException ex)

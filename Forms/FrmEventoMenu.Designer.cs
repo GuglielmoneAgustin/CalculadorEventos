@@ -33,6 +33,7 @@ namespace ProyectoEventos.Forms
             lblCantNinosItem = new Label();
             numCantNinosItem = new NumericUpDown();
             btnAgregarItem = new Button();
+            btnCancelarEdicion = new Button();
             dgvItemsMenu = new DataGridView();
             btnQuitarItem = new Button();
             btnEditarItem = new Button();
@@ -109,12 +110,15 @@ namespace ProyectoEventos.Forms
             tlpTarjetaProductos.Controls.Add(numCantNinosItem, 1, 3);
             tlpTarjetaProductos.Controls.Add(btnAgregarItem, 0, 4);
             tlpTarjetaProductos.SetColumnSpan(btnAgregarItem, 2);
+            tlpTarjetaProductos.Controls.Add(btnCancelarEdicion, 0, 5);
+            tlpTarjetaProductos.SetColumnSpan(btnCancelarEdicion, 2);
             tlpTarjetaProductos.Dock = DockStyle.Fill;
             tlpTarjetaProductos.Margin = new Padding(0, 0, 20, 0);
             tlpTarjetaProductos.Name = "tlpTarjetaProductos";
-            tlpTarjetaProductos.RowCount = 5;
+            tlpTarjetaProductos.RowCount = 6;
             tlpTarjetaProductos.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpTarjetaProductos.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tlpTarjetaProductos.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpTarjetaProductos.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpTarjetaProductos.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpTarjetaProductos.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -239,6 +243,18 @@ namespace ProyectoEventos.Forms
             btnAgregarItem.Text = "Agregar plato";
             btnAgregarItem.UseVisualStyleBackColor = true;
             btnAgregarItem.Click += btnAgregarItem_Click;
+            //
+            // btnCancelarEdicion
+            //
+            btnCancelarEdicion.Dock = DockStyle.Fill;
+            btnCancelarEdicion.Margin = new Padding(3, 8, 3, 0);
+            btnCancelarEdicion.Name = "btnCancelarEdicion";
+            btnCancelarEdicion.Size = new Size(260, 38);
+            btnCancelarEdicion.TabIndex = 20;
+            btnCancelarEdicion.Text = "Cancelar edición";
+            btnCancelarEdicion.UseVisualStyleBackColor = true;
+            btnCancelarEdicion.Visible = false;
+            btnCancelarEdicion.Click += btnCancelarEdicion_Click;
             // 
             // dgvItemsMenu
             // 
@@ -249,21 +265,18 @@ namespace ProyectoEventos.Forms
             dgvItemsMenu.Dock = DockStyle.Fill;
             dgvItemsMenu.MultiSelect = false;
             dgvItemsMenu.Name = "dgvItemsMenu";
+            dgvItemsMenu.ReadOnly = true;
             dgvItemsMenu.RowHeadersWidth = 51;
             dgvItemsMenu.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvItemsMenu.TabIndex = 8;
-            dgvItemsMenu.CellDoubleClick += dgvItemsMenu_CellDoubleClick;
-            dgvItemsMenu.CellValidating += dgvItemsMenu_CellValidating;
-            dgvItemsMenu.CellEndEdit += dgvItemsMenu_CellEndEdit;
-            dgvItemsMenu.DataError += dgvItemsMenu_DataError;
             //
             // btnEditarItem
             //
             btnEditarItem.Margin = new Padding(10, 0, 0, 0);
             btnEditarItem.Name = "btnEditarItem";
-            btnEditarItem.Size = new Size(170, 38);
+            btnEditarItem.Size = new Size(160, 38);
             btnEditarItem.TabIndex = 19;
-            btnEditarItem.Text = "Editar cantidades";
+            btnEditarItem.Text = "Editar plato";
             btnEditarItem.UseVisualStyleBackColor = true;
             btnEditarItem.Click += btnEditarItem_Click;
             // 
@@ -404,6 +417,7 @@ namespace ProyectoEventos.Forms
         private Label lblCantNinosItem;
         private NumericUpDown numCantNinosItem;
         private Button btnAgregarItem;
+        private Button btnCancelarEdicion;
         private DataGridView dgvItemsMenu;
         private Button btnQuitarItem;
         private Button btnEditarItem;

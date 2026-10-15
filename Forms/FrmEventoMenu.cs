@@ -21,6 +21,8 @@ namespace ProyectoEventos.Forms
         public bool Finalizado { get; private set; }
         private int adultosEvento;
         private int ninosEvento;
+        // Plato que se está editando (0 = el formulario agrega platos nuevos)
+        private int idItemEditando;
         private List<ProductoDTO> productosDisponibles = new List<ProductoDTO>();
         private List<ServicioAdicionalDTO> serviciosDisponibles = new List<ServicioAdicionalDTO>();
 
@@ -85,21 +87,21 @@ namespace ProyectoEventos.Forms
             dgvItemsMenu.Columna("CantidadAdultos").HeaderText = "Adultos";
             dgvItemsMenu.Columna("CantidadNinos").HeaderText = "Niños";
             dgvItemsMenu.Columna("Subtotal").HeaderText = "Subtotal";
-
-            // Solo las cantidades se pueden editar en la grilla (doble clic, F2 o escribiendo un número)
-            foreach (DataGridViewColumn columna in dgvItemsMenu.Columns)
-            {
-                columna.ReadOnly = !EsColumnaCantidad(columna.Index);
-            }
-            dgvItemsMenu.Columna("CantidadAdultos").ToolTipText = "Doble clic para cambiar la cantidad";
-            dgvItemsMenu.Columna("CantidadNinos").ToolTipText = "Doble clic para cambiar la cantidad";
             LimpiarSeleccionGrilla(dgvItemsMenu);
 
             lblTotalMenu.Text = "Total menú: " + controlador.ObtenerTotalMenu(idEvento).ToString(Formato.Moneda);
         }
 
+        // Igual que "Guardar" en los otros ABM: si se está editando un plato guarda sus cantidades,
+        // si no agrega un plato por cada producto marcado.
         private void btnAgregarItem_Click(object sender, EventArgs e)
         {
+            if (idItemEditando != 0)
+            {
+                GuardarCambiosItem();
+                return;
+            }
+
             if (clbComponentes.CheckedIndices.Count == 0)
             {
                 Mensajes.Advertencia("Seleccione al menos un producto para el plato.");
@@ -140,6 +142,10 @@ namespace ProyectoEventos.Forms
             try
             {
                 controlador.QuitarItemDelMenu(idEvento, item.Id);
+                if (item.Id == idItemEditando)
+                {
+                    TerminarEdicionItem();
+                }
                 CargarGrillaItems();
             }
             catch (NegocioException ex)
@@ -148,79 +154,65 @@ namespace ProyectoEventos.Forms
             }
         }
 
-        // ---------- Edición de cantidades de un plato ----------
+        // ---------- Edición de un plato (como en los otros ABM: Editar carga, Guardar aplica) ----------
 
-        private bool EsColumnaCantidad(int indiceColumna)
-        {
-            string nombre = dgvItemsMenu.Columns[indiceColumna].Name;
-            return nombre == "CantidadAdultos" || nombre == "CantidadNinos";
-        }
-
+        // Carga las cantidades del plato seleccionado en el formulario de la izquierda.
+        // El producto no se cambia: para otro producto se quita el plato y se agrega uno nuevo.
         private void btnEditarItem_Click(object sender, EventArgs e)
         {
-            if (dgvItemsMenu.CurrentRow == null)
+            if (dgvItemsMenu.CurrentRow?.DataBoundItem is not ItemMenuResultadoDTO item)
             {
-                Mensajes.Advertencia("Seleccione un plato de la grilla para editar sus cantidades.");
+                Mensajes.Advertencia("Seleccione un plato de la grilla para editar.");
                 return;
             }
 
-            dgvItemsMenu.Focus();
-            dgvItemsMenu.CurrentCell = dgvItemsMenu.CurrentRow.Cells["CantidadAdultos"];
-            dgvItemsMenu.BeginEdit(true);
+            LimpiarSeleccionItem();
+            idItemEditando = item.Id;
+            numCantAdultosItem.Value = item.CantidadAdultos;
+            numCantNinosItem.Value = item.CantidadNinos;
+
+            lblComponentes.Text = "Editando: " + item.DescripcionComponentes;
+            btnAgregarItem.Text = "Guardar cambios";
+            btnCancelarEdicion.Visible = true;
+            numCantAdultosItem.Focus();
         }
 
-        private void dgvItemsMenu_CellDoubleClick(object? sender, DataGridViewCellEventArgs e)
+        private void GuardarCambiosItem()
         {
-            if (e.RowIndex < 0 || e.ColumnIndex < 0 || !EsColumnaCantidad(e.ColumnIndex))
+            if (clbComponentes.CheckedIndices.Count > 0)
             {
-                return;
-            }
-
-            dgvItemsMenu.CurrentCell = dgvItemsMenu.Rows[e.RowIndex].Cells[e.ColumnIndex];
-            dgvItemsMenu.BeginEdit(true);
-        }
-
-        private void dgvItemsMenu_CellValidating(object? sender, DataGridViewCellValidatingEventArgs e)
-        {
-            if (!dgvItemsMenu.IsCurrentCellInEditMode || !EsColumnaCantidad(e.ColumnIndex))
-            {
-                return;
-            }
-
-            if (!int.TryParse(Convert.ToString(e.FormattedValue), out int cantidad) || cantidad < 0)
-            {
-                Mensajes.Advertencia("Ingrese una cantidad entera, cero o mayor.");
-                dgvItemsMenu.CancelEdit();
-            }
-        }
-
-        // El valor nuevo ya quedó en la fila; se aplica al evento y se recarga la grilla
-        // (con el subtotal nuevo, o con los valores anteriores si la regla de negocio lo rechazó).
-        private void dgvItemsMenu_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
-        {
-            if (!EsColumnaCantidad(e.ColumnIndex) || dgvItemsMenu.Rows[e.RowIndex].DataBoundItem is not ItemMenuResultadoDTO item)
-            {
+                Mensajes.Advertencia("Al editar un plato solo se cambian las cantidades. Para usar otro producto, quite el plato y agréguelo de nuevo.");
                 return;
             }
 
             try
             {
-                controlador.CambiarCantidadesItem(idEvento, item.Id, item.CantidadAdultos, item.CantidadNinos);
+                int cantidadAdultos = Convert.ToInt32(numCantAdultosItem.Value);
+                int cantidadNinos = Convert.ToInt32(numCantNinosItem.Value);
+                controlador.CambiarCantidadesItem(idEvento, idItemEditando, cantidadAdultos, cantidadNinos);
+
+                TerminarEdicionItem();
+                CargarGrillaItems();
             }
             catch (NegocioException ex)
             {
                 Mensajes.Advertencia(ex.Message);
             }
-
-            // No se puede cambiar el DataSource dentro del evento de edición: se recarga apenas termina
-            BeginInvoke(CargarGrillaItems);
         }
 
-        private void dgvItemsMenu_DataError(object? sender, DataGridViewDataErrorEventArgs e)
+        private void btnCancelarEdicion_Click(object sender, EventArgs e)
         {
-            // Un valor que no se pudo convertir se descarta (CellValidating ya avisó al usuario)
-            e.ThrowException = false;
-            dgvItemsMenu.CancelEdit();
+            TerminarEdicionItem();
+        }
+
+        // Vuelve el formulario al modo "agregar plato"
+        private void TerminarEdicionItem()
+        {
+            idItemEditando = 0;
+            lblComponentes.Text = "Productos disponibles";
+            btnAgregarItem.Text = "Agregar plato";
+            btnCancelarEdicion.Visible = false;
+            LimpiarSeleccionItem();
         }
 
         private void LimpiarSeleccionItem()
@@ -258,6 +250,7 @@ namespace ProyectoEventos.Forms
             dgvServiciosEvento.Columna("Monto").DefaultCellStyle.Format = Formato.Moneda;
 
             dgvServiciosEvento.Columna("Id").Visible = false;
+            dgvServiciosEvento.Columna("Descripcion").HeaderText = "Descripción";
             LimpiarSeleccionGrilla(dgvServiciosEvento);
         }
 

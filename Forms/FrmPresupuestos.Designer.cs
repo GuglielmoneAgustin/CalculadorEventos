@@ -25,6 +25,7 @@ namespace ProyectoEventos.Forms
             btnAprobar = new Button();
             btnCancelar = new Button();
             btnImprimir = new Button();
+            btnActualizar = new Button();
             btnVolver = new Button();
             ((System.ComponentModel.ISupportInitialize)dgvPresupuestos).BeginInit();
             tlpRaiz.SuspendLayout();
@@ -55,6 +56,7 @@ namespace ProyectoEventos.Forms
             // flowBotones
             // 
             flowBotones.Controls.Add(btnAprobar);
+            flowBotones.Controls.Add(btnActualizar);
             flowBotones.Controls.Add(btnCancelar);
             flowBotones.Controls.Add(btnImprimir);
             flowBotones.Controls.Add(btnVolver);
@@ -91,7 +93,6 @@ namespace ProyectoEventos.Forms
             dgvPresupuestos.MultiSelect = false;
             dgvPresupuestos.ReadOnly = true;
             dgvPresupuestos.CellFormatting += dgvPresupuestos_CellFormatting;
-            dgvPresupuestos.CurrentCellChanged += dgvPresupuestos_CurrentCellChanged;
             dgvPresupuestos.RowHeadersWidth = 51;
             dgvPresupuestos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvPresupuestos.Name = "dgvPresupuestos";
@@ -116,6 +117,16 @@ namespace ProyectoEventos.Forms
             btnCancelar.Name = "btnCancelar";
             btnCancelar.TabIndex = 4;
             btnCancelar.Click += btnCancelar_Click;
+            // 
+            // btnActualizar
+            // 
+            btnActualizar.Margin = new Padding(10, 0, 10, 0);
+            btnActualizar.Size = new Size(200, 38);
+            btnActualizar.Text = "Actualizar presupuesto";
+            btnActualizar.UseVisualStyleBackColor = true;
+            btnActualizar.Name = "btnActualizar";
+            btnActualizar.TabIndex = 7;
+            btnActualizar.Click += btnActualizar_Click;
             // 
             // btnImprimir
             // 
@@ -167,6 +178,7 @@ namespace ProyectoEventos.Forms
         private Button btnAprobar;
         private Button btnCancelar;
         private Button btnImprimir;
+        private Button btnActualizar;
         private Button btnVolver;
     }
 }

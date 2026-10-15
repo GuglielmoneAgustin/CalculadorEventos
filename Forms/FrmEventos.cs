@@ -53,11 +53,23 @@ namespace ProyectoEventos.Forms
             dgvEventos.Columna("NombreLugar").HeaderText = "Lugar";
             dgvEventos.Columna("Fecha").HeaderText = "Fecha y hora";
             dgvEventos.Columna("HorasDuracion").HeaderText = "Duración (hs)";
-            dgvEventos.Columna("CantidadAdultos").HeaderText = "Adultos";
-            dgvEventos.Columna("CantidadNinos").HeaderText = "Niños";
+            dgvEventos.Columna("CantidadAdultos").Visible = false;
+            dgvEventos.Columna("CantidadNinos").Visible = false;
             dgvEventos.Columna("EstadoPresupuesto").HeaderText = "Presupuesto";
+            dgvEventos.Columna("Total").HeaderText = "Total";
+            dgvEventos.Columna("Total").DefaultCellStyle.Format = Formato.Moneda;
             dgvEventos.Columna("IdCliente").Visible = false;
             dgvEventos.Columna("IdLugar").Visible = false;
+            
+            // Ancho relativo de cada columna: el número y los valores cortos ocupan menos
+            dgvEventos.Columna("Id").FillWeight = 35;
+            dgvEventos.Columna("NombreCliente").FillWeight = 130;
+            dgvEventos.Columna("NombreLugar").FillWeight = 120;
+            dgvEventos.Columna("Fecha").FillWeight = 120;
+            dgvEventos.Columna("HorasDuracion").FillWeight = 70;
+            dgvEventos.Columna("Invitados").FillWeight = 70;
+            dgvEventos.Columna("EstadoPresupuesto").FillWeight = 95;
+            dgvEventos.Columna("Total").FillWeight = 115;
 
             if (dgvEventos.Rows.Count > 0)
             {

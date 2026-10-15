@@ -111,6 +111,9 @@ namespace ProyectoEventos.Service
             dto.NombreCliente = presupuesto.NombreCliente;
             dto.NombreLugar = presupuesto.NombreLugar;
             dto.FechaGeneracion = presupuesto.FechaGeneracion;
+            dto.FechaEvento = presupuesto.FechaEvento;
+            dto.CantidadAdultos = presupuesto.CantidadAdultos;
+            dto.CantidadNinos = presupuesto.CantidadNinos;
             dto.CostoTotal = presupuesto.CalcularTotal();
             dto.Estado = presupuesto.Estado;
             dto.Vigente = presupuesto.EventoAsociado.EsVigente(presupuesto);

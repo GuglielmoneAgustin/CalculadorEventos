@@ -26,19 +26,19 @@ namespace ProyectoEventos.Forms
             dgvProximosEventos.DataSource = null;
             dgvProximosEventos.DataSource = eventoControlador.ObtenerProximosAprobados();
             dgvProximosEventos.Columna("Fecha").DefaultCellStyle.Format = Formato.FechaHora;
-            if (dgvProximosEventos.Columns["Id"] != null)
-            {
-                dgvProximosEventos.Columna("NombreCliente").HeaderText = "Cliente";
-                dgvProximosEventos.Columna("NombreLugar").HeaderText = "Lugar";
-                dgvProximosEventos.Columna("Fecha").HeaderText = "Fecha y hora";
-                dgvProximosEventos.Columna("IdCliente").Visible = false;
-                dgvProximosEventos.Columna("IdLugar").Visible = false;
-                dgvProximosEventos.Columna("Id").Visible = false;
-                dgvProximosEventos.Columna("HorasDuracion").Visible = false;
-                dgvProximosEventos.Columna("CantidadAdultos").Visible = false;
-                dgvProximosEventos.Columna("CantidadNinos").Visible = false;
-                dgvProximosEventos.Columna("EstadoPresupuesto").Visible = false;
-            }
+            dgvProximosEventos.Columna("NombreCliente").HeaderText = "Cliente";
+            dgvProximosEventos.Columna("NombreLugar").HeaderText = "Lugar";
+            dgvProximosEventos.Columna("Fecha").HeaderText = "Fecha y hora";
+            // Todos los eventos de esta lista están aprobados: el total es el del presupuesto aprobado
+            dgvProximosEventos.Columna("Total").HeaderText = "Total aprobado";
+            dgvProximosEventos.Columna("Total").DefaultCellStyle.Format = Formato.Moneda;
+            dgvProximosEventos.Columna("IdCliente").Visible = false;
+            dgvProximosEventos.Columna("IdLugar").Visible = false;
+            dgvProximosEventos.Columna("Id").Visible = false;
+            dgvProximosEventos.Columna("HorasDuracion").Visible = false;
+            dgvProximosEventos.Columna("CantidadAdultos").Visible = false;
+            dgvProximosEventos.Columna("CantidadNinos").Visible = false;
+            dgvProximosEventos.Columna("EstadoPresupuesto").Visible = false;
             dgvProximosEventos.ClearSelection();
             dgvProximosEventos.CurrentCell = null;
         }

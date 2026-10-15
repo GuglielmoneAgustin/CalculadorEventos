@@ -87,17 +87,23 @@ namespace ProyectoEventos.Domain
             return total;
         }
 
-        // Solo un presupuesto en espera puede aprobarse.
+        // Se puede aprobar uno en espera o uno cancelado (el cliente se arrepintió);
+        // que siga vigente lo controla el Evento.
         internal void ValidarQuePuedeAprobarse()
         {
             if (Estado == EstadoPresupuesto.Aprobado)
             {
                 throw new ReglaNegocioException("El presupuesto ya está aprobado.");
             }
-            if (Estado == EstadoPresupuesto.Cancelado)
-            {
-                throw new ReglaNegocioException("Un presupuesto cancelado no se puede aprobar. Genere un presupuesto nuevo.");
-            }
+        }
+
+        // Compara los precios cotizados con los actuales del evento. Como el evento no cambió
+        // (mismos platos, cantidades y servicios), alcanza con comparar cada subtotal.
+        internal bool CoincidenPreciosCon(Evento evento)
+        {
+            return CostoLugar == evento.Lugar.CostoBase
+                && CalcularSubtotalMenu() == evento.Menu.CalcularSubtotal()
+                && CalcularSubtotalServicios() == evento.CalcularSubtotalServicios();
         }
 
         internal void Aprobar()
