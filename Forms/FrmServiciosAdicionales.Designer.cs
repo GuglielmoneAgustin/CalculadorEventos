@@ -33,6 +33,7 @@ namespace ProyectoEventos.Forms
             lbldgvServiciosAdicionales = new Label();
             dgvServicios = new DataGridView();
             txtBuscar = new TextBox();
+            lblBuscar = new Label();
             btnVolver = new Button();
             ((System.ComponentModel.ISupportInitialize)numMonto).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dgvServicios).BeginInit();
@@ -95,13 +96,24 @@ namespace ProyectoEventos.Forms
             // 
             // tlpGrilla
             // 
-            tlpGrilla.ColumnCount = 2;
+            tlpGrilla.ColumnCount = 3;
             tlpGrilla.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tlpGrilla.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             tlpGrilla.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 280F));
             tlpGrilla.Controls.Add(lbldgvServiciosAdicionales, 0, 0);
-            tlpGrilla.Controls.Add(txtBuscar, 1, 0);
+            tlpGrilla.Controls.Add(lblBuscar, 1, 0);
+            tlpGrilla.Controls.Add(txtBuscar, 2, 0);
             tlpGrilla.Controls.Add(dgvServicios, 0, 1);
-            tlpGrilla.SetColumnSpan(dgvServicios, 2);
+            tlpGrilla.SetColumnSpan(dgvServicios, 3);
+            // 
+            // lblBuscar
+            // 
+            lblBuscar.Anchor = AnchorStyles.Right;
+            lblBuscar.AutoSize = true;
+            lblBuscar.Margin = new Padding(3, 12, 6, 3);
+            lblBuscar.Name = "lblBuscar";
+            lblBuscar.TabIndex = 19;
+            lblBuscar.Text = "Buscar:";
             // 
             // txtBuscar
             // 
@@ -121,7 +133,7 @@ namespace ProyectoEventos.Forms
             // 
             lblNombre.AutoSize = true;
             lblNombre.Margin = new Padding(3, 12, 3, 3);
-            lblNombre.Text = "Nombre :";
+            lblNombre.Text = "Nombre:";
             lblNombre.Name = "lblNombre";
             lblNombre.TabIndex = 0;
             // 
@@ -135,7 +147,7 @@ namespace ProyectoEventos.Forms
             // 
             lblDescripcion.AutoSize = true;
             lblDescripcion.Margin = new Padding(3, 12, 3, 3);
-            lblDescripcion.Text = "Descripción :";
+            lblDescripcion.Text = "Descripción:";
             lblDescripcion.Name = "lblDescripcion";
             lblDescripcion.TabIndex = 2;
             // 
@@ -152,7 +164,7 @@ namespace ProyectoEventos.Forms
             // 
             lblMonto.AutoSize = true;
             lblMonto.Margin = new Padding(3, 12, 3, 3);
-            lblMonto.Text = "Monto :";
+            lblMonto.Text = "Monto:";
             lblMonto.Name = "lblMonto";
             lblMonto.TabIndex = 4;
             // 
@@ -269,6 +281,7 @@ namespace ProyectoEventos.Forms
         private Label lbldgvServiciosAdicionales;
         private DataGridView dgvServicios;
         private TextBox txtBuscar;
+        private Label lblBuscar;
         private Button btnVolver;
     }
 }

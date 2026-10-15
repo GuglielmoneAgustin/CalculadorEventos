@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using ProyectoEventos.Controller;
+using ProyectoEventos.Dto;
 using ProyectoEventos.Forms.Utils;
 
 namespace ProyectoEventos.Forms
@@ -18,7 +19,18 @@ namespace ProyectoEventos.Forms
 
         private void FrmInicio_Load(object sender, EventArgs e)
         {
+            CargarResumen();
             CargarProximosEventos();
+        }
+
+        // Tarjetas de arriba: próximos eventos, eventos esperando aprobación y total aprobado del mes
+        private void CargarResumen()
+        {
+            ResumenEventosDTO resumen = eventoControlador.ObtenerResumen();
+            lblResumenValorProximos.Text = resumen.ProximosAprobados.ToString();
+            lblResumenValorEnEspera.Text = resumen.EnEspera.ToString();
+            lblResumenTituloMes.Text = "Aprobado en " + DateTime.Today.ToString("MMMM");
+            lblResumenValorMes.Text = resumen.TotalAprobadoMes.ToString(Formato.Moneda);
         }
 
         private void CargarProximosEventos()

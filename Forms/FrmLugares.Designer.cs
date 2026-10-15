@@ -35,6 +35,7 @@ namespace ProyectoEventos.Forms
             lblDgvLugares = new Label();
             dgvLugares = new DataGridView();
             txtBuscar = new TextBox();
+            lblBuscar = new Label();
             btnVolver = new Button();
             ((System.ComponentModel.ISupportInitialize)numCosto).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numCapacidad).BeginInit();
@@ -102,13 +103,24 @@ namespace ProyectoEventos.Forms
             // 
             // tlpGrilla
             // 
-            tlpGrilla.ColumnCount = 2;
+            tlpGrilla.ColumnCount = 3;
             tlpGrilla.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tlpGrilla.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             tlpGrilla.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 280F));
             tlpGrilla.Controls.Add(lblDgvLugares, 0, 0);
-            tlpGrilla.Controls.Add(txtBuscar, 1, 0);
+            tlpGrilla.Controls.Add(lblBuscar, 1, 0);
+            tlpGrilla.Controls.Add(txtBuscar, 2, 0);
             tlpGrilla.Controls.Add(dgvLugares, 0, 1);
-            tlpGrilla.SetColumnSpan(dgvLugares, 2);
+            tlpGrilla.SetColumnSpan(dgvLugares, 3);
+            // 
+            // lblBuscar
+            // 
+            lblBuscar.Anchor = AnchorStyles.Right;
+            lblBuscar.AutoSize = true;
+            lblBuscar.Margin = new Padding(3, 12, 6, 3);
+            lblBuscar.Name = "lblBuscar";
+            lblBuscar.TabIndex = 19;
+            lblBuscar.Text = "Buscar:";
             // 
             // txtBuscar
             // 
@@ -128,7 +140,7 @@ namespace ProyectoEventos.Forms
             // 
             lblNombre.AutoSize = true;
             lblNombre.Margin = new Padding(3, 12, 3, 3);
-            lblNombre.Text = "Nombre :";
+            lblNombre.Text = "Nombre:";
             lblNombre.Name = "lblNombre";
             lblNombre.TabIndex = 0;
             // 
@@ -142,7 +154,7 @@ namespace ProyectoEventos.Forms
             // 
             lblCostoBase.AutoSize = true;
             lblCostoBase.Margin = new Padding(3, 12, 3, 3);
-            lblCostoBase.Text = "Costo :";
+            lblCostoBase.Text = "Costo base:";
             lblCostoBase.Name = "lblCostoBase";
             lblCostoBase.TabIndex = 2;
             // 
@@ -157,7 +169,7 @@ namespace ProyectoEventos.Forms
             // 
             lblCapacidad.AutoSize = true;
             lblCapacidad.Margin = new Padding(3, 12, 3, 3);
-            lblCapacidad.Text = "Capacidad :";
+            lblCapacidad.Text = "Capacidad:";
             lblCapacidad.Name = "lblCapacidad";
             lblCapacidad.TabIndex = 4;
             // 
@@ -172,7 +184,7 @@ namespace ProyectoEventos.Forms
             // 
             lblUbicacion.AutoSize = true;
             lblUbicacion.Margin = new Padding(3, 12, 3, 3);
-            lblUbicacion.Text = "Ubicación :";
+            lblUbicacion.Text = "Ubicación:";
             lblUbicacion.Name = "lblUbicacion";
             lblUbicacion.TabIndex = 6;
             // 
@@ -292,6 +304,7 @@ namespace ProyectoEventos.Forms
         private Label lblDgvLugares;
         private DataGridView dgvLugares;
         private TextBox txtBuscar;
+        private Label lblBuscar;
         private Button btnVolver;
     }
 }

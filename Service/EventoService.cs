@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ProyectoEventos.Common;
 using ProyectoEventos.Domain;
 using ProyectoEventos.Dto;
 using ProyectoEventos.Repository;
@@ -84,6 +85,32 @@ namespace ProyectoEventos.Service
                 .OrderBy(evento => evento.Fecha)
                 .Select(MapearAResultado)
                 .ToList();
+        }
+
+        public ResumenEventosDTO ObtenerResumen()
+        {
+            DateTime ahora = DateTime.Now;
+            ResumenEventosDTO resumen = new ResumenEventosDTO();
+
+            foreach (Evento evento in repositorio.ObtenerTodos())
+            {
+                if (evento.EsProximoAprobado(ahora))
+                {
+                    resumen.ProximosAprobados++;
+                }
+                if (evento.ObtenerEstadoPresupuesto() == EstadoPresupuesto.EnEspera)
+                {
+                    resumen.EnEspera++;
+                }
+
+                Presupuesto? aprobado = evento.ObtenerPresupuestoAprobado();
+                if (aprobado != null && evento.Fecha.Year == ahora.Year && evento.Fecha.Month == ahora.Month)
+                {
+                    resumen.TotalAprobadoMes += aprobado.CalcularTotal();
+                }
+            }
+
+            return resumen;
         }
 
         public void AgregarItemAlMenu(int idEvento, ItemMenuDTO itemDto)

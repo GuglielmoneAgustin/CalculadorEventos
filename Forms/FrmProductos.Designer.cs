@@ -37,6 +37,7 @@ namespace ProyectoEventos.Forms
             lblDgvProductos = new Label();
             dgvProductos = new DataGridView();
             txtBuscar = new TextBox();
+            lblBuscar = new Label();
             btnVolver = new Button();
             ((System.ComponentModel.ISupportInitialize)numPrecioAdulto).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numPrecioNino).BeginInit();
@@ -108,13 +109,24 @@ namespace ProyectoEventos.Forms
             // 
             // tlpGrilla
             // 
-            tlpGrilla.ColumnCount = 2;
+            tlpGrilla.ColumnCount = 3;
             tlpGrilla.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tlpGrilla.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             tlpGrilla.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 280F));
             tlpGrilla.Controls.Add(lblDgvProductos, 0, 0);
-            tlpGrilla.Controls.Add(txtBuscar, 1, 0);
+            tlpGrilla.Controls.Add(lblBuscar, 1, 0);
+            tlpGrilla.Controls.Add(txtBuscar, 2, 0);
             tlpGrilla.Controls.Add(dgvProductos, 0, 1);
-            tlpGrilla.SetColumnSpan(dgvProductos, 2);
+            tlpGrilla.SetColumnSpan(dgvProductos, 3);
+            // 
+            // lblBuscar
+            // 
+            lblBuscar.Anchor = AnchorStyles.Right;
+            lblBuscar.AutoSize = true;
+            lblBuscar.Margin = new Padding(3, 12, 6, 3);
+            lblBuscar.Name = "lblBuscar";
+            lblBuscar.TabIndex = 19;
+            lblBuscar.Text = "Buscar:";
             // 
             // txtBuscar
             // 
@@ -134,7 +146,7 @@ namespace ProyectoEventos.Forms
             // 
             lblNombre.AutoSize = true;
             lblNombre.Margin = new Padding(3, 12, 3, 3);
-            lblNombre.Text = "Nombre :";
+            lblNombre.Text = "Nombre:";
             lblNombre.Name = "lblNombre";
             lblNombre.TabIndex = 0;
             // 
@@ -148,7 +160,7 @@ namespace ProyectoEventos.Forms
             // 
             lblPrecioAdulto.AutoSize = true;
             lblPrecioAdulto.Margin = new Padding(3, 12, 3, 3);
-            lblPrecioAdulto.Text = "Precio adulto :";
+            lblPrecioAdulto.Text = "Precio adulto:";
             lblPrecioAdulto.Name = "lblPrecioAdulto";
             lblPrecioAdulto.TabIndex = 2;
             // 
@@ -163,7 +175,7 @@ namespace ProyectoEventos.Forms
             // 
             lblPrecioNino.AutoSize = true;
             lblPrecioNino.Margin = new Padding(3, 12, 3, 3);
-            lblPrecioNino.Text = "Precio niño :";
+            lblPrecioNino.Text = "Precio niño:";
             lblPrecioNino.Name = "lblPrecioNino";
             lblPrecioNino.TabIndex = 4;
             // 
@@ -178,7 +190,7 @@ namespace ProyectoEventos.Forms
             // 
             lblEnumCategoria.AutoSize = true;
             lblEnumCategoria.Margin = new Padding(3, 12, 3, 3);
-            lblEnumCategoria.Text = "Categoría :";
+            lblEnumCategoria.Text = "Categoría:";
             lblEnumCategoria.Name = "lblEnumCategoria";
             lblEnumCategoria.TabIndex = 6;
             // 
@@ -186,6 +198,7 @@ namespace ProyectoEventos.Forms
             // 
             cmbEnumCategoria.Dock = DockStyle.Fill;
             cmbEnumCategoria.FormattingEnabled = true;
+            cmbEnumCategoria.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbEnumCategoria.Name = "cmbEnumCategoria";
             cmbEnumCategoria.TabIndex = 7;
             // 
@@ -193,7 +206,7 @@ namespace ProyectoEventos.Forms
             // 
             lblEnumRestriccion.AutoSize = true;
             lblEnumRestriccion.Margin = new Padding(3, 12, 3, 3);
-            lblEnumRestriccion.Text = "Restricción :";
+            lblEnumRestriccion.Text = "Restricción:";
             lblEnumRestriccion.Name = "lblEnumRestriccion";
             lblEnumRestriccion.TabIndex = 8;
             // 
@@ -201,6 +214,7 @@ namespace ProyectoEventos.Forms
             // 
             cmbEnumRestriccion.Dock = DockStyle.Fill;
             cmbEnumRestriccion.FormattingEnabled = true;
+            cmbEnumRestriccion.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbEnumRestriccion.Name = "cmbEnumRestriccion";
             cmbEnumRestriccion.TabIndex = 9;
             // 
@@ -316,6 +330,7 @@ namespace ProyectoEventos.Forms
         private Label lblDgvProductos;
         private DataGridView dgvProductos;
         private TextBox txtBuscar;
+        private Label lblBuscar;
         private Button btnVolver;
     }
 }

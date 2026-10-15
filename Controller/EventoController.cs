@@ -38,6 +38,11 @@ namespace ProyectoEventos.Controller
             return servicio.ObtenerProximosAprobadosComoDto();
         }
 
+        public ResumenEventosDTO ObtenerResumen()
+        {
+            return servicio.ObtenerResumen();
+        }
+
         public void AgregarItemAlMenu(int idEvento, ItemMenuDTO itemDto)
         {
             servicio.AgregarItemAlMenu(idEvento, itemDto);

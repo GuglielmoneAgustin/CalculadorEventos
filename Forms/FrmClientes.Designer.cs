@@ -35,6 +35,7 @@ namespace ProyectoEventos.Forms
             lblDgvClientes = new Label();
             dgvClientes = new DataGridView();
             txtBuscar = new TextBox();
+            lblBuscar = new Label();
             btnVolver = new Button();
             ((System.ComponentModel.ISupportInitialize)dgvClientes).BeginInit();
             tlpRaiz.SuspendLayout();
@@ -100,13 +101,24 @@ namespace ProyectoEventos.Forms
             // 
             // tlpGrilla
             // 
-            tlpGrilla.ColumnCount = 2;
+            tlpGrilla.ColumnCount = 3;
             tlpGrilla.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tlpGrilla.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             tlpGrilla.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 280F));
             tlpGrilla.Controls.Add(lblDgvClientes, 0, 0);
-            tlpGrilla.Controls.Add(txtBuscar, 1, 0);
+            tlpGrilla.Controls.Add(lblBuscar, 1, 0);
+            tlpGrilla.Controls.Add(txtBuscar, 2, 0);
             tlpGrilla.Controls.Add(dgvClientes, 0, 1);
-            tlpGrilla.SetColumnSpan(dgvClientes, 2);
+            tlpGrilla.SetColumnSpan(dgvClientes, 3);
+            // 
+            // lblBuscar
+            // 
+            lblBuscar.Anchor = AnchorStyles.Right;
+            lblBuscar.AutoSize = true;
+            lblBuscar.Margin = new Padding(3, 12, 6, 3);
+            lblBuscar.Name = "lblBuscar";
+            lblBuscar.TabIndex = 19;
+            lblBuscar.Text = "Buscar:";
             // 
             // txtBuscar
             // 
@@ -126,7 +138,7 @@ namespace ProyectoEventos.Forms
             // 
             lblNombre.AutoSize = true;
             lblNombre.Margin = new Padding(3, 12, 3, 3);
-            lblNombre.Text = "Nombre :";
+            lblNombre.Text = "Nombre:";
             lblNombre.Name = "lblNombre";
             lblNombre.TabIndex = 0;
             // 
@@ -140,7 +152,7 @@ namespace ProyectoEventos.Forms
             // 
             lblDni.AutoSize = true;
             lblDni.Margin = new Padding(3, 12, 3, 3);
-            lblDni.Text = "DNI :";
+            lblDni.Text = "DNI:";
             lblDni.Name = "lblDni";
             lblDni.TabIndex = 2;
             // 
@@ -154,7 +166,7 @@ namespace ProyectoEventos.Forms
             // 
             lblMail.AutoSize = true;
             lblMail.Margin = new Padding(3, 12, 3, 3);
-            lblMail.Text = "Mail :";
+            lblMail.Text = "Mail:";
             lblMail.Name = "lblMail";
             lblMail.TabIndex = 4;
             // 
@@ -168,7 +180,7 @@ namespace ProyectoEventos.Forms
             // 
             lblTelefono.AutoSize = true;
             lblTelefono.Margin = new Padding(3, 12, 3, 3);
-            lblTelefono.Text = "Teléfono :";
+            lblTelefono.Text = "Teléfono:";
             lblTelefono.Name = "lblTelefono";
             lblTelefono.TabIndex = 6;
             // 
@@ -286,6 +298,7 @@ namespace ProyectoEventos.Forms
         private Label lblDgvClientes;
         private DataGridView dgvClientes;
         private TextBox txtBuscar;
+        private Label lblBuscar;
         private Button btnVolver;
     }
 }

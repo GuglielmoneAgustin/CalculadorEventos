@@ -97,7 +97,7 @@ namespace ProyectoEventos.Forms
             lblCliente.Margin = new Padding(3, 0, 3, 3);
             lblCliente.Name = "lblCliente";
             lblCliente.TabIndex = 0;
-            lblCliente.Text = "Cliente :";
+            lblCliente.Text = "Cliente:";
             // 
             // cmbCliente
             // 
@@ -113,7 +113,7 @@ namespace ProyectoEventos.Forms
             lblLugar.Margin = new Padding(3, 14, 3, 3);
             lblLugar.Name = "lblLugar";
             lblLugar.TabIndex = 2;
-            lblLugar.Text = "Lugar :";
+            lblLugar.Text = "Lugar:";
             // 
             // cmbLugar
             // 
@@ -129,7 +129,7 @@ namespace ProyectoEventos.Forms
             lblFechaHora.Margin = new Padding(3, 14, 3, 3);
             lblFechaHora.Name = "lblFechaHora";
             lblFechaHora.TabIndex = 4;
-            lblFechaHora.Text = "Fecha y hora :";
+            lblFechaHora.Text = "Fecha y hora:";
             // 
             // dtpFechaHora
             // 
@@ -146,7 +146,7 @@ namespace ProyectoEventos.Forms
             lblHorasDuracion.Margin = new Padding(3, 14, 3, 3);
             lblHorasDuracion.Name = "lblHorasDuracion";
             lblHorasDuracion.TabIndex = 6;
-            lblHorasDuracion.Text = "Duración (hs) :";
+            lblHorasDuracion.Text = "Duración (hs):";
             // 
             // numHorasDuracion
             // 
@@ -163,7 +163,7 @@ namespace ProyectoEventos.Forms
             lblCantidadAdultos.Margin = new Padding(3, 14, 3, 3);
             lblCantidadAdultos.Name = "lblCantidadAdultos";
             lblCantidadAdultos.TabIndex = 8;
-            lblCantidadAdultos.Text = "Cantidad adultos :";
+            lblCantidadAdultos.Text = "Cantidad adultos:";
             // 
             // numCantidadAdultos
             // 
@@ -178,7 +178,7 @@ namespace ProyectoEventos.Forms
             lblCantidadNinos.Margin = new Padding(3, 14, 3, 3);
             lblCantidadNinos.Name = "lblCantidadNinos";
             lblCantidadNinos.TabIndex = 10;
-            lblCantidadNinos.Text = "Cantidad niños :";
+            lblCantidadNinos.Text = "Cantidad niños:";
             // 
             // numCantidadNinos
             // 

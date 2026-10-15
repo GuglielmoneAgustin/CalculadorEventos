@@ -38,6 +38,7 @@ namespace ProyectoEventos.Forms.Utils
         private static readonly Font FuenteTitulo = new Font("Segoe UI", 12F, FontStyle.Bold);
         private static readonly Font FuenteCampo = new Font("Segoe UI", 10.5F);
         private static readonly Font FuenteEncabezado = new Font("Segoe UI", 16F, FontStyle.Bold);
+        private static readonly Font FuenteResumen = new Font("Segoe UI", 18F, FontStyle.Bold);
 
         public static void Aplicar(Form form)
         {
@@ -98,6 +99,14 @@ namespace ProyectoEventos.Forms.Utils
                         combo.BackColor = Campo;
                         combo.ForeColor = Texto;
                         combo.Font = FuenteCampo;
+                        // En los de solo selección Windows ignora BackColor: se dibujan los ítems a mano
+                        if (combo.DropDownStyle == ComboBoxStyle.DropDownList)
+                        {
+                            combo.DrawMode = DrawMode.OwnerDrawFixed;
+                            combo.ItemHeight = FuenteCampo.Height + 6;
+                            combo.DrawItem -= DibujarItemCombo;
+                            combo.DrawItem += DibujarItemCombo;
+                        }
                         break;
                     case DateTimePicker fecha:
                         fecha.Font = FuenteCampo;
@@ -162,6 +171,29 @@ namespace ProyectoEventos.Forms.Utils
             }
         }
 
+        // Fondo de campo para el valor elegido y la lista; el ítem resaltado de la lista, en pistacho.
+        // GetItemText respeta DisplayMember y el evento Format (por ejemplo, los textos con tildes).
+        private static void DibujarItemCombo(object? sender, DrawItemEventArgs e)
+        {
+            if (sender is not ComboBox combo)
+            {
+                return;
+            }
+
+            bool resaltado = (e.State & DrawItemState.Selected) != 0 && (e.State & DrawItemState.ComboBoxEdit) == 0;
+            using (SolidBrush fondo = new SolidBrush(resaltado ? Pistache : Campo))
+            {
+                e.Graphics.FillRectangle(fondo, e.Bounds);
+            }
+
+            if (e.Index >= 0)
+            {
+                Rectangle area = new Rectangle(e.Bounds.X + 3, e.Bounds.Y, e.Bounds.Width - 3, e.Bounds.Height);
+                TextRenderer.DrawText(e.Graphics, combo.GetItemText(combo.Items[e.Index]), combo.Font, area, Texto,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+            }
+        }
+
         private static void EstilarEtiqueta(Label etiqueta)
         {
             string nombre = etiqueta.Name.ToLowerInvariant();
@@ -187,6 +219,12 @@ namespace ProyectoEventos.Forms.Utils
             else if (nombre == "lbltotalmenu")
             {
                 etiqueta.Font = FuenteInfo;
+                etiqueta.ForeColor = Texto;
+            }
+            else if (nombre.StartsWith("lblresumenvalor", StringComparison.Ordinal))
+            {
+                // Número grande de las tarjetas de resumen (pantalla de inicio)
+                etiqueta.Font = FuenteResumen;
                 etiqueta.ForeColor = Texto;
             }
             else
