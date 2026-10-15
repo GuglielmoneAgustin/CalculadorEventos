@@ -1,0 +1,150 @@
+using System;
+using System.Windows.Forms;
+using ProyectoEventos.Common;
+using ProyectoEventos.Controller;
+using ProyectoEventos.Dto;
+using ProyectoEventos.Common.Exceptions;
+using ProyectoEventos.Forms.Utils;
+
+namespace ProyectoEventos.Forms
+{
+    public partial class FrmEventos : Form
+    {
+        private readonly EventoController controlador;
+
+        public FrmEventos()
+        {
+            InitializeComponent();
+            Tema.Aplicar(this);
+            controlador = new EventoController();
+        }
+
+        private void FrmEventos_Load(object sender, EventArgs e)
+        {
+            CargarGrilla();
+        }
+
+        private void btnVolver_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void CargarGrilla()
+        {
+            dgvEventos.DataSource = null;
+            dgvEventos.DataSource = controlador.ObtenerTodos();
+            dgvEventos.Columna("Fecha").DefaultCellStyle.Format = Formato.FechaHora;
+
+            dgvEventos.Columna("Id").HeaderText = "N°";
+            dgvEventos.Columna("NombreCliente").HeaderText = "Cliente";
+            dgvEventos.Columna("NombreLugar").HeaderText = "Lugar";
+            dgvEventos.Columna("Fecha").HeaderText = "Fecha y hora";
+            dgvEventos.Columna("HorasDuracion").HeaderText = "Duración (hs)";
+            dgvEventos.Columna("CantidadAdultos").HeaderText = "Adultos";
+            dgvEventos.Columna("CantidadNinos").HeaderText = "Niños";
+            dgvEventos.Columna("EstadoPresupuesto").HeaderText = "Presupuesto";
+            dgvEventos.Columna("IdCliente").Visible = false;
+            dgvEventos.Columna("IdLugar").Visible = false;
+
+            if (dgvEventos.Rows.Count > 0)
+            {
+                dgvEventos.ClearSelection();
+                dgvEventos.CurrentCell = null;
+            }
+        }
+
+        // Muestra en la grilla si el evento tiene presupuesto aprobado, en espera, cancelado o ninguno
+        private void dgvEventos_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0 || dgvEventos.Columns[e.ColumnIndex].Name != "EstadoPresupuesto")
+            {
+                return;
+            }
+
+            EstadoPresupuestoVista.Aplicar(e, e.Value as EstadoPresupuesto?, dgvEventos.DefaultCellStyle.Font ?? dgvEventos.Font);
+        }
+
+        private EventoResultadoDTO? ObtenerSeleccionado()
+        {
+            return dgvEventos.Seleccionado<EventoResultadoDTO>();
+        }
+
+        // Abre la pantalla dentro del panel principal; al volver se refresca la grilla
+        private void AbrirSubpantalla(Form pantalla)
+        {
+            if (ParentForm is FrmPrincipal principal)
+            {
+                principal.AbrirSubpantalla(pantalla, CargarGrilla);
+            }
+            else
+            {
+                pantalla.ShowDialog();
+                CargarGrilla();
+            }
+        }
+
+        private void btnNuevo_Click(object sender, EventArgs e)
+        {
+            AbrirSubpantalla(new FrmEventoDatos());
+        }
+
+        private void btnEditar_Click(object sender, EventArgs e)
+        {
+            EventoResultadoDTO? seleccionado = ObtenerSeleccionado();
+            if (seleccionado == null)
+            {
+                Mensajes.Advertencia("Seleccione un evento de la grilla para editar.");
+                return;
+            }
+
+            AbrirSubpantalla(new FrmEventoDatos(seleccionado));
+        }
+
+        private void btnMenu_Click(object sender, EventArgs e)
+        {
+            EventoResultadoDTO? seleccionado = ObtenerSeleccionado();
+            if (seleccionado == null)
+            {
+                Mensajes.Advertencia("Seleccione un evento de la grilla para editar su menú.");
+                return;
+            }
+
+            AbrirSubpantalla(new FrmEventoMenu(seleccionado.Id));
+        }
+
+        private void btnPresupuestos_Click(object sender, EventArgs e)
+        {
+            EventoResultadoDTO? seleccionado = ObtenerSeleccionado();
+            if (seleccionado == null)
+            {
+                Mensajes.Advertencia("Seleccione un evento de la grilla para ver sus presupuestos.");
+                return;
+            }
+
+            AbrirSubpantalla(new FrmPresupuestos(seleccionado.Id));
+        }
+
+        private void btnEliminar_Click(object sender, EventArgs e)
+        {
+            EventoResultadoDTO? seleccionado = ObtenerSeleccionado();
+            if (seleccionado == null)
+            {
+                Mensajes.Advertencia("Seleccione un evento de la grilla para eliminar.");
+                return;
+            }
+
+            if (Mensajes.Confirmar("¿Seguro que desea eliminar este evento?"))
+            {
+                try
+                {
+                    controlador.Eliminar(seleccionado.Id);
+                    CargarGrilla();
+                }
+                catch (NegocioException ex)
+                {
+                    Mensajes.Advertencia(ex.Message);
+                }
+            }
+        }
+    }
+}

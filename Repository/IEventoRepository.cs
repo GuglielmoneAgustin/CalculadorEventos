@@ -1,0 +1,16 @@
+using System;
+using ProyectoEventos.Domain;
+
+namespace ProyectoEventos.Repository
+{
+    // Consultas propias de los eventos, además de las operaciones comunes de IRepository.
+    public interface IEventoRepository : IRepository<Evento>
+    {
+        bool TieneClienteAsociado(int idCliente);
+        bool TieneLugarAsociado(int idLugar);
+        bool TieneProductoAsociado(int idProducto);
+        bool TieneServicioAsociado(int idServicio);
+        bool HayEventoEnLugarEnHorario(int idLugar, DateTime fecha, decimal horasDuracion, int idEventoAIgnorar);
+        bool TieneEventoQueNoEntraEn(Lugar lugar);
+    }
+}
