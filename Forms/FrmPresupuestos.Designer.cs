@@ -91,6 +91,7 @@ namespace ProyectoEventos.Forms
             dgvPresupuestos.MultiSelect = false;
             dgvPresupuestos.ReadOnly = true;
             dgvPresupuestos.CellFormatting += dgvPresupuestos_CellFormatting;
+            dgvPresupuestos.CurrentCellChanged += dgvPresupuestos_CurrentCellChanged;
             dgvPresupuestos.RowHeadersWidth = 51;
             dgvPresupuestos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvPresupuestos.Name = "dgvPresupuestos";

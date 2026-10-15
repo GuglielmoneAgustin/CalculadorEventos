@@ -10,6 +10,7 @@ namespace ProyectoEventos.Forms
     public partial class FrmClientes : Form
     {
         private readonly ClienteController controlador;
+        private List<ClienteDTO> clientes = new List<ClienteDTO>();
         private int idSeleccionado;
 
         public FrmClientes()
@@ -32,8 +33,20 @@ namespace ProyectoEventos.Forms
 
         private void CargarGrilla()
         {
+            clientes = controlador.ObtenerTodos();
+            MostrarGrilla();
+        }
+
+        private void txtBuscar_TextChanged(object? sender, EventArgs e)
+        {
+            MostrarGrilla();
+        }
+
+        // Muestra los clientes que coinciden con el texto de búsqueda (sin volver a pedirlos al controlador)
+        private void MostrarGrilla()
+        {
             dgvClientes.DataSource = null;
-            dgvClientes.DataSource = controlador.ObtenerTodos();
+            dgvClientes.DataSource = Busqueda.Filtrar(clientes, txtBuscar.Text, c => new[] { c.Nombre, c.Dni, c.Mail, c.Telefono });
             dgvClientes.Columna("Descripcion").Visible = false;
 
             if (dgvClientes.Rows.Count > 0)

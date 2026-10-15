@@ -21,6 +21,11 @@ namespace ProyectoEventos.Domain
             return items.RemoveAll(item => item.Id == idItem) > 0;
         }
 
+        public ItemMenu? ObtenerItem(int idItem)
+        {
+            return items.Find(item => item.Id == idItem);
+        }
+
         public IReadOnlyList<ItemMenu> ObtenerItems()
         {
             return items.AsReadOnly();

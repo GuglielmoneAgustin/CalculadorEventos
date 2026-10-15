@@ -36,6 +36,7 @@ namespace ProyectoEventos.Forms
             btnEliminar = new Button();
             lblDgvProductos = new Label();
             dgvProductos = new DataGridView();
+            txtBuscar = new TextBox();
             btnVolver = new Button();
             ((System.ComponentModel.ISupportInitialize)numPrecioAdulto).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numPrecioNino).BeginInit();
@@ -107,10 +108,22 @@ namespace ProyectoEventos.Forms
             // 
             // tlpGrilla
             // 
-            tlpGrilla.ColumnCount = 1;
+            tlpGrilla.ColumnCount = 2;
             tlpGrilla.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tlpGrilla.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 280F));
             tlpGrilla.Controls.Add(lblDgvProductos, 0, 0);
+            tlpGrilla.Controls.Add(txtBuscar, 1, 0);
             tlpGrilla.Controls.Add(dgvProductos, 0, 1);
+            tlpGrilla.SetColumnSpan(dgvProductos, 2);
+            // 
+            // txtBuscar
+            // 
+            txtBuscar.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txtBuscar.Margin = new Padding(3, 12, 3, 3);
+            txtBuscar.Name = "txtBuscar";
+            txtBuscar.PlaceholderText = "Buscar...";
+            txtBuscar.TabIndex = 20;
+            txtBuscar.TextChanged += txtBuscar_TextChanged;
             tlpGrilla.Dock = DockStyle.Fill;
             tlpGrilla.Name = "tlpGrilla";
             tlpGrilla.RowCount = 2;
@@ -301,6 +314,7 @@ namespace ProyectoEventos.Forms
         private Button btnEliminar;
         private Label lblDgvProductos;
         private DataGridView dgvProductos;
+        private TextBox txtBuscar;
         private Button btnVolver;
     }
 }

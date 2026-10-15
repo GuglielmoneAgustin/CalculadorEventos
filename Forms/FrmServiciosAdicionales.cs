@@ -10,6 +10,7 @@ namespace ProyectoEventos.Forms
     public partial class FrmServiciosAdicionales : Form
     {
         private readonly ServicioAdicionalController controlador;
+        private List<ServicioAdicionalDTO> servicios = new List<ServicioAdicionalDTO>();
         private int idSeleccionado;
 
         public FrmServiciosAdicionales()
@@ -32,8 +33,20 @@ namespace ProyectoEventos.Forms
 
         private void CargarGrilla()
         {
+            servicios = controlador.ObtenerTodos();
+            MostrarGrilla();
+        }
+
+        private void txtBuscar_TextChanged(object? sender, EventArgs e)
+        {
+            MostrarGrilla();
+        }
+
+        // Muestra los servicios que coinciden con el texto de búsqueda (sin volver a pedirlos al controlador)
+        private void MostrarGrilla()
+        {
             dgvServicios.DataSource = null;
-            dgvServicios.DataSource = controlador.ObtenerTodos();
+            dgvServicios.DataSource = Busqueda.Filtrar(servicios, txtBuscar.Text, s => new[] { s.Nombre, s.Descripcion });
             dgvServicios.Columna("Monto").DefaultCellStyle.Format = Formato.Moneda;
 
             if (dgvServicios.Rows.Count > 0)

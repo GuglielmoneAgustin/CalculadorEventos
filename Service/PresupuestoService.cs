@@ -46,6 +46,12 @@ namespace ProyectoEventos.Service
             return MapearAResultado(evento.CancelarPresupuesto(idPresupuesto));
         }
 
+        // Lanza la excepción de negocio si el presupuesto no se puede aprobar; no modifica nada.
+        public void ValidarAprobacion(int idEvento, int idPresupuesto)
+        {
+            eventoRepositorio.ObtenerExistente(idEvento).ValidarAprobacion(idPresupuesto);
+        }
+
         public bool HayOtroAprobado(int idEvento, int idPresupuesto)
         {
             Evento evento = eventoRepositorio.ObtenerExistente(idEvento);
@@ -107,6 +113,7 @@ namespace ProyectoEventos.Service
             dto.FechaGeneracion = presupuesto.FechaGeneracion;
             dto.CostoTotal = presupuesto.CalcularTotal();
             dto.Estado = presupuesto.Estado;
+            dto.Vigente = presupuesto.EventoAsociado.EsVigente(presupuesto);
             return dto;
         }
     }

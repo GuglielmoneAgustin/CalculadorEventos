@@ -28,6 +28,11 @@ namespace ProyectoEventos.Controller
             return servicio.Cancelar(idEvento, idPresupuesto);
         }
 
+        public void ValidarAprobacion(int idEvento, int idPresupuesto)
+        {
+            servicio.ValidarAprobacion(idEvento, idPresupuesto);
+        }
+
         public bool HayOtroAprobado(int idEvento, int idPresupuesto)
         {
             return servicio.HayOtroAprobado(idEvento, idPresupuesto);

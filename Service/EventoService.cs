@@ -121,6 +121,11 @@ namespace ProyectoEventos.Service
             evento.AgregarPlatosAlMenu(cantidadAdultos, cantidadNinos, productos);
         }
 
+        public void CambiarCantidadesItem(int idEvento, int idItem, int cantidadAdultos, int cantidadNinos)
+        {
+            repositorio.ObtenerExistente(idEvento).CambiarCantidadesItem(idItem, cantidadAdultos, cantidadNinos);
+        }
+
         public void QuitarItemDelMenu(int idEvento, int idItem)
         {
             repositorio.ObtenerExistente(idEvento).QuitarItemDelMenu(idItem);

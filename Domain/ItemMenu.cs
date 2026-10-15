@@ -14,12 +14,7 @@ namespace ProyectoEventos.Domain
         {
             Id = id;
             componentes = new List<Producto>();
-            CantidadAdultos = cantidadAdultos;
-            CantidadNinos = cantidadNinos;
-            if (cantidadAdultos + cantidadNinos == 0)
-            {
-                throw new ReglaNegocioException("El item del menú debe tener al menos un adulto o un niño.");
-            }
+            CambiarCantidades(cantidadAdultos, cantidadNinos);
         }
 
         public int Id { get; private set; }
@@ -27,27 +22,31 @@ namespace ProyectoEventos.Domain
         public int CantidadAdultos
         {
             get { return cantidadAdultos; }
-            private set
-            {
-                if (value < 0)
-                {
-                    throw new ReglaNegocioException("La cantidad de adultos no puede ser negativa.");
-                }
-                cantidadAdultos = value;
-            }
         }
 
         public int CantidadNinos
         {
             get { return cantidadNinos; }
-            private set
+        }
+
+        // Se validan las dos cantidades antes de asignar: si alguna es inválida el item queda igual.
+        public void CambiarCantidades(int cantidadAdultos, int cantidadNinos)
+        {
+            if (cantidadAdultos < 0)
             {
-                if (value < 0)
-                {
-                    throw new ReglaNegocioException("La cantidad de niños no puede ser negativa.");
-                }
-                cantidadNinos = value;
+                throw new ReglaNegocioException("La cantidad de adultos no puede ser negativa.");
             }
+            if (cantidadNinos < 0)
+            {
+                throw new ReglaNegocioException("La cantidad de niños no puede ser negativa.");
+            }
+            if (cantidadAdultos + cantidadNinos == 0)
+            {
+                throw new ReglaNegocioException("El item del menú debe tener al menos un adulto o un niño.");
+            }
+
+            this.cantidadAdultos = cantidadAdultos;
+            this.cantidadNinos = cantidadNinos;
         }
 
         public void AgregarComponente(Producto producto)

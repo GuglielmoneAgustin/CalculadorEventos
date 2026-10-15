@@ -12,5 +12,7 @@ namespace ProyectoEventos.Dto
         public DateTime FechaGeneracion { get; set; }
         public decimal CostoTotal { get; set; }
         public EstadoPresupuesto Estado { get; set; }
+        // Es el último generado y el evento no cambió desde entonces (solo así puede aprobarse).
+        public bool Vigente { get; set; }
     }
 }

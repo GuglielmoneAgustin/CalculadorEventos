@@ -48,10 +48,9 @@ namespace ProyectoEventos.Forms
             dgvPresupuestos.DataSource = null;
             dgvPresupuestos.DataSource = controlador.ObtenerPorEvento(idEvento);
 
-            if (dgvPresupuestos.Columns["IdEvento"] != null)
-            {
-                dgvPresupuestos.Columna("IdEvento").Visible = false;
-            }
+            dgvPresupuestos.Columna("IdEvento").Visible = false;
+            // La vigencia se muestra junto al estado (ver CellFormatting)
+            dgvPresupuestos.Columna("Vigente").Visible = false;
 
             DarFormatoColumnas();
 
@@ -60,6 +59,22 @@ namespace ProyectoEventos.Forms
                 dgvPresupuestos.ClearSelection();
                 dgvPresupuestos.CurrentCell = null;
             }
+            ActualizarBotones();
+        }
+
+        // Cada acción se habilita solo si tiene sentido para el presupuesto seleccionado:
+        // aprobar = en espera y vigente; cancelar = no cancelado; imprimir = cualquiera.
+        private void ActualizarBotones()
+        {
+            PresupuestoResultadoDTO? seleccionado = ObtenerPresupuestoSeleccionado();
+            btnAprobar.Enabled = seleccionado != null && seleccionado.Estado == EstadoPresupuesto.EnEspera && seleccionado.Vigente;
+            btnCancelar.Enabled = seleccionado != null && seleccionado.Estado != EstadoPresupuesto.Cancelado;
+            btnImprimir.Enabled = seleccionado != null;
+        }
+
+        private void dgvPresupuestos_CurrentCellChanged(object? sender, EventArgs e)
+        {
+            ActualizarBotones();
         }
 
         // Encabezados legibles, monto a la derecha con moneda y fecha con formato local
@@ -96,7 +111,8 @@ namespace ProyectoEventos.Forms
             }
         }
 
-        // Colorea la celda de Estado: verde = aprobado, terracota = cancelado, arena = en espera
+        // Colorea la celda de Estado: verde = aprobado, terracota = cancelado, arena = en espera.
+        // Si el evento cambió después de generar el presupuesto, se aclara que está desactualizado.
         private void dgvPresupuestos_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
         {
             if (e.RowIndex < 0 || e.ColumnIndex < 0 ||
@@ -106,6 +122,13 @@ namespace ProyectoEventos.Forms
             }
 
             EstadoPresupuestoVista.Aplicar(e, estado, dgvPresupuestos.DefaultCellStyle.Font ?? dgvPresupuestos.Font);
+
+            if (estado != EstadoPresupuesto.Cancelado
+                && dgvPresupuestos.Rows[e.RowIndex].DataBoundItem is PresupuestoResultadoDTO presupuesto
+                && !presupuesto.Vigente)
+            {
+                e.Value = EstadoPresupuestoVista.Texto(estado) + " (desactualizado)";
+            }
         }
 
         private PresupuestoResultadoDTO? ObtenerPresupuestoSeleccionado()
@@ -124,6 +147,9 @@ namespace ProyectoEventos.Forms
 
             try
             {
+                // Primero se controla que se pueda aprobar, así no se pregunta por un reemplazo que después falla.
+                controlador.ValidarAprobacion(idEvento, seleccionado.Id);
+
                 bool reemplazar = false;
                 if (controlador.HayOtroAprobado(idEvento, seleccionado.Id))
                 {

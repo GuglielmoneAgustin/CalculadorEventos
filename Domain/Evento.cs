@@ -225,6 +225,22 @@ namespace ProyectoEventos.Domain
             MarcarCambioPendienteDePresupuesto();
         }
 
+        public void CambiarCantidadesItem(int idItem, int cantidadAdultos, int cantidadNinos)
+        {
+            ItemMenu? item = Menu.ObtenerItem(idItem);
+            if (item == null)
+            {
+                throw new NoEncontradoException("El item de menú no existe.");
+            }
+            if (item.CantidadAdultos == cantidadAdultos && item.CantidadNinos == cantidadNinos)
+            {
+                return;
+            }
+
+            item.CambiarCantidades(cantidadAdultos, cantidadNinos);
+            MarcarCambioPendienteDePresupuesto();
+        }
+
         public void QuitarItemDelMenu(int idItem)
         {
             if (!Menu.QuitarItem(idItem))
@@ -280,13 +296,7 @@ namespace ProyectoEventos.Domain
         // solo puede haber uno aprobado y solo se aprueba el que refleja los datos actuales.
         public Presupuesto AprobarPresupuesto(int idPresupuesto, bool reemplazarAprobado)
         {
-            Presupuesto presupuesto = ObtenerPresupuestoExistente(idPresupuesto);
-            presupuesto.ValidarQuePuedeAprobarse();
-
-            if (!EsVigente(presupuesto))
-            {
-                throw new ReglaNegocioException("El presupuesto está desactualizado: el evento cambió después de generarlo. Genere un presupuesto nuevo.");
-            }
+            Presupuesto presupuesto = ValidarAprobacion(idPresupuesto);
 
             Presupuesto? otroAprobado = ObtenerPresupuestoAprobado();
             if (otroAprobado != null && !reemplazarAprobado)
@@ -296,6 +306,20 @@ namespace ProyectoEventos.Domain
 
             presupuesto.Aprobar();
             otroAprobado?.Cancelar();
+            return presupuesto;
+        }
+
+        // Controla que el presupuesto se pueda aprobar (en espera y vigente) sin modificar nada.
+        // No tiene en cuenta si ya hay otro aprobado: eso lo decide quien aprueba (reemplazar o no).
+        public Presupuesto ValidarAprobacion(int idPresupuesto)
+        {
+            Presupuesto presupuesto = ObtenerPresupuestoExistente(idPresupuesto);
+            presupuesto.ValidarQuePuedeAprobarse();
+
+            if (!EsVigente(presupuesto))
+            {
+                throw new ReglaNegocioException("El presupuesto está desactualizado: el evento cambió después de generarlo. Genere un presupuesto nuevo.");
+            }
             return presupuesto;
         }
 
@@ -338,7 +362,7 @@ namespace ProyectoEventos.Domain
         }
 
         // Vigente = es el último generado y el evento no cambió desde entonces.
-        private bool EsVigente(Presupuesto presupuesto)
+        public bool EsVigente(Presupuesto presupuesto)
         {
             return !requierePresupuestoNuevo && presupuestos.Count > 0 && presupuestos[presupuestos.Count - 1] == presupuesto;
         }

@@ -10,6 +10,7 @@ namespace ProyectoEventos.Forms
     public partial class FrmLugares : Form
     {
         private readonly LugarController controlador;
+        private List<LugarDTO> lugares = new List<LugarDTO>();
         private int idSeleccionado;
 
         public FrmLugares()
@@ -32,8 +33,20 @@ namespace ProyectoEventos.Forms
 
         private void CargarGrilla()
         {
+            lugares = controlador.ObtenerTodos();
+            MostrarGrilla();
+        }
+
+        private void txtBuscar_TextChanged(object? sender, EventArgs e)
+        {
+            MostrarGrilla();
+        }
+
+        // Muestra los lugares que coinciden con el texto de búsqueda (sin volver a pedirlos al controlador)
+        private void MostrarGrilla()
+        {
             dgvLugares.DataSource = null;
-            dgvLugares.DataSource = controlador.ObtenerTodos();
+            dgvLugares.DataSource = Busqueda.Filtrar(lugares, txtBuscar.Text, l => new[] { l.Nombre, l.Ubicacion });
             dgvLugares.Columna("CostoBase").DefaultCellStyle.Format = Formato.Moneda;
             dgvLugares.Columna("Descripcion").Visible = false;
 

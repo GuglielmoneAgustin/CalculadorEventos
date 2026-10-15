@@ -11,6 +11,7 @@ namespace ProyectoEventos.Forms
     public partial class FrmEventos : Form
     {
         private readonly EventoController controlador;
+        private List<EventoResultadoDTO> eventos = new List<EventoResultadoDTO>();
 
         public FrmEventos()
         {
@@ -31,8 +32,20 @@ namespace ProyectoEventos.Forms
 
         private void CargarGrilla()
         {
+            eventos = controlador.ObtenerTodos();
+            MostrarGrilla();
+        }
+
+        private void txtBuscar_TextChanged(object? sender, EventArgs e)
+        {
+            MostrarGrilla();
+        }
+
+        // Muestra los eventos que coinciden con el texto de búsqueda (sin volver a pedirlos al controlador)
+        private void MostrarGrilla()
+        {
             dgvEventos.DataSource = null;
-            dgvEventos.DataSource = controlador.ObtenerTodos();
+            dgvEventos.DataSource = Busqueda.Filtrar(eventos, txtBuscar.Text, ev => new[] { ev.Id.ToString(), ev.NombreCliente, ev.NombreLugar, ev.Fecha.ToString(Formato.FechaHora), EstadoPresupuestoVista.Texto(ev.EstadoPresupuesto) });
             dgvEventos.Columna("Fecha").DefaultCellStyle.Format = Formato.FechaHora;
 
             dgvEventos.Columna("Id").HeaderText = "N°";

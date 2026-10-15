@@ -11,6 +11,7 @@ namespace ProyectoEventos.Forms
     public partial class FrmProductos : Form
     {
         private readonly ProductoController controlador;
+        private List<ProductoDTO> productos = new List<ProductoDTO>();
         private int idSeleccionado;
 
         public FrmProductos()
@@ -45,8 +46,20 @@ namespace ProyectoEventos.Forms
 
         private void CargarGrilla()
         {
+            productos = controlador.ObtenerTodos();
+            MostrarGrilla();
+        }
+
+        private void txtBuscar_TextChanged(object? sender, EventArgs e)
+        {
+            MostrarGrilla();
+        }
+
+        // Muestra los productos que coinciden con el texto de búsqueda (sin volver a pedirlos al controlador)
+        private void MostrarGrilla()
+        {
             dgvProductos.DataSource = null;
-            dgvProductos.DataSource = controlador.ObtenerTodos();
+            dgvProductos.DataSource = Busqueda.Filtrar(productos, txtBuscar.Text, p => new[] { p.Nombre, p.Categoria.ToString(), p.Restriccion.ToString() });
             dgvProductos.Columna("PrecioAdulto").DefaultCellStyle.Format = Formato.Moneda;
             dgvProductos.Columna("PrecioNino").DefaultCellStyle.Format = Formato.Moneda;
 

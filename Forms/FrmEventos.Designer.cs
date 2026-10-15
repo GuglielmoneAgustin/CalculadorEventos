@@ -22,6 +22,7 @@ namespace ProyectoEventos.Forms
             tlpGrilla = new TableLayoutPanel();
             lblDgvEventos = new Label();
             dgvEventos = new DataGridView();
+            txtBuscar = new TextBox();
             btnNuevo = new Button();
             btnEditar = new Button();
             btnMenu = new Button();
@@ -62,10 +63,22 @@ namespace ProyectoEventos.Forms
             // 
             // tlpGrilla
             // 
-            tlpGrilla.ColumnCount = 1;
+            tlpGrilla.ColumnCount = 2;
             tlpGrilla.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tlpGrilla.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 280F));
             tlpGrilla.Controls.Add(lblDgvEventos, 0, 0);
+            tlpGrilla.Controls.Add(txtBuscar, 1, 0);
             tlpGrilla.Controls.Add(dgvEventos, 0, 1);
+            tlpGrilla.SetColumnSpan(dgvEventos, 2);
+            // 
+            // txtBuscar
+            // 
+            txtBuscar.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txtBuscar.Margin = new Padding(3, 0, 3, 10);
+            txtBuscar.Name = "txtBuscar";
+            txtBuscar.PlaceholderText = "Buscar...";
+            txtBuscar.TabIndex = 20;
+            txtBuscar.TextChanged += txtBuscar_TextChanged;
             tlpGrilla.Dock = DockStyle.Fill;
             tlpGrilla.Name = "tlpGrilla";
             tlpGrilla.RowCount = 2;
@@ -181,6 +194,7 @@ namespace ProyectoEventos.Forms
         private TableLayoutPanel tlpGrilla;
         private Label lblDgvEventos;
         private DataGridView dgvEventos;
+        private TextBox txtBuscar;
         private Button btnNuevo;
         private Button btnEditar;
         private Button btnMenu;

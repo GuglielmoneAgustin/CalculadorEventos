@@ -35,6 +35,7 @@ namespace ProyectoEventos.Forms
             btnAgregarItem = new Button();
             dgvItemsMenu = new DataGridView();
             btnQuitarItem = new Button();
+            btnEditarItem = new Button();
             lblTotalMenu = new Label();
             lblServicios = new Label();
             clbServicios = new CheckedListBox();
@@ -125,12 +126,14 @@ namespace ProyectoEventos.Forms
             tlpTarjetaMenu.Controls.Add(lblDgvItemsMenu, 0, 0);
             tlpTarjetaMenu.Controls.Add(dgvItemsMenu, 0, 1);
             tlpTarjetaMenu.Controls.Add(flowAccionesMenu, 0, 2);
+            tlpTarjetaMenu.Controls.Add(lblTotalMenu, 0, 3);
             tlpTarjetaMenu.Dock = DockStyle.Fill;
             tlpTarjetaMenu.Margin = new Padding(0, 0, 20, 0);
             tlpTarjetaMenu.Name = "tlpTarjetaMenu";
-            tlpTarjetaMenu.RowCount = 3;
+            tlpTarjetaMenu.RowCount = 4;
             tlpTarjetaMenu.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpTarjetaMenu.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tlpTarjetaMenu.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpTarjetaMenu.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             // 
             // tlpTarjetaServicios
@@ -155,7 +158,7 @@ namespace ProyectoEventos.Forms
             // flowAccionesMenu
             // 
             flowAccionesMenu.Controls.Add(btnQuitarItem);
-            flowAccionesMenu.Controls.Add(lblTotalMenu);
+            flowAccionesMenu.Controls.Add(btnEditarItem);
             flowAccionesMenu.AutoSize = true;
             flowAccionesMenu.Dock = DockStyle.Fill;
             flowAccionesMenu.Margin = new Padding(0, 12, 0, 0);
@@ -246,10 +249,23 @@ namespace ProyectoEventos.Forms
             dgvItemsMenu.Dock = DockStyle.Fill;
             dgvItemsMenu.MultiSelect = false;
             dgvItemsMenu.Name = "dgvItemsMenu";
-            dgvItemsMenu.ReadOnly = true;
             dgvItemsMenu.RowHeadersWidth = 51;
             dgvItemsMenu.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvItemsMenu.TabIndex = 8;
+            dgvItemsMenu.CellDoubleClick += dgvItemsMenu_CellDoubleClick;
+            dgvItemsMenu.CellValidating += dgvItemsMenu_CellValidating;
+            dgvItemsMenu.CellEndEdit += dgvItemsMenu_CellEndEdit;
+            dgvItemsMenu.DataError += dgvItemsMenu_DataError;
+            //
+            // btnEditarItem
+            //
+            btnEditarItem.Margin = new Padding(10, 0, 0, 0);
+            btnEditarItem.Name = "btnEditarItem";
+            btnEditarItem.Size = new Size(170, 38);
+            btnEditarItem.TabIndex = 19;
+            btnEditarItem.Text = "Editar cantidades";
+            btnEditarItem.UseVisualStyleBackColor = true;
+            btnEditarItem.Click += btnEditarItem_Click;
             // 
             // btnQuitarItem
             // 
@@ -264,7 +280,7 @@ namespace ProyectoEventos.Forms
             // lblTotalMenu
             // 
             lblTotalMenu.AutoSize = true;
-            lblTotalMenu.Margin = new Padding(20, 9, 0, 0);
+            lblTotalMenu.Margin = new Padding(3, 12, 3, 0);
             lblTotalMenu.Name = "lblTotalMenu";
             lblTotalMenu.TabIndex = 10;
             lblTotalMenu.Text = "Total menú: $0";
@@ -390,6 +406,7 @@ namespace ProyectoEventos.Forms
         private Button btnAgregarItem;
         private DataGridView dgvItemsMenu;
         private Button btnQuitarItem;
+        private Button btnEditarItem;
         private Label lblTotalMenu;
         private Label lblServicios;
         private CheckedListBox clbServicios;

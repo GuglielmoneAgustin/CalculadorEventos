@@ -18,6 +18,8 @@ namespace ProyectoEventos.Forms
         private int idEvento;
         // El evento se creó en este asistente y todavía no se finalizó el paso 2
         private bool creadoSinFinalizar;
+        // Fecha que tiene el evento guardado (null si todavía no existe)
+        private DateTime? fechaGuardada;
 
         public FrmEventoDatos(EventoResultadoDTO? evento = null)
         {
@@ -28,6 +30,7 @@ namespace ProyectoEventos.Forms
             lugarControlador = new LugarController();
             eventoInicial = evento;
             idEvento = evento == null ? 0 : evento.Id;
+            fechaGuardada = evento?.Fecha;
             FormClosing += FrmEventoDatos_FormClosing;
         }
 
@@ -85,7 +88,7 @@ namespace ProyectoEventos.Forms
 
         private void btnSiguiente_Click(object sender, EventArgs e)
         {
-            if (!ValidarSeleccionCombos())
+            if (!ValidarSeleccionCombos() || !ConfirmarFechaPasada())
             {
                 return;
             }
@@ -95,6 +98,7 @@ namespace ProyectoEventos.Forms
                 bool esNuevo = idEvento == 0;
                 EventoResultadoDTO guardado = controlador.Guardar(ArmarDto());
                 idEvento = guardado.Id;
+                fechaGuardada = guardado.Fecha;
                 if (esNuevo)
                 {
                     creadoSinFinalizar = true;
@@ -143,6 +147,19 @@ namespace ProyectoEventos.Forms
             cmbLugar.DataSource = lugarControlador.ObtenerTodos();
             cmbLugar.DisplayMember = "Descripcion";
             cmbLugar.ValueMember = "Id";
+        }
+
+        // Registrar un evento ya realizado es válido, pero suele ser un error de carga:
+        // si se elige (o se cambia a) un día anterior a hoy, se pide confirmación.
+        private bool ConfirmarFechaPasada()
+        {
+            DateTime fecha = dtpFechaHora.Value;
+            if (fecha.Date >= DateTime.Today || fecha == fechaGuardada)
+            {
+                return true;
+            }
+            return Mensajes.Confirmar("La fecha elegida (" + fecha.ToString(Formato.FechaHora) +
+                ") ya pasó. ¿Desea guardar el evento de todas formas?");
         }
 
         private bool ValidarSeleccionCombos()

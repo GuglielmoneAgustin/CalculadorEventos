@@ -48,6 +48,11 @@ namespace ProyectoEventos.Controller
             servicio.AgregarPlatosAlMenu(idEvento, cantidadAdultos, cantidadNinos, idsProductos);
         }
 
+        public void CambiarCantidadesItem(int idEvento, int idItem, int cantidadAdultos, int cantidadNinos)
+        {
+            servicio.CambiarCantidadesItem(idEvento, idItem, cantidadAdultos, cantidadNinos);
+        }
+
         public void QuitarItemDelMenu(int idEvento, int idItem)
         {
             servicio.QuitarItemDelMenu(idEvento, idItem);
