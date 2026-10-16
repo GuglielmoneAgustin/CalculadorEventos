@@ -270,6 +270,27 @@ namespace ProyectoEventos.Domain
             MarcarCambioPendienteDePresupuesto();
         }
 
+        // Para duplicar un evento: agrega los mismos platos (con sus cantidades) y servicios que tiene otro.
+        public void CopiarMenuYServiciosDe(Evento origen)
+        {
+            if (origen == null)
+            {
+                throw new ArgumentException("El evento a copiar no puede ser nulo.");
+            }
+
+            foreach (ItemMenu item in origen.Menu.ObtenerItems())
+            {
+                AgregarItemAlMenu(item.CantidadAdultos, item.CantidadNinos, new List<Producto>(item.ObtenerComponentes()));
+            }
+            foreach (ServicioAdicional servicio in origen.ObtenerServicios())
+            {
+                if (!TieneServicio(servicio.Id))
+                {
+                    AgregarServicio(servicio);
+                }
+            }
+        }
+
         public void QuitarServicio(ServicioAdicional servicio)
         {
             if (!servicios.Remove(servicio))
@@ -325,9 +346,104 @@ namespace ProyectoEventos.Domain
 
             if (!EsVigente(presupuesto))
             {
-                throw new ReglaNegocioException("El presupuesto está desactualizado: el evento o los precios cambiaron después de generarlo. Actualice el presupuesto para obtener uno con los valores actuales.");
+                throw new ReglaNegocioException("El presupuesto está desactualizado. " +
+                    string.Join(" ", ObtenerMotivosDesactualizacion(presupuesto)) +
+                    " Actualice el presupuesto para obtener uno con los valores actuales.");
             }
             return presupuesto;
+        }
+
+        // Explica por qué un presupuesto dejó de estar vigente, comparando lo cotizado con el evento actual.
+        // Devuelve una lista vacía si sigue vigente.
+        public List<string> ObtenerMotivosDesactualizacion(Presupuesto presupuesto)
+        {
+            List<string> motivos = new List<string>();
+            if (EsVigente(presupuesto))
+            {
+                return motivos;
+            }
+
+            Presupuesto? ultimo = ObtenerUltimoPresupuesto();
+            if (ultimo != null && ultimo != presupuesto)
+            {
+                motivos.Add("Hay un presupuesto más nuevo (N° " + ultimo.Id + ").");
+                return motivos;
+            }
+
+            if (presupuesto.NombreLugar != Lugar.Nombre)
+            {
+                motivos.Add("Cambió el lugar.");
+            }
+            else if (presupuesto.CostoLugar != Lugar.CostoBase)
+            {
+                motivos.Add("Cambió el costo del lugar.");
+            }
+            if (presupuesto.FechaEvento != Fecha || presupuesto.HorasDuracion != HorasDuracion)
+            {
+                motivos.Add("Cambió la fecha o la duración.");
+            }
+            if (presupuesto.CantidadAdultos != CantidadAdultos || presupuesto.CantidadNinos != CantidadNinos)
+            {
+                motivos.Add("Cambió la cantidad de invitados.");
+            }
+            AgregarMotivosDelMenu(presupuesto, motivos);
+            AgregarMotivosDeServicios(presupuesto, motivos);
+
+            if (motivos.Count == 0)
+            {
+                motivos.Add("El evento se modificó después de generarlo.");
+            }
+            return motivos;
+        }
+
+        private void AgregarMotivosDelMenu(Presupuesto presupuesto, List<string> motivos)
+        {
+            IReadOnlyList<DetalleMenuPresupuestado> cotizados = presupuesto.ObtenerItemsMenu();
+            IReadOnlyList<ItemMenu> actuales = Menu.ObtenerItems();
+
+            bool mismosPlatos = cotizados.Count == actuales.Count;
+            for (int i = 0; mismosPlatos && i < cotizados.Count; i++)
+            {
+                mismosPlatos = cotizados[i].Descripcion == actuales[i].ObtenerDescripcion()
+                    && cotizados[i].CantidadAdultos == actuales[i].CantidadAdultos
+                    && cotizados[i].CantidadNinos == actuales[i].CantidadNinos;
+            }
+            if (!mismosPlatos)
+            {
+                motivos.Add("Cambió el menú.");
+                return;
+            }
+
+            // Mismos platos y cantidades: si el subtotal difiere es porque cambió el precio del producto
+            for (int i = 0; i < cotizados.Count; i++)
+            {
+                if (cotizados[i].Subtotal != actuales[i].Subtotal())
+                {
+                    motivos.Add("Cambió el precio de " + cotizados[i].Descripcion + ".");
+                }
+            }
+        }
+
+        private void AgregarMotivosDeServicios(Presupuesto presupuesto, List<string> motivos)
+        {
+            IReadOnlyList<ServicioPresupuestado> cotizados = presupuesto.ObtenerServicios();
+
+            bool mismosServicios = cotizados.Count == servicios.Count
+                && cotizados.All(cotizado => servicios.Exists(s => s.Nombre == cotizado.Nombre));
+            if (!mismosServicios)
+            {
+                motivos.Add("Cambiaron los servicios adicionales.");
+                return;
+            }
+
+            foreach (ServicioPresupuestado cotizado in cotizados)
+            {
+                ServicioAdicional? actual = servicios.Find(s => s.Nombre == cotizado.Nombre);
+                if (actual != null && actual.Monto != cotizado.Monto)
+                {
+                    motivos.Add("Cambió el monto de " + cotizado.Nombre + ".");
+                }
+            }
         }
 
         public Presupuesto CancelarPresupuesto(int idPresupuesto)

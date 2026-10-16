@@ -12,6 +12,8 @@ namespace ProyectoEventos.Forms
         private readonly LugarController controlador;
         private List<LugarDTO> lugares = new List<LugarDTO>();
         private int idSeleccionado;
+        // Valores del formulario al cargarlo o limpiarlo: si cambian, hay datos sin guardar
+        private string valoresGuardados = string.Empty;
 
         public FrmLugares()
         {
@@ -19,6 +21,9 @@ namespace ProyectoEventos.Forms
             Tema.Aplicar(this);
             controlador = new LugarController();
             idSeleccionado = 0;
+            dgvLugares.MensajeSinFilas(() => lugares.Count == 0
+                ? "Todavía no hay lugares. Complete el formulario y toque Guardar."
+                : "Ningún lugar coincide con la búsqueda.");
         }
 
         private void btnVolver_Click(object sender, EventArgs e)
@@ -29,6 +34,15 @@ namespace ProyectoEventos.Forms
         private void FrmLugares_Load(object sender, EventArgs e)
         {
             CargarGrilla();
+            LimpiarFormulario();
+        }
+
+        private void FrmLugares_FormClosing(object? sender, FormClosingEventArgs e)
+        {
+            if (!Formulario.ConfirmarDescartarCambios(HayCambiosSinGuardar()))
+            {
+                e.Cancel = true;
+            }
         }
 
         private void CargarGrilla()
@@ -73,11 +87,17 @@ namespace ProyectoEventos.Forms
                 Mensajes.Advertencia("Seleccione un lugar de la grilla para editar.");
                 return;
             }
+            if (!Formulario.ConfirmarDescartarCambios(HayCambiosSinGuardar()))
+            {
+                return;
+            }
 
             try
             {
-                CargarFormulario(controlador.ObtenerPorId(seleccionado.Id));
-                idSeleccionado = seleccionado.Id;
+                LugarDTO lugar = controlador.ObtenerPorId(seleccionado.Id);
+                CargarFormulario(lugar);
+                idSeleccionado = lugar.Id;
+                MostrarModoEdicion(lugar.Nombre);
             }
             catch (NoEncontradoException ex)
             {
@@ -91,15 +111,24 @@ namespace ProyectoEventos.Forms
             try
             {
                 LugarDTO dto = ArmarDto();
+                bool eraEdicion = idSeleccionado != 0;
                 controlador.Guardar(dto);
 
                 CargarGrilla();
                 LimpiarFormulario();
+                string nombre = dto.Nombre.Trim();
+                dgvLugares.SeleccionarFila<LugarDTO>(l => l.Nombre.Equals(nombre, StringComparison.OrdinalIgnoreCase));
+                Aviso.Mostrar(lblAviso, eraEdicion ? "Lugar actualizado." : "Lugar guardado.");
             }
             catch (NegocioException ex)
             {
                 Mensajes.Advertencia(ex.Message);
             }
+        }
+
+        private void btnCancelarEdicion_Click(object sender, EventArgs e)
+        {
+            LimpiarFormulario();
         }
 
         private void btnEliminar_Click(object sender, EventArgs e)
@@ -117,7 +146,11 @@ namespace ProyectoEventos.Forms
                 {
                     controlador.Eliminar(seleccionado.Id);
                     CargarGrilla();
-                    LimpiarFormulario();
+                    if (seleccionado.Id == idSeleccionado)
+                    {
+                        LimpiarFormulario();
+                    }
+                    Aviso.Mostrar(lblAviso, "Lugar eliminado.");
                 }
                 catch (NegocioException ex)
                 {
@@ -145,6 +178,16 @@ namespace ProyectoEventos.Forms
             txtBoxUbicacion.Text = dto.Ubicacion;
         }
 
+        // El título de la tarjeta indica (y Cancelar permite descartar) que se está modificando un lugar existente
+        private void MostrarModoEdicion(string nombre)
+        {
+            lblModo.Text = "Editando: " + nombre;
+            btnGuardar.Text = "Guardar";
+            tlpBotones.SetColumnSpan(btnGuardar, 1);
+            btnCancelarEdicion.Visible = true;
+            valoresGuardados = Formulario.Valores(tlpFormulario);
+        }
+
         private void LimpiarFormulario()
         {
             idSeleccionado = 0;
@@ -152,6 +195,17 @@ namespace ProyectoEventos.Forms
             numCosto.Value = 0;
             numCapacidad.Value = 0;
             txtBoxUbicacion.Text = string.Empty;
+
+            lblModo.Text = "Nuevo lugar";
+            btnGuardar.Text = "Guardar";
+            tlpBotones.SetColumnSpan(btnGuardar, 2);
+            btnCancelarEdicion.Visible = false;
+            valoresGuardados = Formulario.Valores(tlpFormulario);
+        }
+
+        private bool HayCambiosSinGuardar()
+        {
+            return Formulario.Valores(tlpFormulario) != valoresGuardados;
         }
     }
 }

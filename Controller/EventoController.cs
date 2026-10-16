@@ -73,6 +73,16 @@ namespace ProyectoEventos.Controller
             return servicio.ObtenerTotalMenu(idEvento);
         }
 
+        public void CopiarMenuYServicios(int idEventoOrigen, int idEventoDestino)
+        {
+            servicio.CopiarMenuYServicios(idEventoOrigen, idEventoDestino);
+        }
+
+        public bool LugarDisponible(int idLugar, DateTime fecha, decimal horasDuracion, int idEventoAIgnorar)
+        {
+            return servicio.LugarDisponible(idLugar, fecha, horasDuracion, idEventoAIgnorar);
+        }
+
         public void AgregarServicioAlEvento(int idEvento, int idServicio)
         {
             servicio.AgregarServicioAlEvento(idEvento, idServicio);

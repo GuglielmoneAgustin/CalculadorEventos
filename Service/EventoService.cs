@@ -177,6 +177,19 @@ namespace ProyectoEventos.Service
 
         // ---------- Servicios adicionales del evento ----------
 
+        public void CopiarMenuYServicios(int idEventoOrigen, int idEventoDestino)
+        {
+            Evento origen = repositorio.ObtenerExistente(idEventoOrigen);
+            Evento destino = repositorio.ObtenerExistente(idEventoDestino);
+            destino.CopiarMenuYServiciosDe(origen);
+        }
+
+        // Para avisar mientras se cargan los datos, antes de intentar guardar el evento.
+        public bool LugarDisponible(int idLugar, DateTime fecha, decimal horasDuracion, int idEventoAIgnorar)
+        {
+            return !repositorio.HayEventoEnLugarEnHorario(idLugar, fecha, horasDuracion, idEventoAIgnorar);
+        }
+
         public void AgregarServicioAlEvento(int idEvento, int idServicio)
         {
             Evento evento = repositorio.ObtenerExistente(idEvento);

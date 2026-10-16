@@ -34,6 +34,7 @@ namespace ProyectoEventos.Forms
             numCantidadNinos = new NumericUpDown();
             btnVolver = new Button();
             btnSiguiente = new Button();
+            lblInfoLugar = new Label();
             ((System.ComponentModel.ISupportInitialize)numHorasDuracion).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numCantidadAdultos).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numCantidadNinos).BeginInit();
@@ -51,11 +52,13 @@ namespace ProyectoEventos.Forms
             tlpRaiz.Controls.Add(tlpTarjetaDatos, 1, 0);
             tlpRaiz.Dock = DockStyle.Fill;
             tlpRaiz.Name = "tlpRaiz";
-            tlpRaiz.RowCount = 1;
+            tlpRaiz.RowCount = 2;
+            tlpRaiz.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpRaiz.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             // 
             // tlpTarjetaDatos
             // 
+            tlpTarjetaDatos.AutoSize = true;
             tlpTarjetaDatos.ColumnCount = 2;
             tlpTarjetaDatos.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tlpTarjetaDatos.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -75,6 +78,8 @@ namespace ProyectoEventos.Forms
             tlpTarjetaDatos.Controls.Add(lblCantidadNinos, 1, 6);
             tlpTarjetaDatos.Controls.Add(numCantidadAdultos, 0, 7);
             tlpTarjetaDatos.Controls.Add(numCantidadNinos, 1, 7);
+            tlpTarjetaDatos.Controls.Add(lblInfoLugar, 0, 8);
+            tlpTarjetaDatos.SetColumnSpan(lblInfoLugar, 2);
             tlpTarjetaDatos.Controls.Add(flowBotones, 0, 9);
             tlpTarjetaDatos.SetColumnSpan(flowBotones, 2);
             tlpTarjetaDatos.Dock = DockStyle.Fill;
@@ -88,7 +93,7 @@ namespace ProyectoEventos.Forms
             tlpTarjetaDatos.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpTarjetaDatos.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpTarjetaDatos.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            tlpTarjetaDatos.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tlpTarjetaDatos.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpTarjetaDatos.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             // 
             // lblCliente
@@ -97,7 +102,7 @@ namespace ProyectoEventos.Forms
             lblCliente.Margin = new Padding(3, 0, 3, 3);
             lblCliente.Name = "lblCliente";
             lblCliente.TabIndex = 0;
-            lblCliente.Text = "Cliente:";
+            lblCliente.Text = "Cliente: *";
             // 
             // cmbCliente
             // 
@@ -113,7 +118,7 @@ namespace ProyectoEventos.Forms
             lblLugar.Margin = new Padding(3, 14, 3, 3);
             lblLugar.Name = "lblLugar";
             lblLugar.TabIndex = 2;
-            lblLugar.Text = "Lugar:";
+            lblLugar.Text = "Lugar: *";
             // 
             // cmbLugar
             // 
@@ -146,7 +151,7 @@ namespace ProyectoEventos.Forms
             lblHorasDuracion.Margin = new Padding(3, 14, 3, 3);
             lblHorasDuracion.Name = "lblHorasDuracion";
             lblHorasDuracion.TabIndex = 6;
-            lblHorasDuracion.Text = "Duración (hs):";
+            lblHorasDuracion.Text = "Duración (hs): *";
             // 
             // numHorasDuracion
             // 
@@ -154,6 +159,8 @@ namespace ProyectoEventos.Forms
             numHorasDuracion.Dock = DockStyle.Fill;
             numHorasDuracion.Increment = new decimal(new int[] { 5, 0, 0, 65536 });
             numHorasDuracion.Maximum = new decimal(new int[] { 72, 0, 0, 0 });
+            numHorasDuracion.Minimum = new decimal(new int[] { 5, 0, 0, 65536 });
+            numHorasDuracion.Value = new decimal(new int[] { 4, 0, 0, 0 });
             numHorasDuracion.Name = "numHorasDuracion";
             numHorasDuracion.TabIndex = 7;
             // 
@@ -186,6 +193,19 @@ namespace ProyectoEventos.Forms
             numCantidadNinos.Maximum = new decimal(new int[] { 100000, 0, 0, 0 });
             numCantidadNinos.Name = "numCantidadNinos";
             numCantidadNinos.TabIndex = 11;
+            // 
+            // lblInfoLugar
+            // 
+            lblInfoLugar.AutoSize = true;
+            lblInfoLugar.Margin = new Padding(3, 16, 3, 0);
+            lblInfoLugar.Name = "lblInfoLugar";
+            lblInfoLugar.TabIndex = 14;
+            // Al cambiar el lugar, el horario o los invitados se actualiza la capacidad y la disponibilidad
+            cmbLugar.SelectedIndexChanged += DatosDelLugar_Changed;
+            dtpFechaHora.ValueChanged += DatosDelLugar_Changed;
+            numHorasDuracion.ValueChanged += DatosDelLugar_Changed;
+            numCantidadAdultos.ValueChanged += DatosDelLugar_Changed;
+            numCantidadNinos.ValueChanged += DatosDelLugar_Changed;
             // 
             // flowBotones
             // 
@@ -222,7 +242,7 @@ namespace ProyectoEventos.Forms
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoScroll = true;
-            AutoScrollMinSize = new Size(840, 640);
+            AutoScrollMinSize = new Size(840, 0);
             ClientSize = new Size(600, 660);
             Controls.Add(tlpRaiz);
             Name = "FrmEventoDatos";
@@ -257,5 +277,6 @@ namespace ProyectoEventos.Forms
         private NumericUpDown numCantidadNinos;
         private Button btnVolver;
         private Button btnSiguiente;
+        private Label lblInfoLugar;
     }
 }

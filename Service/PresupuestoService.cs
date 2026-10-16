@@ -117,6 +117,7 @@ namespace ProyectoEventos.Service
             dto.CostoTotal = presupuesto.CalcularTotal();
             dto.Estado = presupuesto.Estado;
             dto.Vigente = presupuesto.EventoAsociado.EsVigente(presupuesto);
+            dto.Detalle = string.Join(" ", presupuesto.EventoAsociado.ObtenerMotivosDesactualizacion(presupuesto));
             return dto;
         }
     }

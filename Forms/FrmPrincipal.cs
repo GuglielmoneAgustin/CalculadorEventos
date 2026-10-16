@@ -25,26 +25,31 @@ namespace ProyectoEventos.Forms
 
         private void FrmPrincipal_Load(object sender, EventArgs e)
         {
-            AbrirEnPanel(new FrmInicio(), btnInicio);
+            AbrirEnPanel(() => new FrmInicio(), btnInicio);
         }
 
-        // Carga un formulario dentro de pnlContenido (reemplaza al anterior)
-        private void AbrirEnPanel(Form pantalla, Button boton)
+        // Carga un formulario dentro de pnlContenido (reemplaza al anterior). La pantalla nueva se crea
+        // recién cuando la actual se pudo cerrar: si tiene datos sin guardar y el usuario decide
+        // quedarse, no se cambia de sección.
+        private void AbrirEnPanel(Func<Form> crearPantalla, Button boton)
         {
-            // Al cambiar de seccion se descarta toda la pila de subpantallas
             descartando = true;
+            if (pantallaActual != null && !IntentarCerrar(pantallaActual))
+            {
+                descartando = false;
+                return;
+            }
+            pantallaActual?.Dispose();
+            // Al cambiar de sección se descarta toda la pila de subpantallas
             while (historial.Count > 0)
             {
                 Form oculta = historial.Pop().Pantalla;
                 oculta.Close();
                 oculta.Dispose();
             }
-            if (pantallaActual != null)
-            {
-                pantallaActual.Close();
-                pantallaActual.Dispose();
-            }
             descartando = false;
+
+            Form pantalla = crearPantalla();
             pantallaActual = pantalla;
 
             pantalla.TopLevel = false;
@@ -111,6 +116,18 @@ namespace ProyectoEventos.Forms
             BeginInvoke(() => QuitarSeleccionGrillas(subpantalla));
         }
 
+        // Cierra la pantalla y avisa si se cerró de verdad (en FormClosing puede cancelarse,
+        // por ejemplo porque el usuario no quiere perder datos sin guardar).
+        private static bool IntentarCerrar(Form pantalla)
+        {
+            bool cerrada = false;
+            FormClosedEventHandler alCerrar = (sender, e) => cerrada = true;
+            pantalla.FormClosed += alCerrar;
+            pantalla.Close();
+            pantalla.FormClosed -= alCerrar;
+            return cerrada;
+        }
+
         private void QuitarSeleccionGrillas(Control contenedor)
         {
             if (contenedor.IsDisposed)
@@ -143,32 +160,32 @@ namespace ProyectoEventos.Forms
 
         private void btnInicio_Click(object sender, EventArgs e)
         {
-            AbrirEnPanel(new FrmInicio(), btnInicio);
+            AbrirEnPanel(() => new FrmInicio(), btnInicio);
         }
 
         private void btnLugares_Click(object sender, EventArgs e)
         {
-            AbrirEnPanel(new FrmLugares(), btnLugares);
+            AbrirEnPanel(() => new FrmLugares(), btnLugares);
         }
 
         private void btnClientes_Click(object sender, EventArgs e)
         {
-            AbrirEnPanel(new FrmClientes(), btnClientes);
+            AbrirEnPanel(() => new FrmClientes(), btnClientes);
         }
 
         private void btnServicios_Click(object sender, EventArgs e)
         {
-            AbrirEnPanel(new FrmServiciosAdicionales(), btnServicios);
+            AbrirEnPanel(() => new FrmServiciosAdicionales(), btnServicios);
         }
 
         private void btnProductos_Click(object sender, EventArgs e)
         {
-            AbrirEnPanel(new FrmProductos(), btnProductos);
+            AbrirEnPanel(() => new FrmProductos(), btnProductos);
         }
 
         private void btnEventos_Click(object sender, EventArgs e)
         {
-            AbrirEnPanel(new FrmEventos(), btnEventos);
+            AbrirEnPanel(() => new FrmEventos(), btnEventos);
         }
 
         private void btnSalir_Click(object sender, EventArgs e)

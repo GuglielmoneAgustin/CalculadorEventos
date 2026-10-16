@@ -27,7 +27,10 @@ namespace ProyectoEventos.Forms
             lblInfoEvento = new Label();
             lblComponentes = new Label();
             lblDgvItemsMenu = new Label();
-            clbComponentes = new CheckedListBox();
+            lvProductos = new ListView();
+            lblFiltroRestriccion = new Label();
+            cmbFiltroRestriccion = new ComboBox();
+            lblSubtotalPlato = new Label();
             lblCantAdultosItem = new Label();
             numCantAdultosItem = new NumericUpDown();
             lblCantNinosItem = new Label();
@@ -83,9 +86,9 @@ namespace ProyectoEventos.Forms
             // tlpContenido
             // 
             tlpContenido.ColumnCount = 3;
-            tlpContenido.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 27F));
-            tlpContenido.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 43F));
-            tlpContenido.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30F));
+            tlpContenido.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 34F));
+            tlpContenido.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 38F));
+            tlpContenido.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 28F));
             tlpContenido.Controls.Add(tlpTarjetaProductos, 0, 0);
             tlpContenido.Controls.Add(tlpTarjetaMenu, 1, 0);
             tlpContenido.Controls.Add(tlpTarjetaServicios, 2, 0);
@@ -102,22 +105,28 @@ namespace ProyectoEventos.Forms
             tlpTarjetaProductos.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tlpTarjetaProductos.Controls.Add(lblComponentes, 0, 0);
             tlpTarjetaProductos.SetColumnSpan(lblComponentes, 2);
-            tlpTarjetaProductos.Controls.Add(clbComponentes, 0, 1);
-            tlpTarjetaProductos.SetColumnSpan(clbComponentes, 2);
-            tlpTarjetaProductos.Controls.Add(lblCantAdultosItem, 0, 2);
-            tlpTarjetaProductos.Controls.Add(numCantAdultosItem, 1, 2);
-            tlpTarjetaProductos.Controls.Add(lblCantNinosItem, 0, 3);
-            tlpTarjetaProductos.Controls.Add(numCantNinosItem, 1, 3);
-            tlpTarjetaProductos.Controls.Add(btnAgregarItem, 0, 4);
+            tlpTarjetaProductos.Controls.Add(lblFiltroRestriccion, 0, 1);
+            tlpTarjetaProductos.Controls.Add(cmbFiltroRestriccion, 1, 1);
+            tlpTarjetaProductos.Controls.Add(lvProductos, 0, 2);
+            tlpTarjetaProductos.SetColumnSpan(lvProductos, 2);
+            tlpTarjetaProductos.Controls.Add(lblCantAdultosItem, 0, 3);
+            tlpTarjetaProductos.Controls.Add(numCantAdultosItem, 1, 3);
+            tlpTarjetaProductos.Controls.Add(lblCantNinosItem, 0, 4);
+            tlpTarjetaProductos.Controls.Add(numCantNinosItem, 1, 4);
+            tlpTarjetaProductos.Controls.Add(lblSubtotalPlato, 0, 5);
+            tlpTarjetaProductos.SetColumnSpan(lblSubtotalPlato, 2);
+            tlpTarjetaProductos.Controls.Add(btnAgregarItem, 0, 6);
             tlpTarjetaProductos.SetColumnSpan(btnAgregarItem, 2);
-            tlpTarjetaProductos.Controls.Add(btnCancelarEdicion, 0, 5);
+            tlpTarjetaProductos.Controls.Add(btnCancelarEdicion, 0, 7);
             tlpTarjetaProductos.SetColumnSpan(btnCancelarEdicion, 2);
             tlpTarjetaProductos.Dock = DockStyle.Fill;
             tlpTarjetaProductos.Margin = new Padding(0, 0, 20, 0);
             tlpTarjetaProductos.Name = "tlpTarjetaProductos";
-            tlpTarjetaProductos.RowCount = 6;
+            tlpTarjetaProductos.RowCount = 8;
+            tlpTarjetaProductos.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpTarjetaProductos.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpTarjetaProductos.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tlpTarjetaProductos.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpTarjetaProductos.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpTarjetaProductos.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpTarjetaProductos.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -193,12 +202,48 @@ namespace ProyectoEventos.Forms
             lblComponentes.TabIndex = 1;
             lblComponentes.Text = "Productos disponibles";
             // 
-            // clbComponentes
+            // lblFiltroRestriccion
             // 
-            clbComponentes.CheckOnClick = true;
-            clbComponentes.Dock = DockStyle.Fill;
-            clbComponentes.Name = "clbComponentes";
-            clbComponentes.TabIndex = 2;
+            lblFiltroRestriccion.Anchor = AnchorStyles.Left;
+            lblFiltroRestriccion.AutoSize = true;
+            lblFiltroRestriccion.Margin = new Padding(3, 0, 12, 8);
+            lblFiltroRestriccion.Name = "lblFiltroRestriccion";
+            lblFiltroRestriccion.TabIndex = 21;
+            lblFiltroRestriccion.Text = "Apto para:";
+            // 
+            // cmbFiltroRestriccion
+            // 
+            cmbFiltroRestriccion.Dock = DockStyle.Fill;
+            cmbFiltroRestriccion.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbFiltroRestriccion.FormattingEnabled = true;
+            cmbFiltroRestriccion.Margin = new Padding(3, 0, 3, 8);
+            cmbFiltroRestriccion.Name = "cmbFiltroRestriccion";
+            cmbFiltroRestriccion.TabIndex = 22;
+            cmbFiltroRestriccion.SelectedIndexChanged += cmbFiltroRestriccion_SelectedIndexChanged;
+            // 
+            // lvProductos
+            // 
+            lvProductos.CheckBoxes = true;
+            lvProductos.Dock = DockStyle.Fill;
+            // Alto mínimo: en pantallas chicas la pantalla se desplaza en lugar de aplastar la lista
+            lvProductos.MinimumSize = new Size(0, 150);
+            lvProductos.FullRowSelect = true;
+            lvProductos.HeaderStyle = ColumnHeaderStyle.Nonclickable;
+            lvProductos.MultiSelect = false;
+            lvProductos.Name = "lvProductos";
+            lvProductos.ShowGroups = true;
+            lvProductos.TabIndex = 2;
+            lvProductos.UseCompatibleStateImageBehavior = false;
+            lvProductos.View = View.Details;
+            lvProductos.ItemChecked += lvProductos_ItemChecked;
+            lvProductos.Resize += lvProductos_Resize;
+            // 
+            // lblSubtotalPlato
+            // 
+            lblSubtotalPlato.AutoSize = true;
+            lblSubtotalPlato.Margin = new Padding(3, 10, 3, 0);
+            lblSubtotalPlato.Name = "lblSubtotalPlato";
+            lblSubtotalPlato.TabIndex = 23;
             // 
             // lblCantAdultosItem
             // 
@@ -216,6 +261,7 @@ namespace ProyectoEventos.Forms
             numCantAdultosItem.Maximum = new decimal(new int[] { 100000, 0, 0, 0 });
             numCantAdultosItem.Name = "numCantAdultosItem";
             numCantAdultosItem.TabIndex = 4;
+            numCantAdultosItem.ValueChanged += CantidadesItem_ValueChanged;
             // 
             // lblCantNinosItem
             // 
@@ -232,6 +278,7 @@ namespace ProyectoEventos.Forms
             numCantNinosItem.Maximum = new decimal(new int[] { 100000, 0, 0, 0 });
             numCantNinosItem.Name = "numCantNinosItem";
             numCantNinosItem.TabIndex = 6;
+            numCantNinosItem.ValueChanged += CantidadesItem_ValueChanged;
             // 
             // btnAgregarItem
             // 
@@ -374,7 +421,7 @@ namespace ProyectoEventos.Forms
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoScroll = true;
-            AutoScrollMinSize = new Size(1160, 597);
+            AutoScrollMinSize = new Size(880, 540);
             ClientSize = new Size(1240, 740);
             Controls.Add(tlpRaiz);
             Name = "FrmEventoMenu";
@@ -411,7 +458,10 @@ namespace ProyectoEventos.Forms
         private Label lblInfoEvento;
         private Label lblComponentes;
         private Label lblDgvItemsMenu;
-        private CheckedListBox clbComponentes;
+        private ListView lvProductos;
+        private Label lblFiltroRestriccion;
+        private ComboBox cmbFiltroRestriccion;
+        private Label lblSubtotalPlato;
         private Label lblCantAdultosItem;
         private NumericUpDown numCantAdultosItem;
         private Label lblCantNinosItem;

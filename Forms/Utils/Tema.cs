@@ -112,6 +112,17 @@ namespace ProyectoEventos.Forms.Utils
                         fecha.Font = FuenteCampo;
                         fecha.CalendarMonthBackground = Campo;
                         break;
+                    case ListView vista:
+                        vista.BorderStyle = BorderStyle.None;
+                        vista.BackColor = Campo;
+                        vista.ForeColor = Texto;
+                        vista.Font = FuenteCampo;
+                        break;
+                    case CheckBox casilla:
+                        casilla.Font = FuenteEtiqueta;
+                        casilla.ForeColor = TextoSuave;
+                        casilla.BackColor = Color.Transparent;
+                        break;
                     case CheckedListBox lista:
                         lista.BorderStyle = BorderStyle.None;
                         lista.BackColor = Campo;
@@ -151,6 +162,8 @@ namespace ProyectoEventos.Forms.Utils
             if (tabla.Name == "tlpFormulario")
             {
                 tabla.Margin = new Padding(0, 0, 20, 0);
+                // En pantallas bajas el formulario se desplaza en lugar de esconder los botones
+                tabla.AutoScroll = true;
             }
             else if (tabla.Name == "tlpGrilla")
             {
@@ -226,6 +239,18 @@ namespace ProyectoEventos.Forms.Utils
                 // Número grande de las tarjetas de resumen (pantalla de inicio)
                 etiqueta.Font = FuenteResumen;
                 etiqueta.ForeColor = Texto;
+            }
+            else if (nombre == "lblmodo")
+            {
+                // Título de la tarjeta del formulario ("Nuevo cliente" / "Editando: ...")
+                etiqueta.Font = FuenteTitulo;
+                etiqueta.ForeColor = Texto;
+            }
+            else if (nombre == "lblaviso")
+            {
+                // Confirmación breve después de guardar o eliminar
+                etiqueta.Font = FuenteNegrita;
+                etiqueta.ForeColor = PrimarioHover;
             }
             else
             {

@@ -12,6 +12,8 @@ namespace ProyectoEventos.Forms
         private readonly ClienteController controlador;
         private List<ClienteDTO> clientes = new List<ClienteDTO>();
         private int idSeleccionado;
+        // Valores del formulario al cargarlo o limpiarlo: si cambian, hay datos sin guardar
+        private string valoresGuardados = string.Empty;
 
         public FrmClientes()
         {
@@ -19,6 +21,9 @@ namespace ProyectoEventos.Forms
             Tema.Aplicar(this);
             controlador = new ClienteController();
             idSeleccionado = 0;
+            dgvClientes.MensajeSinFilas(() => clientes.Count == 0
+                ? "Todavía no hay clientes. Complete el formulario y toque Guardar."
+                : "Ningún cliente coincide con la búsqueda.");
         }
 
         private void btnVolver_Click(object sender, EventArgs e)
@@ -29,6 +34,15 @@ namespace ProyectoEventos.Forms
         private void FrmClientes_Load(object sender, EventArgs e)
         {
             CargarGrilla();
+            LimpiarFormulario();
+        }
+
+        private void FrmClientes_FormClosing(object? sender, FormClosingEventArgs e)
+        {
+            if (!Formulario.ConfirmarDescartarCambios(HayCambiosSinGuardar()))
+            {
+                e.Cancel = true;
+            }
         }
 
         private void CargarGrilla()
@@ -51,6 +65,7 @@ namespace ProyectoEventos.Forms
             dgvClientes.Columna("Dni").HeaderText = "DNI";
             dgvClientes.Columna("Telefono").HeaderText = "Teléfono";
             dgvClientes.Columna("CantidadEventos").HeaderText = "Eventos";
+            dgvClientes.Columna("CantidadEventos").FillWeight = 50;
             dgvClientes.Columna("Descripcion").Visible = false;
 
             if (dgvClientes.Rows.Count > 0)
@@ -73,11 +88,17 @@ namespace ProyectoEventos.Forms
                 Mensajes.Advertencia("Seleccione un cliente de la grilla para editar.");
                 return;
             }
+            if (!Formulario.ConfirmarDescartarCambios(HayCambiosSinGuardar()))
+            {
+                return;
+            }
 
             try
             {
-                CargarFormulario(controlador.ObtenerPorId(seleccionado.Id));
-                idSeleccionado = seleccionado.Id;
+                ClienteDTO cliente = controlador.ObtenerPorId(seleccionado.Id);
+                CargarFormulario(cliente);
+                idSeleccionado = cliente.Id;
+                MostrarModoEdicion(cliente.Nombre);
             }
             catch (NoEncontradoException ex)
             {
@@ -91,15 +112,24 @@ namespace ProyectoEventos.Forms
             try
             {
                 ClienteDTO dto = ArmarDto();
+                bool eraEdicion = idSeleccionado != 0;
                 controlador.Guardar(dto);
 
                 CargarGrilla();
                 LimpiarFormulario();
+                string dni = dto.Dni.Trim();
+                dgvClientes.SeleccionarFila<ClienteDTO>(c => c.Dni.Equals(dni, StringComparison.OrdinalIgnoreCase));
+                Aviso.Mostrar(lblAviso, eraEdicion ? "Cliente actualizado." : "Cliente guardado.");
             }
             catch (NegocioException ex)
             {
                 Mensajes.Advertencia(ex.Message);
             }
+        }
+
+        private void btnCancelarEdicion_Click(object sender, EventArgs e)
+        {
+            LimpiarFormulario();
         }
 
         private void btnEliminar_Click(object sender, EventArgs e)
@@ -117,7 +147,11 @@ namespace ProyectoEventos.Forms
                 {
                     controlador.Eliminar(seleccionado.Id);
                     CargarGrilla();
-                    LimpiarFormulario();
+                    if (seleccionado.Id == idSeleccionado)
+                    {
+                        LimpiarFormulario();
+                    }
+                    Aviso.Mostrar(lblAviso, "Cliente eliminado.");
                 }
                 catch (NegocioException ex)
                 {
@@ -145,6 +179,16 @@ namespace ProyectoEventos.Forms
             txtBoxTelefono.Text = dto.Telefono;
         }
 
+        // El título de la tarjeta indica (y Cancelar permite descartar) que se está modificando un cliente existente
+        private void MostrarModoEdicion(string nombre)
+        {
+            lblModo.Text = "Editando: " + nombre;
+            btnGuardar.Text = "Guardar";
+            tlpBotones.SetColumnSpan(btnGuardar, 1);
+            btnCancelarEdicion.Visible = true;
+            valoresGuardados = Formulario.Valores(tlpFormulario);
+        }
+
         private void LimpiarFormulario()
         {
             idSeleccionado = 0;
@@ -152,6 +196,17 @@ namespace ProyectoEventos.Forms
             txtBoxDni.Text = string.Empty;
             txtBoxMail.Text = string.Empty;
             txtBoxTelefono.Text = string.Empty;
+
+            lblModo.Text = "Nuevo cliente";
+            btnGuardar.Text = "Guardar";
+            tlpBotones.SetColumnSpan(btnGuardar, 2);
+            btnCancelarEdicion.Visible = false;
+            valoresGuardados = Formulario.Valores(tlpFormulario);
+        }
+
+        private bool HayCambiosSinGuardar()
+        {
+            return Formulario.Valores(tlpFormulario) != valoresGuardados;
         }
     }
 }

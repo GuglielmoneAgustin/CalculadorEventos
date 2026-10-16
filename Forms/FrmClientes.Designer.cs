@@ -19,7 +19,10 @@ namespace ProyectoEventos.Forms
         {
             tlpRaiz = new TableLayoutPanel();
             tlpFormulario = new TableLayoutPanel();
-            flowBotones = new FlowLayoutPanel();
+            tlpBotones = new TableLayoutPanel();
+            btnCancelarEdicion = new Button();
+            lblModo = new Label();
+            lblAviso = new Label();
             tlpGrilla = new TableLayoutPanel();
             lblNombre = new Label();
             txtBoxNombre = new TextBox();
@@ -40,7 +43,7 @@ namespace ProyectoEventos.Forms
             ((System.ComponentModel.ISupportInitialize)dgvClientes).BeginInit();
             tlpRaiz.SuspendLayout();
             tlpFormulario.SuspendLayout();
-            flowBotones.SuspendLayout();
+            tlpBotones.SuspendLayout();
             tlpGrilla.SuspendLayout();
             SuspendLayout();
             // 
@@ -64,19 +67,23 @@ namespace ProyectoEventos.Forms
             // 
             tlpFormulario.ColumnCount = 1;
             tlpFormulario.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tlpFormulario.Controls.Add(lblNombre, 0, 0);
-            tlpFormulario.Controls.Add(txtBoxNombre, 0, 1);
-            tlpFormulario.Controls.Add(lblDni, 0, 2);
-            tlpFormulario.Controls.Add(txtBoxDni, 0, 3);
-            tlpFormulario.Controls.Add(lblMail, 0, 4);
-            tlpFormulario.Controls.Add(txtBoxMail, 0, 5);
-            tlpFormulario.Controls.Add(lblTelefono, 0, 6);
-            tlpFormulario.Controls.Add(txtBoxTelefono, 0, 7);
-            tlpFormulario.Controls.Add(flowBotones, 0, 8);
+            tlpFormulario.Controls.Add(lblModo, 0, 0);
+            tlpFormulario.Controls.Add(lblNombre, 0, 1);
+            tlpFormulario.Controls.Add(txtBoxNombre, 0, 2);
+            tlpFormulario.Controls.Add(lblDni, 0, 3);
+            tlpFormulario.Controls.Add(txtBoxDni, 0, 4);
+            tlpFormulario.Controls.Add(lblMail, 0, 5);
+            tlpFormulario.Controls.Add(txtBoxMail, 0, 6);
+            tlpFormulario.Controls.Add(lblTelefono, 0, 7);
+            tlpFormulario.Controls.Add(txtBoxTelefono, 0, 8);
+            tlpFormulario.Controls.Add(tlpBotones, 0, 9);
+            tlpFormulario.Controls.Add(lblAviso, 0, 10);
             tlpFormulario.Dock = DockStyle.Fill;
             tlpFormulario.Margin = new Padding(0, 0, 40, 0);
             tlpFormulario.Name = "tlpFormulario";
-            tlpFormulario.RowCount = 10;
+            tlpFormulario.RowCount = 12;
+            tlpFormulario.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            tlpFormulario.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpFormulario.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpFormulario.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpFormulario.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -88,16 +95,55 @@ namespace ProyectoEventos.Forms
             tlpFormulario.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpFormulario.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             // 
-            // flowBotones
+            // tlpBotones
             // 
-            flowBotones.Controls.Add(btnGuardar);
-            flowBotones.Controls.Add(btnEditar);
-            flowBotones.Controls.Add(btnEliminar);
-            flowBotones.AutoSize = true;
-            flowBotones.Dock = DockStyle.Top;
-            flowBotones.Margin = new Padding(3, 25, 3, 3);
-            flowBotones.WrapContents = false;
-            flowBotones.Name = "flowBotones";
+            tlpBotones.AutoSize = true;
+            tlpBotones.ColumnCount = 2;
+            tlpBotones.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tlpBotones.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tlpBotones.Controls.Add(btnGuardar, 0, 0);
+            tlpBotones.SetColumnSpan(btnGuardar, 2);
+            tlpBotones.Controls.Add(btnEditar, 0, 1);
+            tlpBotones.Controls.Add(btnEliminar, 1, 1);
+            tlpBotones.Controls.Add(btnCancelarEdicion, 1, 0);
+            tlpBotones.Dock = DockStyle.Top;
+            tlpBotones.Margin = new Padding(3, 16, 3, 3);
+            tlpBotones.Name = "tlpBotones";
+            tlpBotones.RowCount = 2;
+            tlpBotones.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            tlpBotones.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            // Guardar (la acción principal) ocupa toda la fila; al editar la comparte con Cancelar.
+            // Editar y Eliminar van debajo, media fila cada uno.
+            btnGuardar.Dock = DockStyle.Fill;
+            btnEditar.Dock = DockStyle.Fill;
+            btnEliminar.Dock = DockStyle.Fill;
+            // 
+            // btnCancelarEdicion
+            // 
+            btnCancelarEdicion.Dock = DockStyle.Fill;
+            btnCancelarEdicion.Margin = new Padding(0, 0, 0, 8);
+            btnCancelarEdicion.Name = "btnCancelarEdicion";
+            btnCancelarEdicion.Size = new Size(94, 38);
+            btnCancelarEdicion.TabIndex = 30;
+            btnCancelarEdicion.Text = "Cancelar";
+            btnCancelarEdicion.UseVisualStyleBackColor = true;
+            btnCancelarEdicion.Visible = false;
+            btnCancelarEdicion.Click += btnCancelarEdicion_Click;
+            // 
+            // lblModo
+            // 
+            lblModo.AutoSize = true;
+            lblModo.Margin = new Padding(3, 0, 3, 2);
+            lblModo.Name = "lblModo";
+            lblModo.TabIndex = 31;
+            lblModo.Text = "Nuevo cliente";
+            // 
+            // lblAviso
+            // 
+            lblAviso.AutoSize = true;
+            lblAviso.Margin = new Padding(3, 6, 3, 0);
+            lblAviso.Name = "lblAviso";
+            lblAviso.TabIndex = 32;
             // 
             // tlpGrilla
             // 
@@ -137,8 +183,8 @@ namespace ProyectoEventos.Forms
             // lblNombre
             // 
             lblNombre.AutoSize = true;
-            lblNombre.Margin = new Padding(3, 12, 3, 3);
-            lblNombre.Text = "Nombre:";
+            lblNombre.Margin = new Padding(3, 8, 3, 3);
+            lblNombre.Text = "Nombre: *";
             lblNombre.Name = "lblNombre";
             lblNombre.TabIndex = 0;
             // 
@@ -151,8 +197,8 @@ namespace ProyectoEventos.Forms
             // lblDni
             // 
             lblDni.AutoSize = true;
-            lblDni.Margin = new Padding(3, 12, 3, 3);
-            lblDni.Text = "DNI:";
+            lblDni.Margin = new Padding(3, 8, 3, 3);
+            lblDni.Text = "DNI: *";
             lblDni.Name = "lblDni";
             lblDni.TabIndex = 2;
             // 
@@ -165,7 +211,7 @@ namespace ProyectoEventos.Forms
             // lblMail
             // 
             lblMail.AutoSize = true;
-            lblMail.Margin = new Padding(3, 12, 3, 3);
+            lblMail.Margin = new Padding(3, 8, 3, 3);
             lblMail.Text = "Mail:";
             lblMail.Name = "lblMail";
             lblMail.TabIndex = 4;
@@ -179,7 +225,7 @@ namespace ProyectoEventos.Forms
             // lblTelefono
             // 
             lblTelefono.AutoSize = true;
-            lblTelefono.Margin = new Padding(3, 12, 3, 3);
+            lblTelefono.Margin = new Padding(3, 8, 3, 3);
             lblTelefono.Text = "Teléfono:";
             lblTelefono.Name = "lblTelefono";
             lblTelefono.TabIndex = 6;
@@ -193,7 +239,7 @@ namespace ProyectoEventos.Forms
             // btnGuardar
             // 
             btnGuardar.BackColor = SystemColors.ControlLightLight;
-            btnGuardar.Margin = new Padding(0, 0, 10, 0);
+            btnGuardar.Margin = new Padding(0, 0, 8, 8);
             btnGuardar.Size = new Size(94, 29);
             btnGuardar.Text = "Guardar";
             btnGuardar.UseVisualStyleBackColor = false;
@@ -203,7 +249,7 @@ namespace ProyectoEventos.Forms
             // 
             // btnEditar
             // 
-            btnEditar.Margin = new Padding(0, 0, 10, 0);
+            btnEditar.Margin = new Padding(0, 0, 8, 0);
             btnEditar.Size = new Size(94, 29);
             btnEditar.Text = "Editar";
             btnEditar.UseVisualStyleBackColor = true;
@@ -213,7 +259,7 @@ namespace ProyectoEventos.Forms
             // 
             // btnEliminar
             // 
-            btnEliminar.Margin = new Padding(0, 0, 10, 0);
+            btnEliminar.Margin = new Padding(0);
             btnEliminar.Size = new Size(94, 29);
             btnEliminar.Text = "Eliminar";
             btnEliminar.UseVisualStyleBackColor = true;
@@ -265,11 +311,12 @@ namespace ProyectoEventos.Forms
             Text = "Gestión de clientes";
             WindowState = FormWindowState.Maximized;
             Load += FrmClientes_Load;
+            FormClosing += FrmClientes_FormClosing;
             ((System.ComponentModel.ISupportInitialize)dgvClientes).EndInit();
             tlpGrilla.ResumeLayout(false);
             tlpGrilla.PerformLayout();
-            flowBotones.ResumeLayout(false);
-            flowBotones.PerformLayout();
+            tlpBotones.ResumeLayout(false);
+            tlpBotones.PerformLayout();
             tlpFormulario.ResumeLayout(false);
             tlpFormulario.PerformLayout();
             tlpRaiz.ResumeLayout(false);
@@ -282,7 +329,10 @@ namespace ProyectoEventos.Forms
 
         private TableLayoutPanel tlpRaiz;
         private TableLayoutPanel tlpFormulario;
-        private FlowLayoutPanel flowBotones;
+        private TableLayoutPanel tlpBotones;
+        private Button btnCancelarEdicion;
+        private Label lblModo;
+        private Label lblAviso;
         private TableLayoutPanel tlpGrilla;
         private Label lblNombre;
         private TextBox txtBoxNombre;

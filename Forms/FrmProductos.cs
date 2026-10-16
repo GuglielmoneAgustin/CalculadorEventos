@@ -13,6 +13,8 @@ namespace ProyectoEventos.Forms
         private readonly ProductoController controlador;
         private List<ProductoDTO> productos = new List<ProductoDTO>();
         private int idSeleccionado;
+        // Valores del formulario al cargarlo o limpiarlo: si cambian, hay datos sin guardar
+        private string valoresGuardados = string.Empty;
 
         public FrmProductos()
         {
@@ -20,6 +22,9 @@ namespace ProyectoEventos.Forms
             Tema.Aplicar(this);
             controlador = new ProductoController();
             idSeleccionado = 0;
+            dgvProductos.MensajeSinFilas(() => productos.Count == 0
+                ? "Todavía no hay productos. Complete el formulario y toque Guardar."
+                : "Ningún producto coincide con la búsqueda.");
         }
 
         private void btnVolver_Click(object sender, EventArgs e)
@@ -32,6 +37,15 @@ namespace ProyectoEventos.Forms
             CargarComboCategoria();
             CargarComboRestriccion();
             CargarGrilla();
+            LimpiarFormulario();
+        }
+
+        private void FrmProductos_FormClosing(object? sender, FormClosingEventArgs e)
+        {
+            if (!Formulario.ConfirmarDescartarCambios(HayCambiosSinGuardar()))
+            {
+                e.Cancel = true;
+            }
         }
 
         private void CargarComboCategoria()
@@ -113,11 +127,17 @@ namespace ProyectoEventos.Forms
                 Mensajes.Advertencia("Seleccione un producto de la grilla para editar.");
                 return;
             }
+            if (!Formulario.ConfirmarDescartarCambios(HayCambiosSinGuardar()))
+            {
+                return;
+            }
 
             try
             {
-                CargarFormulario(controlador.ObtenerPorId(seleccionado.Id));
-                idSeleccionado = seleccionado.Id;
+                ProductoDTO producto = controlador.ObtenerPorId(seleccionado.Id);
+                CargarFormulario(producto);
+                idSeleccionado = producto.Id;
+                MostrarModoEdicion(producto.Nombre);
             }
             catch (NoEncontradoException ex)
             {
@@ -131,15 +151,24 @@ namespace ProyectoEventos.Forms
             try
             {
                 ProductoDTO dto = ArmarDto();
+                bool eraEdicion = idSeleccionado != 0;
                 controlador.Guardar(dto);
 
                 CargarGrilla();
                 LimpiarFormulario();
+                string nombre = dto.Nombre.Trim();
+                dgvProductos.SeleccionarFila<ProductoDTO>(p => p.Nombre.Equals(nombre, StringComparison.OrdinalIgnoreCase));
+                Aviso.Mostrar(lblAviso, eraEdicion ? "Producto actualizado." : "Producto guardado.");
             }
             catch (NegocioException ex)
             {
                 Mensajes.Advertencia(ex.Message);
             }
+        }
+
+        private void btnCancelarEdicion_Click(object sender, EventArgs e)
+        {
+            LimpiarFormulario();
         }
 
         private void btnEliminar_Click(object sender, EventArgs e)
@@ -157,7 +186,11 @@ namespace ProyectoEventos.Forms
                 {
                     controlador.Eliminar(seleccionado.Id);
                     CargarGrilla();
-                    LimpiarFormulario();
+                    if (seleccionado.Id == idSeleccionado)
+                    {
+                        LimpiarFormulario();
+                    }
+                    Aviso.Mostrar(lblAviso, "Producto eliminado.");
                 }
                 catch (NegocioException ex)
                 {
@@ -187,6 +220,16 @@ namespace ProyectoEventos.Forms
             cmbEnumRestriccion.SelectedItem = dto.Restriccion;
         }
 
+        // El título de la tarjeta indica (y Cancelar permite descartar) que se está modificando un producto existente
+        private void MostrarModoEdicion(string nombre)
+        {
+            lblModo.Text = "Editando: " + nombre;
+            btnGuardar.Text = "Guardar";
+            tlpBotones.SetColumnSpan(btnGuardar, 1);
+            btnCancelarEdicion.Visible = true;
+            valoresGuardados = Formulario.Valores(tlpFormulario);
+        }
+
         private void LimpiarFormulario()
         {
             idSeleccionado = 0;
@@ -195,6 +238,17 @@ namespace ProyectoEventos.Forms
             numPrecioNino.Value = 0;
             cmbEnumCategoria.SelectedIndex = 0;
             cmbEnumRestriccion.SelectedIndex = 0;
+
+            lblModo.Text = "Nuevo producto";
+            btnGuardar.Text = "Guardar";
+            tlpBotones.SetColumnSpan(btnGuardar, 2);
+            btnCancelarEdicion.Visible = false;
+            valoresGuardados = Formulario.Valores(tlpFormulario);
+        }
+
+        private bool HayCambiosSinGuardar()
+        {
+            return Formulario.Valores(tlpFormulario) != valoresGuardados;
         }
     }
 }

@@ -12,6 +12,8 @@ namespace ProyectoEventos.Forms
         private readonly ServicioAdicionalController controlador;
         private List<ServicioAdicionalDTO> servicios = new List<ServicioAdicionalDTO>();
         private int idSeleccionado;
+        // Valores del formulario al cargarlo o limpiarlo: si cambian, hay datos sin guardar
+        private string valoresGuardados = string.Empty;
 
         public FrmServiciosAdicionales()
         {
@@ -19,6 +21,9 @@ namespace ProyectoEventos.Forms
             Tema.Aplicar(this);
             controlador = new ServicioAdicionalController();
             idSeleccionado = 0;
+            dgvServicios.MensajeSinFilas(() => servicios.Count == 0
+                ? "Todavía no hay servicios. Complete el formulario y toque Guardar."
+                : "Ningún servicio coincide con la búsqueda.");
         }
 
         private void btnVolver_Click(object sender, EventArgs e)
@@ -29,6 +34,15 @@ namespace ProyectoEventos.Forms
         private void FrmServiciosAdicionales_Load(object sender, EventArgs e)
         {
             CargarGrilla();
+            LimpiarFormulario();
+        }
+
+        private void FrmServiciosAdicionales_FormClosing(object? sender, FormClosingEventArgs e)
+        {
+            if (!Formulario.ConfirmarDescartarCambios(HayCambiosSinGuardar()))
+            {
+                e.Cancel = true;
+            }
         }
 
         private void CargarGrilla()
@@ -71,11 +85,17 @@ namespace ProyectoEventos.Forms
                 Mensajes.Advertencia("Seleccione un servicio de la grilla para editar.");
                 return;
             }
+            if (!Formulario.ConfirmarDescartarCambios(HayCambiosSinGuardar()))
+            {
+                return;
+            }
 
             try
             {
-                CargarFormulario(controlador.ObtenerPorId(seleccionado.Id));
-                idSeleccionado = seleccionado.Id;
+                ServicioAdicionalDTO servicio = controlador.ObtenerPorId(seleccionado.Id);
+                CargarFormulario(servicio);
+                idSeleccionado = servicio.Id;
+                MostrarModoEdicion(servicio.Nombre);
             }
             catch (NoEncontradoException ex)
             {
@@ -89,15 +109,24 @@ namespace ProyectoEventos.Forms
             try
             {
                 ServicioAdicionalDTO dto = ArmarDto();
+                bool eraEdicion = idSeleccionado != 0;
                 controlador.Guardar(dto);
 
                 CargarGrilla();
                 LimpiarFormulario();
+                string nombre = dto.Nombre.Trim();
+                dgvServicios.SeleccionarFila<ServicioAdicionalDTO>(s => s.Nombre.Equals(nombre, StringComparison.OrdinalIgnoreCase));
+                Aviso.Mostrar(lblAviso, eraEdicion ? "Servicio actualizado." : "Servicio guardado.");
             }
             catch (NegocioException ex)
             {
                 Mensajes.Advertencia(ex.Message);
             }
+        }
+
+        private void btnCancelarEdicion_Click(object sender, EventArgs e)
+        {
+            LimpiarFormulario();
         }
 
         private void btnEliminar_Click(object sender, EventArgs e)
@@ -115,7 +144,11 @@ namespace ProyectoEventos.Forms
                 {
                     controlador.Eliminar(seleccionado.Id);
                     CargarGrilla();
-                    LimpiarFormulario();
+                    if (seleccionado.Id == idSeleccionado)
+                    {
+                        LimpiarFormulario();
+                    }
+                    Aviso.Mostrar(lblAviso, "Servicio eliminado.");
                 }
                 catch (NegocioException ex)
                 {
@@ -141,12 +174,33 @@ namespace ProyectoEventos.Forms
             numMonto.Value = dto.Monto;
         }
 
+        // El título de la tarjeta indica (y Cancelar permite descartar) que se está modificando un servicio existente
+        private void MostrarModoEdicion(string nombre)
+        {
+            lblModo.Text = "Editando: " + nombre;
+            btnGuardar.Text = "Guardar";
+            tlpBotones.SetColumnSpan(btnGuardar, 1);
+            btnCancelarEdicion.Visible = true;
+            valoresGuardados = Formulario.Valores(tlpFormulario);
+        }
+
         private void LimpiarFormulario()
         {
             idSeleccionado = 0;
             txtBoxNombre.Text = string.Empty;
             txtBoxDescripcion.Text = string.Empty;
             numMonto.Value = 0;
+
+            lblModo.Text = "Nuevo servicio";
+            btnGuardar.Text = "Guardar";
+            tlpBotones.SetColumnSpan(btnGuardar, 2);
+            btnCancelarEdicion.Visible = false;
+            valoresGuardados = Formulario.Valores(tlpFormulario);
+        }
+
+        private bool HayCambiosSinGuardar()
+        {
+            return Formulario.Valores(tlpFormulario) != valoresGuardados;
         }
     }
 }

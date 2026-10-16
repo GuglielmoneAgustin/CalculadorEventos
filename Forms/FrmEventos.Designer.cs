@@ -26,6 +26,8 @@ namespace ProyectoEventos.Forms
             lblBuscar = new Label();
             btnNuevo = new Button();
             btnEditar = new Button();
+            btnDuplicar = new Button();
+            chkOcultarRealizados = new CheckBox();
             btnMenu = new Button();
             btnPresupuestos = new Button();
             btnEliminar = new Button();
@@ -54,6 +56,7 @@ namespace ProyectoEventos.Forms
             flowBotones.Controls.Add(btnEditar);
             flowBotones.Controls.Add(btnMenu);
             flowBotones.Controls.Add(btnPresupuestos);
+            flowBotones.Controls.Add(btnDuplicar);
             flowBotones.Controls.Add(btnEliminar);
             flowBotones.Controls.Add(btnVolver);
             flowBotones.AutoSize = true;
@@ -64,15 +67,17 @@ namespace ProyectoEventos.Forms
             // 
             // tlpGrilla
             // 
-            tlpGrilla.ColumnCount = 3;
+            tlpGrilla.ColumnCount = 4;
             tlpGrilla.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tlpGrilla.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             tlpGrilla.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             tlpGrilla.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 280F));
             tlpGrilla.Controls.Add(lblDgvEventos, 0, 0);
-            tlpGrilla.Controls.Add(lblBuscar, 1, 0);
-            tlpGrilla.Controls.Add(txtBuscar, 2, 0);
+            tlpGrilla.Controls.Add(chkOcultarRealizados, 1, 0);
+            tlpGrilla.Controls.Add(lblBuscar, 2, 0);
+            tlpGrilla.Controls.Add(txtBuscar, 3, 0);
             tlpGrilla.Controls.Add(dgvEventos, 0, 1);
-            tlpGrilla.SetColumnSpan(dgvEventos, 3);
+            tlpGrilla.SetColumnSpan(dgvEventos, 4);
             // 
             // lblBuscar
             // 
@@ -160,6 +165,27 @@ namespace ProyectoEventos.Forms
             btnPresupuestos.UseVisualStyleBackColor = true;
             btnPresupuestos.Click += btnPresupuestos_Click;
             // 
+            // btnDuplicar
+            // 
+            btnDuplicar.Margin = new Padding(0, 0, 12, 0);
+            btnDuplicar.Name = "btnDuplicar";
+            btnDuplicar.Size = new Size(150, 38);
+            btnDuplicar.TabIndex = 8;
+            btnDuplicar.Text = "Duplicar";
+            btnDuplicar.UseVisualStyleBackColor = true;
+            btnDuplicar.Click += btnDuplicar_Click;
+            // 
+            // chkOcultarRealizados
+            // 
+            chkOcultarRealizados.Anchor = AnchorStyles.Right;
+            chkOcultarRealizados.AutoSize = true;
+            chkOcultarRealizados.Margin = new Padding(3, 0, 24, 10);
+            chkOcultarRealizados.Name = "chkOcultarRealizados";
+            chkOcultarRealizados.TabIndex = 9;
+            chkOcultarRealizados.Text = "Ocultar eventos realizados";
+            chkOcultarRealizados.UseVisualStyleBackColor = true;
+            chkOcultarRealizados.CheckedChanged += chkOcultarRealizados_CheckedChanged;
+            // 
             // btnEliminar
             // 
             btnEliminar.Margin = new Padding(0, 0, 12, 0);
@@ -210,6 +236,8 @@ namespace ProyectoEventos.Forms
         private Label lblBuscar;
         private Button btnNuevo;
         private Button btnEditar;
+        private Button btnDuplicar;
+        private CheckBox chkOcultarRealizados;
         private Button btnMenu;
         private Button btnPresupuestos;
         private Button btnEliminar;

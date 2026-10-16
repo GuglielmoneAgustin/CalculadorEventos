@@ -15,6 +15,7 @@ namespace ProyectoEventos.Forms
             InitializeComponent();
             Tema.Aplicar(this);
             eventoControlador = new EventoController();
+            dgvProximosEventos.MensajeSinFilas(() => "No hay eventos aprobados próximos. Los eventos aparecen acá cuando se aprueba su presupuesto.");
         }
 
         private void FrmInicio_Load(object sender, EventArgs e)

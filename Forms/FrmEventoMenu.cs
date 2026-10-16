@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using ProyectoEventos.Common;
 using ProyectoEventos.Controller;
 using ProyectoEventos.Dto;
 using ProyectoEventos.Common.Exceptions;
@@ -12,6 +13,9 @@ namespace ProyectoEventos.Forms
     // Cada acción se aplica directamente sobre el evento ya creado (idEvento).
     public partial class FrmEventoMenu : Form
     {
+        private const string TodosLosProductos = "Todos los productos";
+        private const string FormatoPrecioCorto = "$ #,##0";
+
         private readonly EventoController controlador;
         private readonly ProductoController productoControlador;
         private readonly ServicioAdicionalController servicioControlador;
@@ -24,6 +28,10 @@ namespace ProyectoEventos.Forms
         // Plato que se está editando (0 = el formulario agrega platos nuevos)
         private int idItemEditando;
         private List<ProductoDTO> productosDisponibles = new List<ProductoDTO>();
+        // Productos marcados para agregar; se conservan aunque el filtro los oculte
+        private readonly HashSet<int> idsMarcados = new HashSet<int>();
+        // Mientras se rellena la lista no se procesan los cambios de marca
+        private bool llenandoLista;
         private List<ServicioAdicionalDTO> serviciosDisponibles = new List<ServicioAdicionalDTO>();
 
         public FrmEventoMenu(int idEvento)
@@ -35,6 +43,8 @@ namespace ProyectoEventos.Forms
             servicioControlador = new ServicioAdicionalController();
             presupuestoControlador = new PresupuestoController();
             this.idEvento = idEvento;
+            dgvItemsMenu.MensajeSinFilas(() => "Todavía no hay platos. Marque productos a la izquierda y toque Agregar plato.");
+            dgvServiciosEvento.MensajeSinFilas(() => "Sin servicios adicionales.");
         }
 
         private void FrmEventoMenu_Load(object sender, EventArgs e)
@@ -68,11 +78,129 @@ namespace ProyectoEventos.Forms
         private void CargarProductosDisponibles()
         {
             productosDisponibles = productoControlador.ObtenerTodos();
-            clbComponentes.Items.Clear();
-            foreach (ProductoDTO producto in productosDisponibles)
+
+            lvProductos.Columns.Clear();
+            lvProductos.Columns.Add("Producto");
+            lvProductos.Columns.Add("Adulto / niño", 125, HorizontalAlignment.Right);
+
+            // Filtro por restricción alimentaria: todos o una restricción (se muestra con tildes)
+            cmbFiltroRestriccion.Format += (sender, e) => e.Value = e.ListItem as string ?? TextoEnum.Texto(e.ListItem);
+            cmbFiltroRestriccion.Items.Clear();
+            cmbFiltroRestriccion.Items.Add(TodosLosProductos);
+            foreach (RestriccionesAlimenticias restriccion in Enum.GetValues<RestriccionesAlimenticias>())
             {
-                clbComponentes.Items.Add(producto.Nombre);
+                cmbFiltroRestriccion.Items.Add(restriccion);
             }
+            cmbFiltroRestriccion.SelectedIndex = 0;
+        }
+
+        private void cmbFiltroRestriccion_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            LlenarListaProductos();
+        }
+
+        // Productos agrupados por categoría (Principal, Guarnición, ...) con el precio por adulto y por niño
+        private void LlenarListaProductos()
+        {
+            RestriccionesAlimenticias? filtro = cmbFiltroRestriccion.SelectedItem as RestriccionesAlimenticias?;
+
+            llenandoLista = true;
+            lvProductos.BeginUpdate();
+            lvProductos.Items.Clear();
+            lvProductos.Groups.Clear();
+            foreach (CategoriasProductos categoria in Enum.GetValues<CategoriasProductos>())
+            {
+                List<ProductoDTO> productos = productosDisponibles
+                    .Where(p => p.Categoria == categoria && (filtro == null || p.Restriccion == filtro))
+                    .OrderBy(p => p.Nombre)
+                    .ToList();
+                if (productos.Count == 0)
+                {
+                    continue;
+                }
+
+                ListViewGroup grupo = new ListViewGroup(TextoEnum.Categoria(categoria));
+                lvProductos.Groups.Add(grupo);
+                foreach (ProductoDTO producto in productos)
+                {
+                    string nombre = producto.Restriccion == RestriccionesAlimenticias.Estandar
+                        ? producto.Nombre
+                        : producto.Nombre + " · " + TextoEnum.Restriccion(producto.Restriccion);
+                    // Precios sin centavos para que entren en la columna: "$ 9.500 / 6.500"
+                    string precios = producto.PrecioAdulto.ToString(FormatoPrecioCorto) + " / " + producto.PrecioNino.ToString("#,##0");
+                    ListViewItem item = new ListViewItem(new[] { nombre, precios }, grupo);
+                    item.Tag = producto;
+                    item.Checked = idsMarcados.Contains(producto.Id);
+                    lvProductos.Items.Add(item);
+                }
+            }
+            lvProductos.EndUpdate();
+            llenandoLista = false;
+
+            AjustarColumnasProductos();
+            ActualizarSubtotalPlato();
+        }
+
+        private void lvProductos_ItemChecked(object? sender, ItemCheckedEventArgs e)
+        {
+            if (llenandoLista || e.Item.Tag is not ProductoDTO producto)
+            {
+                return;
+            }
+
+            if (e.Item.Checked)
+            {
+                idsMarcados.Add(producto.Id);
+            }
+            else
+            {
+                idsMarcados.Remove(producto.Id);
+            }
+            ActualizarSubtotalPlato();
+        }
+
+        private void lvProductos_Resize(object? sender, EventArgs e)
+        {
+            AjustarColumnasProductos();
+        }
+
+        // El nombre ocupa todo el ancho que deja la columna de precios
+        private void AjustarColumnasProductos()
+        {
+            if (lvProductos.Columns.Count < 2)
+            {
+                return;
+            }
+            int anchoPrecios = lvProductos.Columns[1].Width;
+            lvProductos.Columns[0].Width = Math.Max(lvProductos.ClientSize.Width - anchoPrecios - 4, 100);
+        }
+
+        private void CantidadesItem_ValueChanged(object? sender, EventArgs e)
+        {
+            ActualizarSubtotalPlato();
+        }
+
+        // Cuánto suman los productos marcados con las cantidades elegidas, antes de agregarlos
+        private void ActualizarSubtotalPlato()
+        {
+            if (idItemEditando != 0)
+            {
+                lblSubtotalPlato.Text = "Cambie las cantidades y toque Guardar cambios.";
+                return;
+            }
+
+            List<ProductoDTO> marcados = productosDisponibles.Where(p => idsMarcados.Contains(p.Id)).ToList();
+            if (marcados.Count == 0)
+            {
+                lblSubtotalPlato.Text = "Marque uno o más productos para agregarlos al menú.";
+                return;
+            }
+
+            decimal adultos = numCantAdultosItem.Value;
+            decimal ninos = numCantNinosItem.Value;
+            decimal subtotal = marcados.Sum(p => p.PrecioAdulto * adultos + p.PrecioNino * ninos);
+            string cantidad = marcados.Count == 1 ? "1 producto marcado" : marcados.Count + " productos marcados";
+            lblSubtotalPlato.Text = cantidad + " · Subtotal: " + subtotal.ToString(Formato.Moneda);
         }
 
         private void CargarGrillaItems()
@@ -102,7 +230,7 @@ namespace ProyectoEventos.Forms
                 return;
             }
 
-            if (clbComponentes.CheckedIndices.Count == 0)
+            if (idsMarcados.Count == 0)
             {
                 Mensajes.Advertencia("Seleccione al menos un producto para el plato.");
                 return;
@@ -114,11 +242,7 @@ namespace ProyectoEventos.Forms
                 int cantidadNinos = Convert.ToInt32(numCantNinosItem.Value);
 
                 // Cada producto marcado se agrega como un plato propio del menú (todos o ninguno).
-                List<int> idsProductos = new List<int>();
-                foreach (int indice in clbComponentes.CheckedIndices)
-                {
-                    idsProductos.Add(productosDisponibles[indice].Id);
-                }
+                List<int> idsProductos = productosDisponibles.Where(p => idsMarcados.Contains(p.Id)).Select(p => p.Id).ToList();
                 controlador.AgregarPlatosAlMenu(idEvento, cantidadAdultos, cantidadNinos, idsProductos);
 
                 LimpiarSeleccionItem();
@@ -174,12 +298,13 @@ namespace ProyectoEventos.Forms
             lblComponentes.Text = "Editando: " + item.DescripcionComponentes;
             btnAgregarItem.Text = "Guardar cambios";
             btnCancelarEdicion.Visible = true;
+            ActualizarSubtotalPlato();
             numCantAdultosItem.Focus();
         }
 
         private void GuardarCambiosItem()
         {
-            if (clbComponentes.CheckedIndices.Count > 0)
+            if (idsMarcados.Count > 0)
             {
                 Mensajes.Advertencia("Al editar un plato solo se cambian las cantidades. Para usar otro producto, quite el plato y agréguelo de nuevo.");
                 return;
@@ -217,11 +342,15 @@ namespace ProyectoEventos.Forms
 
         private void LimpiarSeleccionItem()
         {
-            for (int i = 0; i < clbComponentes.Items.Count; i++)
+            idsMarcados.Clear();
+            llenandoLista = true;
+            foreach (ListViewItem item in lvProductos.Items)
             {
-                clbComponentes.SetItemChecked(i, false);
+                item.Checked = false;
             }
+            llenandoLista = false;
             RestablecerCantidadesItem();
+            ActualizarSubtotalPlato();
         }
 
         // Por defecto un plato se sirve a todos los invitados del evento.

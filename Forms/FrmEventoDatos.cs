@@ -20,6 +20,10 @@ namespace ProyectoEventos.Forms
         private bool creadoSinFinalizar;
         // Fecha que tiene el evento guardado (null si todavía no existe)
         private DateTime? fechaGuardada;
+        // Al duplicar: evento del que se copian los datos, el menú y los servicios (null si no se duplica)
+        private EventoResultadoDTO? eventoACopiar;
+        // Mientras se cargan los combos y el formulario no se recalcula la información del lugar
+        private bool cargando;
 
         public FrmEventoDatos(EventoResultadoDTO? evento = null)
         {
@@ -32,6 +36,14 @@ namespace ProyectoEventos.Forms
             idEvento = evento == null ? 0 : evento.Id;
             fechaGuardada = evento?.Fecha;
             FormClosing += FrmEventoDatos_FormClosing;
+        }
+
+        // Alta de un evento nuevo con los datos, el menú y los servicios de otro (cliente que repite).
+        public static FrmEventoDatos ParaDuplicar(EventoResultadoDTO origen)
+        {
+            FrmEventoDatos pantalla = new FrmEventoDatos();
+            pantalla.eventoACopiar = origen;
+            return pantalla;
         }
 
         // Si el usuario sale sin finalizar un evento nuevo, se ofrece descartarlo
@@ -65,20 +77,62 @@ namespace ProyectoEventos.Forms
 
         private void FrmEventoDatos_Load(object sender, EventArgs e)
         {
+            cargando = true;
             CargarComboCliente();
             CargarComboLugar();
 
-            if (eventoInicial == null)
+            if (eventoInicial != null)
+            {
+                Text = "Editar evento — Paso 1 de 2";
+                CargarFormulario(eventoInicial);
+            }
+            else if (eventoACopiar != null)
+            {
+                // Misma hora que el original, una semana después de hoy: así no choca con el evento copiado
+                Text = "Duplicar evento — Paso 1 de 2";
+                CargarFormulario(eventoACopiar);
+                dtpFechaHora.Value = DateTime.Today.AddDays(7) + eventoACopiar.Fecha.TimeOfDay;
+            }
+            else
             {
                 Text = "Nuevo evento — Paso 1 de 2";
                 cmbCliente.SelectedIndex = -1;
                 cmbLugar.SelectedIndex = -1;
             }
-            else
+            cargando = false;
+            ActualizarInfoLugar();
+        }
+
+        private void DatosDelLugar_Changed(object? sender, EventArgs e)
+        {
+            if (!cargando)
             {
-                Text = "Editar evento — Paso 1 de 2";
-                CargarFormulario(eventoInicial);
+                ActualizarInfoLugar();
             }
+        }
+
+        // Muestra, antes de guardar, si los invitados entran en el lugar y si el lugar está libre en ese horario.
+        private void ActualizarInfoLugar()
+        {
+            if (cmbLugar.SelectedItem is not LugarDTO lugar)
+            {
+                lblInfoLugar.Text = "Elija un lugar para ver su capacidad y si está libre en ese horario.";
+                lblInfoLugar.ForeColor = Tema.TextoSuave;
+                return;
+            }
+
+            int invitados = Convert.ToInt32(numCantidadAdultos.Value + numCantidadNinos.Value);
+            int libres = lugar.Capacidad - invitados;
+            string capacidad = "Capacidad: " + lugar.Capacidad + " · Invitados: " + invitados + " · " +
+                (libres >= 0 ? "Quedan " + libres + " lugares." : "Supera la capacidad por " + (-libres) + ".");
+
+            bool disponible = controlador.LugarDisponible(lugar.Id, dtpFechaHora.Value, numHorasDuracion.Value, idEvento);
+            string horario = disponible
+                ? "El lugar está libre en ese horario."
+                : "Atención: el lugar ya tiene otro evento en ese horario.";
+
+            lblInfoLugar.Text = capacidad + Environment.NewLine + horario;
+            lblInfoLugar.ForeColor = libres < 0 || !disponible ? Tema.Peligro : Tema.TextoSuave;
         }
 
         private void btnVolver_Click(object sender, EventArgs e)
@@ -102,6 +156,12 @@ namespace ProyectoEventos.Forms
                 if (esNuevo)
                 {
                     creadoSinFinalizar = true;
+                }
+                // Al duplicar, el menú y los servicios se copian una sola vez (al crear el evento)
+                if (esNuevo && eventoACopiar != null)
+                {
+                    controlador.CopiarMenuYServicios(eventoACopiar.Id, idEvento);
+                    eventoACopiar = null;
                 }
             }
             catch (NegocioException ex)

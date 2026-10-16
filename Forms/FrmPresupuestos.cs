@@ -21,6 +21,7 @@ namespace ProyectoEventos.Forms
             Tema.Aplicar(this);
             controlador = new PresupuestoController();
             eventoControlador = new EventoController();
+            dgvPresupuestos.MensajeSinFilas(() => "Este evento todavía no tiene presupuestos. Arme el menú y toque Finalizar, o toque Actualizar presupuesto.");
             this.idEvento = idEvento;
         }
 
@@ -73,6 +74,8 @@ namespace ProyectoEventos.Forms
             dgvPresupuestos.Columna("Id").HeaderText = "N°";
             dgvPresupuestos.Columna("Id").FillWeight = 35;
             dgvPresupuestos.Columna("Estado").FillWeight = 160;
+            // Motivo por el que quedó desactualizado (vacío si está vigente)
+            dgvPresupuestos.Columna("Detalle").FillWeight = 230;
 
             DataGridViewColumn costo = dgvPresupuestos.Columna("CostoTotal");
             costo.HeaderText = "Costo total";
