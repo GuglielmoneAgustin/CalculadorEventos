@@ -20,8 +20,15 @@ Al ejecutar en modo **Debug** se cargan automáticamente datos de ejemplo (clien
 La ventana principal tiene un menú lateral (Inicio, Lugares, Clientes, Servicios, Productos, Eventos y Salir) y cada sección se abre dentro de la misma ventana.
 
 ### Inicio
-- Tres tarjetas de resumen: **próximos eventos** aprobados, **eventos esperando aprobación** y **total aprobado del mes** en curso.
-- Lista de los próximos eventos aprobados con cliente, lugar, fecha y hora, invitados y total aprobado.
+- La **fecha de hoy** arriba de todo.
+- **Alerta** (solo si hace falta) cuando hay eventos de los próximos 7 días que todavía no tienen presupuesto aprobado, con sus clientes.
+- Tarjeta destacada con el **próximo evento**: cuánto falta, día y hora, cliente, lugar, invitados y horario.
+- Tarjetas de resumen: **eventos aprobados** por venir, eventos **esperando aprobación** y **total aprobado del mes** en curso.
+- **Próximos eventos aprobados:** cuánto falta ("Hoy", "Mañana", "En 5 días"), cliente, lugar, fecha, horario de inicio a fin, invitados y total aprobado. Los de los próximos 7 días se resaltan.
+- **Para atender:** eventos próximos que necesitan algo, con un detalle de qué pasó:
+  - **Sin presupuesto:** el evento se cargó pero no tiene presupuesto.
+  - **Desactualizado:** el presupuesto en espera ya no vale (por ejemplo, "Cambió el precio de Bife de chorizo.").
+  - **Esperando respuesta:** el presupuesto está vigente y se envió hace cierta cantidad de días.
 
 ### Clientes, Lugares, Productos y Servicios adicionales
 Las cuatro pantallas funcionan igual (alta, edición y baja):

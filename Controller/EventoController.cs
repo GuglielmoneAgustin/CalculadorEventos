@@ -43,6 +43,16 @@ namespace ProyectoEventos.Controller
             return servicio.ObtenerResumen();
         }
 
+        public List<PendienteDTO> ObtenerPendientes()
+        {
+            return servicio.ObtenerPendientes();
+        }
+
+        public List<EventoResultadoDTO> ObtenerSinAprobarProximosDias(int dias)
+        {
+            return servicio.ObtenerSinAprobarProximosDias(dias);
+        }
+
         public void AgregarItemAlMenu(int idEvento, ItemMenuDTO itemDto)
         {
             servicio.AgregarItemAlMenu(idEvento, itemDto);

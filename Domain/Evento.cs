@@ -510,7 +510,7 @@ namespace ProyectoEventos.Domain
             return ObtenerPresupuestoAprobado() ?? ObtenerUltimoPresupuesto();
         }
 
-        private Presupuesto? ObtenerUltimoPresupuesto()
+        public Presupuesto? ObtenerUltimoPresupuesto()
         {
             return presupuestos.Count == 0 ? null : presupuestos[presupuestos.Count - 1];
         }

@@ -113,6 +113,74 @@ namespace ProyectoEventos.Service
             return resumen;
         }
 
+        // Eventos próximos todavía no aprobados que necesitan algo: generar el presupuesto,
+        // actualizarlo porque cambió el evento o un precio, o una respuesta del cliente.
+        // Los que tienen todo cancelado no se incluyen (el cliente ya respondió).
+        public List<PendienteDTO> ObtenerPendientes()
+        {
+            DateTime ahora = DateTime.Now;
+            List<PendienteDTO> pendientes = new List<PendienteDTO>();
+
+            foreach (Evento evento in repositorio.ObtenerTodos().Where(e => e.Fecha >= ahora).OrderBy(e => e.Fecha))
+            {
+                EstadoPresupuesto? estado = evento.ObtenerEstadoPresupuesto();
+                PendienteDTO pendiente = new PendienteDTO
+                {
+                    IdEvento = evento.Id,
+                    NombreCliente = evento.Cliente.Nombre,
+                    FechaEvento = evento.Fecha
+                };
+
+                if (estado == null)
+                {
+                    pendiente.Tipo = TipoPendiente.SinPresupuesto;
+                    pendiente.Detalle = "Genere el presupuesto desde Eventos > Ver presupuestos.";
+                }
+                else if (estado == EstadoPresupuesto.EnEspera && evento.RequierePresupuestoNuevo)
+                {
+                    pendiente.Tipo = TipoPendiente.Desactualizado;
+                    pendiente.Detalle = string.Join(" ", evento.ObtenerMotivosDesactualizacion(evento.ObtenerUltimoPresupuesto()!));
+                }
+                else if (estado == EstadoPresupuesto.EnEspera)
+                {
+                    Presupuesto enEspera = evento.ObtenerPresupuestos().Last(p => p.Estado == EstadoPresupuesto.EnEspera);
+                    pendiente.Tipo = TipoPendiente.EsperandoRespuesta;
+                    pendiente.Detalle = "Presupuesto N° " + enEspera.Id + " enviado " + DescribirAntiguedad(enEspera.FechaGeneracion) + ".";
+                }
+                else
+                {
+                    continue;
+                }
+
+                pendientes.Add(pendiente);
+            }
+
+            return pendientes;
+        }
+
+        // Eventos de los próximos días (hoy incluido) que todavía no tienen un presupuesto aprobado.
+        public List<EventoResultadoDTO> ObtenerSinAprobarProximosDias(int dias)
+        {
+            DateTime ahora = DateTime.Now;
+            DateTime limite = DateTime.Today.AddDays(dias + 1);
+
+            return repositorio.ObtenerTodos()
+                .Where(evento => evento.Fecha >= ahora && evento.Fecha < limite && !evento.TienePresupuestoAprobado())
+                .OrderBy(evento => evento.Fecha)
+                .Select(MapearAResultado)
+                .ToList();
+        }
+
+        private static string DescribirAntiguedad(DateTime fecha)
+        {
+            int dias = (DateTime.Today - fecha.Date).Days;
+            if (dias <= 0)
+            {
+                return "hoy";
+            }
+            return dias == 1 ? "ayer" : "hace " + dias + " días";
+        }
+
         public void AgregarItemAlMenu(int idEvento, ItemMenuDTO itemDto)
         {
             Evento evento = repositorio.ObtenerExistente(idEvento);

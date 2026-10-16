@@ -150,7 +150,7 @@ namespace ProyectoEventos.Forms.Utils
             }
 
             bool esTarjeta = tabla.Name == "tlpFormulario"
-                || tabla.Name == "tlpGrilla"
+                || tabla.Name.StartsWith("tlpGrilla", StringComparison.Ordinal)
                 || tabla.Name.StartsWith("tlpTarjeta", StringComparison.Ordinal);
             if (!esTarjeta)
             {
@@ -165,7 +165,7 @@ namespace ProyectoEventos.Forms.Utils
                 // En pantallas bajas el formulario se desplaza en lugar de esconder los botones
                 tabla.AutoScroll = true;
             }
-            else if (tabla.Name == "tlpGrilla")
+            else if (tabla.Name.StartsWith("tlpGrilla", StringComparison.Ordinal))
             {
                 tabla.Margin = new Padding(0);
             }
@@ -214,6 +214,8 @@ namespace ProyectoEventos.Forms.Utils
 
             if (nombre.StartsWith("lbldgv", StringComparison.Ordinal)
                 || nombre == "lblproximoseventos"
+                || nombre == "lblpendientes"
+                || nombre == "lblfechahoy"
                 || nombre == "lblcomponentes"
                 || nombre == "lblservicios")
             {
@@ -227,6 +229,14 @@ namespace ProyectoEventos.Forms.Utils
                 etiqueta.BackColor = Vanilla;
                 etiqueta.Font = FuenteInfo;
                 etiqueta.ForeColor = Texto;
+                etiqueta.Padding = new Padding(14, 10, 14, 10);
+            }
+            else if (nombre == "lblalerta")
+            {
+                // Franja de aviso de lo urgente (pantalla de inicio)
+                etiqueta.BackColor = Color.FromArgb(235, 203, 195);
+                etiqueta.Font = FuenteNegrita;
+                etiqueta.ForeColor = Color.FromArgb(120, 52, 38);
                 etiqueta.Padding = new Padding(14, 10, 14, 10);
             }
             else if (nombre == "lbltotalmenu")
