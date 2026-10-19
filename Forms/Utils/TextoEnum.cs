@@ -1,48 +1,25 @@
+using System.ComponentModel;
+using System.Reflection;
 using ProyectoEventos.Common;
 
 namespace ProyectoEventos.Forms.Utils
 {
-    // Texto con tildes de los valores de las enumeraciones (los nombres en el código no las llevan).
     internal static class TextoEnum
     {
-        public static string Categoria(CategoriasProductos categoria)
+        public static string Texto(this Enum valor)
         {
-            switch (categoria)
-            {
-                case CategoriasProductos.Guarnicion:
-                    return "Guarnición";
-                default:
-                    return categoria.ToString();
-            }
+            FieldInfo? campo = valor.GetType().GetField(valor.ToString());
+            return campo?.GetCustomAttribute<DescriptionAttribute>()?.Description ?? valor.ToString();
         }
 
-        public static string Restriccion(RestriccionesAlimenticias restriccion)
+        public static string Texto(this EstadoPresupuesto? estado)
         {
-            switch (restriccion)
-            {
-                case RestriccionesAlimenticias.Estandar:
-                    return "Estándar";
-                case RestriccionesAlimenticias.Celiaco:
-                    return "Celíaco";
-                case RestriccionesAlimenticias.Diabetico:
-                    return "Diabético";
-                default:
-                    return restriccion.ToString();
-            }
+            return estado?.Texto() ?? "Sin presupuesto";
         }
 
-        // Para usar en el evento Format de un ComboBox o en el CellFormatting de una grilla
         public static string? Texto(object? valor)
         {
-            switch (valor)
-            {
-                case CategoriasProductos categoria:
-                    return Categoria(categoria);
-                case RestriccionesAlimenticias restriccion:
-                    return Restriccion(restriccion);
-                default:
-                    return valor?.ToString();
-            }
+            return valor is Enum enumerado ? enumerado.Texto() : valor?.ToString();
         }
     }
 }

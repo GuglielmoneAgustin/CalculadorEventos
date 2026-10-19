@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using ProyectoEventos.Common;
 
 namespace ProyectoEventos.Forms.Utils
 {
-    // Estilo visual compartido por todas las pantallas.
-    // Se aplica con Tema.Aplicar(this) despues de InitializeComponent().
     internal static class Tema
     {
-        // ---- Paleta de marca ----
         public static readonly Color Matcha = ColorTranslator.FromHtml("#809671");
         public static readonly Color Almond = ColorTranslator.FromHtml("#E5E0D8");
         public static readonly Color Pistache = ColorTranslator.FromHtml("#B3B792");
@@ -16,20 +14,24 @@ namespace ProyectoEventos.Forms.Utils
         public static readonly Color Carob = ColorTranslator.FromHtml("#725C3A");
         public static readonly Color Vanilla = ColorTranslator.FromHtml("#E5D2B8");
 
-        // ---- Derivados de la paleta ----
         public static readonly Color Fondo = Almond;
-        public static readonly Color Tarjeta = Color.FromArgb(243, 239, 232);       // Almond aclarado
-        public static readonly Color Campo = Color.FromArgb(250, 247, 241);         // campos de entrada
+        public static readonly Color Tarjeta = Color.FromArgb(243, 239, 232);
+        public static readonly Color Campo = Color.FromArgb(250, 247, 241);
         public static readonly Color FilaAlterna = Color.FromArgb(235, 229, 219);
-        public static readonly Color Texto = Color.FromArgb(58, 46, 30);            // Carob oscuro
+        public static readonly Color Texto = Color.FromArgb(58, 46, 30);
         public static readonly Color TextoSuave = Carob;
         public static readonly Color Borde = Vanilla;
         public static readonly Color CarobHover = Color.FromArgb(136, 112, 76);
         public static readonly Color Primario = Matcha;
         public static readonly Color PrimarioHover = Color.FromArgb(103, 124, 90);
-        public static readonly Color Peligro = Color.FromArgb(170, 85, 66);         // terracota
+        public static readonly Color Peligro = Color.FromArgb(170, 85, 66);
         public static readonly Color PeligroHover = Color.FromArgb(140, 64, 48);
         public static readonly Color SecundarioHover = Color.FromArgb(222, 197, 160);
+        public static readonly Color TextoApagado = Color.FromArgb(150, 140, 125);
+        public static readonly Color VerdeSuave = Color.FromArgb(205, 218, 193);
+        public static readonly Color VerdeOscuro = Color.FromArgb(52, 74, 40);
+        public static readonly Color TerracotaSuave = Color.FromArgb(235, 203, 195);
+        public static readonly Color TerracotaOscuro = Color.FromArgb(120, 52, 38);
 
         private static readonly Font FuenteNormal = new Font("Segoe UI", 10F);
         private static readonly Font FuenteEtiqueta = new Font("Segoe UI", 9.5F);
@@ -46,7 +48,6 @@ namespace ProyectoEventos.Forms.Utils
             EstilarHijos(form);
         }
 
-        // Barra de titulo igual a la de la pantalla principal (para los dialogos)
         public static void AgregarEncabezado(Form form)
         {
             Label titulo = new Label();
@@ -65,7 +66,6 @@ namespace ProyectoEventos.Forms.Utils
             encabezado.Name = "pnlEncabezadoDialogo";
             encabezado.Controls.Add(titulo);
 
-            // Se agrega al final de la coleccion: se acopla primero (arriba del panel Fill)
             form.Controls.Add(encabezado);
             form.TextChanged += (s, e) => titulo.Text = form.Text;
         }
@@ -99,7 +99,6 @@ namespace ProyectoEventos.Forms.Utils
                         combo.BackColor = Campo;
                         combo.ForeColor = Texto;
                         combo.Font = FuenteCampo;
-                        // En los de solo selección Windows ignora BackColor: se dibujan los ítems a mano
                         if (combo.DropDownStyle == ComboBoxStyle.DropDownList)
                         {
                             combo.DrawMode = DrawMode.OwnerDrawFixed;
@@ -162,7 +161,6 @@ namespace ProyectoEventos.Forms.Utils
             if (tabla.Name == "tlpFormulario")
             {
                 tabla.Margin = new Padding(0, 0, 20, 0);
-                // En pantallas bajas el formulario se desplaza en lugar de esconder los botones
                 tabla.AutoScroll = true;
             }
             else if (tabla.Name.StartsWith("tlpGrilla", StringComparison.Ordinal))
@@ -184,8 +182,6 @@ namespace ProyectoEventos.Forms.Utils
             }
         }
 
-        // Fondo de campo para el valor elegido y la lista; el ítem resaltado de la lista, en pistacho.
-        // GetItemText respeta DisplayMember y el evento Format (por ejemplo, los textos con tildes).
         private static void DibujarItemCombo(object? sender, DrawItemEventArgs e)
         {
             if (sender is not ComboBox combo)
@@ -224,7 +220,6 @@ namespace ProyectoEventos.Forms.Utils
             }
             else if (nombre == "lblinfoevento")
             {
-                // Franja con los datos del evento
                 etiqueta.AutoSize = true;
                 etiqueta.BackColor = Vanilla;
                 etiqueta.Font = FuenteInfo;
@@ -233,10 +228,9 @@ namespace ProyectoEventos.Forms.Utils
             }
             else if (nombre == "lblalerta")
             {
-                // Franja de aviso de lo urgente (pantalla de inicio)
-                etiqueta.BackColor = Color.FromArgb(235, 203, 195);
+                etiqueta.BackColor = TerracotaSuave;
                 etiqueta.Font = FuenteNegrita;
-                etiqueta.ForeColor = Color.FromArgb(120, 52, 38);
+                etiqueta.ForeColor = TerracotaOscuro;
                 etiqueta.Padding = new Padding(14, 10, 14, 10);
             }
             else if (nombre == "lbltotalmenu")
@@ -246,19 +240,16 @@ namespace ProyectoEventos.Forms.Utils
             }
             else if (nombre.StartsWith("lblresumenvalor", StringComparison.Ordinal))
             {
-                // Número grande de las tarjetas de resumen (pantalla de inicio)
                 etiqueta.Font = FuenteResumen;
                 etiqueta.ForeColor = Texto;
             }
             else if (nombre == "lblmodo")
             {
-                // Título de la tarjeta del formulario ("Nuevo cliente" / "Editando: ...")
                 etiqueta.Font = FuenteTitulo;
                 etiqueta.ForeColor = Texto;
             }
             else if (nombre == "lblaviso")
             {
-                // Confirmación breve después de guardar o eliminar
                 etiqueta.Font = FuenteNegrita;
                 etiqueta.ForeColor = PrimarioHover;
             }
@@ -348,6 +339,61 @@ namespace ProyectoEventos.Forms.Utils
             grilla.AlternatingRowsDefaultCellStyle.BackColor = FilaAlterna;
             grilla.AlternatingRowsDefaultCellStyle.SelectionBackColor = Pistache;
             grilla.AlternatingRowsDefaultCellStyle.SelectionForeColor = Texto;
+        }
+
+        public static void PintarCelda(DataGridViewCellFormattingEventArgs e, Color fondo, Color color)
+        {
+            e.CellStyle!.BackColor = fondo;
+            e.CellStyle.ForeColor = color;
+            e.CellStyle.SelectionBackColor = fondo;
+            e.CellStyle.SelectionForeColor = color;
+            e.CellStyle.Font = FuenteNegrita;
+        }
+
+        public static void PintarEstado(DataGridViewCellFormattingEventArgs e, EstadoPresupuesto? estado)
+        {
+            e.Value = estado.Texto();
+            e.FormattingApplied = true;
+            switch (estado)
+            {
+                case EstadoPresupuesto.Aprobado:
+                    PintarCelda(e, VerdeSuave, VerdeOscuro);
+                    break;
+                case EstadoPresupuesto.Cancelado:
+                    PintarCelda(e, TerracotaSuave, TerracotaOscuro);
+                    break;
+                case EstadoPresupuesto.EnEspera:
+                    PintarCelda(e, Vanilla, Carob);
+                    break;
+            }
+        }
+
+        public static void PintarPendiente(DataGridViewCellFormattingEventArgs e, TipoPendiente tipo)
+        {
+            e.Value = tipo.Texto();
+            e.FormattingApplied = true;
+            switch (tipo)
+            {
+                case TipoPendiente.SinPresupuesto:
+                    PintarCelda(e, TerracotaSuave, TerracotaOscuro);
+                    break;
+                case TipoPendiente.Desactualizado:
+                    PintarCelda(e, Chai, Texto);
+                    break;
+                default:
+                    PintarCelda(e, Vanilla, Carob);
+                    break;
+            }
+        }
+
+        public static void ResaltarFila(DataGridViewCellFormattingEventArgs e, bool negrita)
+        {
+            e.CellStyle!.BackColor = Vanilla;
+            e.CellStyle.SelectionBackColor = Chai;
+            if (negrita)
+            {
+                e.CellStyle.Font = FuenteNegrita;
+            }
         }
     }
 }

@@ -1,9 +1,11 @@
-﻿namespace ProyectoEventos.Common
+using System.ComponentModel;
+
+namespace ProyectoEventos.Common
 {
     public enum CategoriasProductos
     {
         Principal,
-        Guarnicion,
+        [Description("Guarnición")] Guarnicion,
         Bebida,
         Postre
     }

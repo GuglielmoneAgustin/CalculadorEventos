@@ -12,7 +12,6 @@ namespace ProyectoEventos.Forms
         private readonly LugarController controlador;
         private List<LugarDTO> lugares = new List<LugarDTO>();
         private int idSeleccionado;
-        // Valores del formulario al cargarlo o limpiarlo: si cambian, hay datos sin guardar
         private string valoresGuardados = string.Empty;
 
         public FrmLugares()
@@ -56,7 +55,6 @@ namespace ProyectoEventos.Forms
             MostrarGrilla();
         }
 
-        // Muestra los lugares que coinciden con el texto de búsqueda (sin volver a pedirlos al controlador)
         private void MostrarGrilla()
         {
             dgvLugares.DataSource = null;
@@ -65,6 +63,8 @@ namespace ProyectoEventos.Forms
             dgvLugares.Columna("CostoBase").HeaderText = "Costo base";
             dgvLugares.Columna("Ubicacion").HeaderText = "Ubicación";
             dgvLugares.Columna("CostoBase").DefaultCellStyle.Format = Formato.Moneda;
+            dgvLugares.Columna("CostoPorHora").HeaderText = "Costo por hora";
+            dgvLugares.Columna("CostoPorHora").DefaultCellStyle.Format = Formato.Moneda;
             dgvLugares.Columna("Descripcion").Visible = false;
 
             if (dgvLugares.Rows.Count > 0)
@@ -165,6 +165,7 @@ namespace ProyectoEventos.Forms
             dto.Id = idSeleccionado;
             dto.Nombre = txtBoxNombre.Text;
             dto.CostoBase = numCosto.Value;
+            dto.CostoPorHora = numCostoHora.Value;
             dto.Capacidad = Convert.ToInt32(numCapacidad.Value);
             dto.Ubicacion = txtBoxUbicacion.Text;
             return dto;
@@ -174,11 +175,11 @@ namespace ProyectoEventos.Forms
         {
             txtBoxNombre.Text = dto.Nombre;
             numCosto.Value = dto.CostoBase;
+            numCostoHora.Value = dto.CostoPorHora;
             numCapacidad.Value = dto.Capacidad;
             txtBoxUbicacion.Text = dto.Ubicacion;
         }
 
-        // El título de la tarjeta indica (y Cancelar permite descartar) que se está modificando un lugar existente
         private void MostrarModoEdicion(string nombre)
         {
             lblModo.Text = "Editando: " + nombre;
@@ -193,6 +194,7 @@ namespace ProyectoEventos.Forms
             idSeleccionado = 0;
             txtBoxNombre.Text = string.Empty;
             numCosto.Value = 0;
+            numCostoHora.Value = 0;
             numCapacidad.Value = 0;
             txtBoxUbicacion.Text = string.Empty;
 

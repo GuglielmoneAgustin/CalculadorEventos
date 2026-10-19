@@ -28,6 +28,8 @@ namespace ProyectoEventos.Forms
             txtBoxNombre = new TextBox();
             lblCostoBase = new Label();
             numCosto = new NumericUpDown();
+            lblCostoHora = new Label();
+            numCostoHora = new NumericUpDown();
             lblCapacidad = new Label();
             numCapacidad = new NumericUpDown();
             lblUbicacion = new Label();
@@ -41,6 +43,7 @@ namespace ProyectoEventos.Forms
             lblBuscar = new Label();
             btnVolver = new Button();
             ((System.ComponentModel.ISupportInitialize)numCosto).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)numCostoHora).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numCapacidad).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dgvLugares).BeginInit();
             tlpRaiz.SuspendLayout();
@@ -67,19 +70,31 @@ namespace ProyectoEventos.Forms
             // 
             // tlpFormulario
             // 
-            tlpFormulario.ColumnCount = 1;
-            tlpFormulario.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tlpFormulario.ColumnCount = 2;
+            tlpFormulario.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tlpFormulario.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tlpFormulario.Controls.Add(lblModo, 0, 0);
             tlpFormulario.Controls.Add(lblNombre, 0, 1);
             tlpFormulario.Controls.Add(txtBoxNombre, 0, 2);
             tlpFormulario.Controls.Add(lblCostoBase, 0, 3);
             tlpFormulario.Controls.Add(numCosto, 0, 4);
+            tlpFormulario.Controls.Add(lblCostoHora, 1, 3);
+            tlpFormulario.Controls.Add(numCostoHora, 1, 4);
             tlpFormulario.Controls.Add(lblCapacidad, 0, 5);
             tlpFormulario.Controls.Add(numCapacidad, 0, 6);
             tlpFormulario.Controls.Add(lblUbicacion, 0, 7);
             tlpFormulario.Controls.Add(txtBoxUbicacion, 0, 8);
             tlpFormulario.Controls.Add(tlpBotones, 0, 9);
             tlpFormulario.Controls.Add(lblAviso, 0, 10);
+            tlpFormulario.SetColumnSpan(lblModo, 2);
+            tlpFormulario.SetColumnSpan(lblNombre, 2);
+            tlpFormulario.SetColumnSpan(txtBoxNombre, 2);
+            tlpFormulario.SetColumnSpan(lblCapacidad, 2);
+            tlpFormulario.SetColumnSpan(numCapacidad, 2);
+            tlpFormulario.SetColumnSpan(lblUbicacion, 2);
+            tlpFormulario.SetColumnSpan(txtBoxUbicacion, 2);
+            tlpFormulario.SetColumnSpan(tlpBotones, 2);
+            tlpFormulario.SetColumnSpan(lblAviso, 2);
             tlpFormulario.Dock = DockStyle.Fill;
             tlpFormulario.Margin = new Padding(0, 0, 40, 0);
             tlpFormulario.Name = "tlpFormulario";
@@ -114,8 +129,6 @@ namespace ProyectoEventos.Forms
             tlpBotones.RowCount = 2;
             tlpBotones.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpBotones.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            // Guardar (la acción principal) ocupa toda la fila; al editar la comparte con Cancelar.
-            // Editar y Eliminar van debajo, media fila cada uno.
             btnGuardar.Dock = DockStyle.Fill;
             btnEditar.Dock = DockStyle.Fill;
             btnEliminar.Dock = DockStyle.Fill;
@@ -207,9 +220,28 @@ namespace ProyectoEventos.Forms
             // numCosto
             // 
             numCosto.Dock = DockStyle.Fill;
-            numCosto.Maximum = new decimal(new int[] { 1410065408, 2, 0, 0 });
+            numCosto.Maximum = new decimal(new int[] { -727379968, 232, 0, 0 });
+            numCosto.Minimum = new decimal(new int[] { -727379968, 232, 0, -2147483648 });
+            numCosto.DecimalPlaces = 2;
             numCosto.Name = "numCosto";
             numCosto.TabIndex = 3;
+            // 
+            // lblCostoHora
+            // 
+            lblCostoHora.AutoSize = true;
+            lblCostoHora.Margin = new Padding(3, 8, 3, 3);
+            lblCostoHora.Text = "Costo por hora:";
+            lblCostoHora.Name = "lblCostoHora";
+            lblCostoHora.TabIndex = 31;
+            // 
+            // numCostoHora
+            // 
+            numCostoHora.Dock = DockStyle.Fill;
+            numCostoHora.Maximum = new decimal(new int[] { -727379968, 232, 0, 0 });
+            numCostoHora.Minimum = new decimal(new int[] { -727379968, 232, 0, -2147483648 });
+            numCostoHora.DecimalPlaces = 2;
+            numCostoHora.Name = "numCostoHora";
+            numCostoHora.TabIndex = 4;
             // 
             // lblCapacidad
             // 
@@ -222,7 +254,8 @@ namespace ProyectoEventos.Forms
             // numCapacidad
             // 
             numCapacidad.Dock = DockStyle.Fill;
-            numCapacidad.Maximum = new decimal(new int[] { 100000, 0, 0, 0 });
+            numCapacidad.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
+            numCapacidad.Minimum = new decimal(new int[] { 1000000, 0, 0, -2147483648 });
             numCapacidad.Name = "numCapacidad";
             numCapacidad.TabIndex = 5;
             // 
@@ -317,6 +350,7 @@ namespace ProyectoEventos.Forms
             Load += FrmLugares_Load;
             FormClosing += FrmLugares_FormClosing;
             ((System.ComponentModel.ISupportInitialize)numCosto).EndInit();
+            ((System.ComponentModel.ISupportInitialize)numCostoHora).EndInit();
             ((System.ComponentModel.ISupportInitialize)numCapacidad).EndInit();
             ((System.ComponentModel.ISupportInitialize)dgvLugares).EndInit();
             tlpGrilla.ResumeLayout(false);
@@ -344,6 +378,8 @@ namespace ProyectoEventos.Forms
         private TextBox txtBoxNombre;
         private Label lblCostoBase;
         private NumericUpDown numCosto;
+        private Label lblCostoHora;
+        private NumericUpDown numCostoHora;
         private Label lblCapacidad;
         private NumericUpDown numCapacidad;
         private Label lblUbicacion;

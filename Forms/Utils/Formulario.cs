@@ -1,10 +1,7 @@
 namespace ProyectoEventos.Forms.Utils
 {
-    // Ayudas para los formularios de alta y edición.
     internal static class Formulario
     {
-        // Texto con los valores de todos los campos del contenedor. Comparando el de ahora con el del
-        // momento en que se cargó (o limpió) el formulario se sabe si hay cambios sin guardar.
         public static string Valores(Control contenedor)
         {
             List<string> valores = new List<string>();
@@ -27,6 +24,9 @@ namespace ProyectoEventos.Forms.Utils
                     case ComboBox combo:
                         valores.Add(combo.SelectedIndex.ToString());
                         break;
+                    case DateTimePicker fecha:
+                        valores.Add(fecha.Value.ToString("g"));
+                        break;
                     default:
                         AgregarValores(control, valores);
                         break;
@@ -34,7 +34,6 @@ namespace ProyectoEventos.Forms.Utils
             }
         }
 
-        // Pregunta antes de perder datos escritos y no guardados. Devuelve true si se puede continuar.
         public static bool ConfirmarDescartarCambios(bool hayCambios)
         {
             return !hayCambios || Mensajes.Confirmar("Hay datos sin guardar en el formulario. ¿Desea descartarlos?");

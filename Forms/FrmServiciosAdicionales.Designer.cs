@@ -107,8 +107,6 @@ namespace ProyectoEventos.Forms
             tlpBotones.RowCount = 2;
             tlpBotones.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpBotones.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            // Guardar (la acción principal) ocupa toda la fila; al editar la comparte con Cancelar.
-            // Editar y Eliminar van debajo, media fila cada uno.
             btnGuardar.Dock = DockStyle.Fill;
             btnEditar.Dock = DockStyle.Fill;
             btnEliminar.Dock = DockStyle.Fill;
@@ -217,7 +215,9 @@ namespace ProyectoEventos.Forms
             // numMonto
             // 
             numMonto.Dock = DockStyle.Fill;
-            numMonto.Maximum = new decimal(new int[] { 1410065408, 2, 0, 0 });
+            numMonto.Maximum = new decimal(new int[] { -727379968, 232, 0, 0 });
+            numMonto.Minimum = new decimal(new int[] { -727379968, 232, 0, -2147483648 });
+            numMonto.DecimalPlaces = 2;
             numMonto.Name = "numMonto";
             numMonto.TabIndex = 5;
             // 

@@ -5,7 +5,6 @@ using ProyectoEventos.Common.Exceptions;
 
 namespace ProyectoEventos.Repository
 {
-    // Almacenamiento en memoria común a todos los repositorios.
     public abstract class RepositorioBase<T> : IRepository<T> where T : class, IEntidad
     {
         protected readonly List<T> elementos = new List<T>();
@@ -39,7 +38,6 @@ namespace ProyectoEventos.Repository
             return elementos.Find(elemento => elemento.Id == id);
         }
 
-        // Igual que ObtenerPorId pero lanza el error de "no existe" en lugar de devolver null.
         public T ObtenerExistente(int id)
         {
             T? elemento = ObtenerPorId(id);

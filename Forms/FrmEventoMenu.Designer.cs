@@ -225,7 +225,6 @@ namespace ProyectoEventos.Forms
             // 
             lvProductos.CheckBoxes = true;
             lvProductos.Dock = DockStyle.Fill;
-            // Alto mínimo: en pantallas chicas la pantalla se desplaza en lugar de aplastar la lista
             lvProductos.MinimumSize = new Size(0, 150);
             lvProductos.FullRowSelect = true;
             lvProductos.HeaderStyle = ColumnHeaderStyle.Nonclickable;
@@ -258,7 +257,8 @@ namespace ProyectoEventos.Forms
             // 
             numCantAdultosItem.Dock = DockStyle.Fill;
             numCantAdultosItem.Margin = new Padding(3, 12, 3, 3);
-            numCantAdultosItem.Maximum = new decimal(new int[] { 100000, 0, 0, 0 });
+            numCantAdultosItem.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
+            numCantAdultosItem.Minimum = new decimal(new int[] { 1000000, 0, 0, -2147483648 });
             numCantAdultosItem.Name = "numCantAdultosItem";
             numCantAdultosItem.TabIndex = 4;
             numCantAdultosItem.ValueChanged += CantidadesItem_ValueChanged;
@@ -275,7 +275,8 @@ namespace ProyectoEventos.Forms
             // numCantNinosItem
             // 
             numCantNinosItem.Dock = DockStyle.Fill;
-            numCantNinosItem.Maximum = new decimal(new int[] { 100000, 0, 0, 0 });
+            numCantNinosItem.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
+            numCantNinosItem.Minimum = new decimal(new int[] { 1000000, 0, 0, -2147483648 });
             numCantNinosItem.Name = "numCantNinosItem";
             numCantNinosItem.TabIndex = 6;
             numCantNinosItem.ValueChanged += CantidadesItem_ValueChanged;

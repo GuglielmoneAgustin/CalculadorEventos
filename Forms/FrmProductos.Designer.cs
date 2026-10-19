@@ -72,7 +72,6 @@ namespace ProyectoEventos.Forms
             tlpFormulario.ColumnCount = 2;
             tlpFormulario.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tlpFormulario.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            // Los precios y la clasificación van de a pares para que el formulario entre en pantallas bajas
             tlpFormulario.Controls.Add(lblModo, 0, 0);
             tlpFormulario.SetColumnSpan(lblModo, 2);
             tlpFormulario.Controls.Add(lblNombre, 0, 1);
@@ -123,8 +122,6 @@ namespace ProyectoEventos.Forms
             tlpBotones.RowCount = 2;
             tlpBotones.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpBotones.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            // Guardar (la acción principal) ocupa toda la fila; al editar la comparte con Cancelar.
-            // Editar y Eliminar van debajo, media fila cada uno.
             btnGuardar.Dock = DockStyle.Fill;
             btnEditar.Dock = DockStyle.Fill;
             btnEliminar.Dock = DockStyle.Fill;
@@ -216,7 +213,9 @@ namespace ProyectoEventos.Forms
             // numPrecioAdulto
             // 
             numPrecioAdulto.Dock = DockStyle.Fill;
-            numPrecioAdulto.Maximum = new decimal(new int[] { 1410065408, 2, 0, 0 });
+            numPrecioAdulto.Maximum = new decimal(new int[] { -727379968, 232, 0, 0 });
+            numPrecioAdulto.Minimum = new decimal(new int[] { -727379968, 232, 0, -2147483648 });
+            numPrecioAdulto.DecimalPlaces = 2;
             numPrecioAdulto.Name = "numPrecioAdulto";
             numPrecioAdulto.TabIndex = 3;
             // 
@@ -231,7 +230,9 @@ namespace ProyectoEventos.Forms
             // numPrecioNino
             // 
             numPrecioNino.Dock = DockStyle.Fill;
-            numPrecioNino.Maximum = new decimal(new int[] { 1410065408, 2, 0, 0 });
+            numPrecioNino.Maximum = new decimal(new int[] { -727379968, 232, 0, 0 });
+            numPrecioNino.Minimum = new decimal(new int[] { -727379968, 232, 0, -2147483648 });
+            numPrecioNino.DecimalPlaces = 2;
             numPrecioNino.Name = "numPrecioNino";
             numPrecioNino.TabIndex = 5;
             // 

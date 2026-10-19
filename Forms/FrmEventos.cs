@@ -10,9 +10,6 @@ namespace ProyectoEventos.Forms
 {
     public partial class FrmEventos : Form
     {
-        // Texto de los eventos que ya se realizaron
-        private static readonly Color ColorRealizado = Color.FromArgb(150, 140, 125);
-
         private readonly EventoController controlador;
         private List<EventoResultadoDTO> eventos = new List<EventoResultadoDTO>();
 
@@ -31,7 +28,6 @@ namespace ProyectoEventos.Forms
             MostrarGrilla();
         }
 
-        // Un evento ya terminó cuando pasó su fecha de inicio más la duración
         private static bool EsRealizado(EventoResultadoDTO evento)
         {
             return evento.Fecha.AddHours((double)evento.HorasDuracion) < DateTime.Now;
@@ -58,14 +54,13 @@ namespace ProyectoEventos.Forms
             MostrarGrilla();
         }
 
-        // Muestra los eventos que coinciden con el texto de búsqueda (sin volver a pedirlos al controlador)
         private void MostrarGrilla()
         {
             List<EventoResultadoDTO> visibles = chkOcultarRealizados.Checked
                 ? eventos.Where(ev => !EsRealizado(ev)).ToList()
                 : eventos;
             dgvEventos.DataSource = null;
-            dgvEventos.DataSource = Busqueda.Filtrar(visibles, txtBuscar.Text, ev => new[] { ev.Id.ToString(), ev.NombreCliente, ev.NombreLugar, ev.Fecha.ToString(Formato.FechaHora), EstadoPresupuestoVista.Texto(ev.EstadoPresupuesto) });
+            dgvEventos.DataSource = Busqueda.Filtrar(visibles, txtBuscar.Text, ev => new[] { ev.Id.ToString(), ev.NombreCliente, ev.NombreLugar, ev.Fecha.ToString(Formato.FechaHora), ev.EstadoPresupuesto.Texto() });
             dgvEventos.Columna("Fecha").DefaultCellStyle.Format = Formato.FechaHora;
 
             dgvEventos.Columna("Id").HeaderText = "N°";
@@ -81,7 +76,6 @@ namespace ProyectoEventos.Forms
             dgvEventos.Columna("IdCliente").Visible = false;
             dgvEventos.Columna("IdLugar").Visible = false;
             
-            // Ancho relativo de cada columna: el número y los valores cortos ocupan menos
             dgvEventos.Columna("Id").FillWeight = 35;
             dgvEventos.Columna("NombreCliente").FillWeight = 130;
             dgvEventos.Columna("NombreLugar").FillWeight = 120;
@@ -98,8 +92,6 @@ namespace ProyectoEventos.Forms
             }
         }
 
-        // Muestra en la grilla si el evento tiene presupuesto aprobado, en espera, cancelado o ninguno,
-        // y los eventos que ya se realizaron con el texto en gris.
         private void dgvEventos_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
         {
             if (e.RowIndex < 0 || e.ColumnIndex < 0)
@@ -109,12 +101,12 @@ namespace ProyectoEventos.Forms
 
             if (dgvEventos.Columns[e.ColumnIndex].Name == "EstadoPresupuesto")
             {
-                EstadoPresupuestoVista.Aplicar(e, e.Value as EstadoPresupuesto?, dgvEventos.DefaultCellStyle.Font ?? dgvEventos.Font);
+                Tema.PintarEstado(e, e.Value as EstadoPresupuesto?);
             }
             else if (dgvEventos.Rows[e.RowIndex].DataBoundItem is EventoResultadoDTO evento && EsRealizado(evento))
             {
-                e.CellStyle.ForeColor = ColorRealizado;
-                e.CellStyle.SelectionForeColor = ColorRealizado;
+                e.CellStyle.ForeColor = Tema.TextoApagado;
+                e.CellStyle.SelectionForeColor = Tema.TextoApagado;
             }
         }
 
@@ -123,7 +115,6 @@ namespace ProyectoEventos.Forms
             return dgvEventos.Seleccionado<EventoResultadoDTO>();
         }
 
-        // Abre la pantalla dentro del panel principal; al volver se refresca la grilla
         private void AbrirSubpantalla(Form pantalla)
         {
             if (ParentForm is FrmPrincipal principal)
@@ -178,7 +169,6 @@ namespace ProyectoEventos.Forms
             AbrirSubpantalla(new FrmPresupuestos(seleccionado.Id));
         }
 
-        // Abre el alta de un evento nuevo con los datos, el menú y los servicios del seleccionado
         private void btnDuplicar_Click(object sender, EventArgs e)
         {
             EventoResultadoDTO? seleccionado = ObtenerSeleccionado();

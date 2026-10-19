@@ -13,7 +13,6 @@ namespace ProyectoEventos.Forms
         private readonly ProductoController controlador;
         private List<ProductoDTO> productos = new List<ProductoDTO>();
         private int idSeleccionado;
-        // Valores del formulario al cargarlo o limpiarlo: si cambian, hay datos sin guardar
         private string valoresGuardados = string.Empty;
 
         public FrmProductos()
@@ -62,7 +61,6 @@ namespace ProyectoEventos.Forms
             cmbEnumRestriccion.DataSource = Enum.GetValues(typeof(RestriccionesAlimenticias));
         }
 
-        // Los combos guardan el valor de la enumeración pero muestran el texto con tildes
         private void FormatearEnum(object? sender, ListControlConvertEventArgs e)
         {
             e.Value = TextoEnum.Texto(e.ListItem);
@@ -94,11 +92,10 @@ namespace ProyectoEventos.Forms
             MostrarGrilla();
         }
 
-        // Muestra los productos que coinciden con el texto de búsqueda (sin volver a pedirlos al controlador)
         private void MostrarGrilla()
         {
             dgvProductos.DataSource = null;
-            dgvProductos.DataSource = Busqueda.Filtrar(productos, txtBuscar.Text, p => new[] { p.Nombre, TextoEnum.Categoria(p.Categoria), TextoEnum.Restriccion(p.Restriccion) });
+            dgvProductos.DataSource = Busqueda.Filtrar(productos, txtBuscar.Text, p => new[] { p.Nombre, p.Categoria.Texto(), p.Restriccion.Texto() });
             dgvProductos.Columna("Id").Visible = false;
             dgvProductos.Columna("PrecioAdulto").HeaderText = "Precio adulto";
             dgvProductos.Columna("PrecioNino").HeaderText = "Precio niño";
@@ -220,7 +217,6 @@ namespace ProyectoEventos.Forms
             cmbEnumRestriccion.SelectedItem = dto.Restriccion;
         }
 
-        // El título de la tarjeta indica (y Cancelar permite descartar) que se está modificando un producto existente
         private void MostrarModoEdicion(string nombre)
         {
             lblModo.Text = "Editando: " + nombre;

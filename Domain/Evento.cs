@@ -19,7 +19,6 @@ namespace ProyectoEventos.Domain
         private readonly List<Presupuesto> presupuestos;
         private int proximoIdItemMenu;
         private int proximoIdPresupuesto;
-        // Datos, menú o servicios del evento cambiaron después del último presupuesto generado
         private bool huboCambiosDesdeUltimoPresupuesto;
 
         public Evento(int id, Cliente cliente, Lugar lugar, DateTime fecha, decimal horasDuracion, int cantidadAdultos, int cantidadNinos)
@@ -75,8 +74,6 @@ namespace ProyectoEventos.Domain
             get { return Fecha.AddHours((double)HorasDuracion); }
         }
 
-        // Hace falta uno nuevo cuando no hay ningún presupuesto vigente
-        // (todavía no se generó ninguno, o cambió el evento o algún precio).
         public bool RequierePresupuestoNuevo
         {
             get
@@ -86,8 +83,6 @@ namespace ProyectoEventos.Domain
             }
         }
 
-        // Única forma de cambiar los datos generales: se validan todos juntos (rangos y capacidad del lugar)
-        // antes de asignar, así el evento nunca queda en un estado inválido ni a medio actualizar.
         [MemberNotNull(nameof(cliente), nameof(lugar))]
         public void ActualizarDatos(Cliente cliente, Lugar lugar, DateTime fecha, decimal horasDuracion, int cantidadAdultos, int cantidadNinos)
         {
@@ -161,8 +156,6 @@ namespace ProyectoEventos.Domain
             return ObtenerPresupuestoAprobado() != null;
         }
 
-        // Resume la situación del evento: aprobado si hay uno aprobado; si no, en espera si queda alguno
-        // pendiente; si no, cancelado; y null si todavía no se generó ningún presupuesto.
         public EstadoPresupuesto? ObtenerEstadoPresupuesto()
         {
             if (TienePresupuestoAprobado())
@@ -185,11 +178,11 @@ namespace ProyectoEventos.Domain
             return Fecha >= ahora && TienePresupuestoAprobado();
         }
 
-        public void AgregarItemAlMenu(int cantidadAdultos, int cantidadNinos, List<Producto> componentes)
+        private void AgregarItemAlMenu(int cantidadAdultos, int cantidadNinos, List<Producto> componentes)
         {
             if (componentes == null || componentes.Count == 0)
             {
-                throw new ReglaNegocioException("El item debe incluir al menos un producto.");
+                throw new NegocioException("El item debe incluir al menos un producto.");
             }
 
             ItemMenu item = new ItemMenu(proximoIdItemMenu, cantidadAdultos, cantidadNinos);
@@ -198,19 +191,16 @@ namespace ProyectoEventos.Domain
                 item.AgregarComponente(componente);
             }
 
-            // El id solo se consume si el item se pudo armar sin errores.
             proximoIdItemMenu++;
             Menu.AgregarItem(item);
             MarcarCambioPendienteDePresupuesto();
         }
 
-        // Agrega un plato por cada producto, todos con las mismas cantidades.
-        // Primero se arman todos: si alguno es inválido no se agrega ninguno.
         public void AgregarPlatosAlMenu(int cantidadAdultos, int cantidadNinos, List<Producto> productos)
         {
             if (productos == null || productos.Count == 0)
             {
-                throw new ReglaNegocioException("Seleccione al menos un producto para el plato.");
+                throw new NegocioException("Seleccione al menos un producto para el plato.");
             }
 
             List<ItemMenu> nuevos = new List<ItemMenu>();
@@ -264,13 +254,12 @@ namespace ProyectoEventos.Domain
             }
             if (servicios.Exists(s => s.Id == servicio.Id))
             {
-                throw new ReglaNegocioException("El servicio ya está asociado al evento.");
+                throw new NegocioException("El servicio ya está asociado al evento.");
             }
             servicios.Add(servicio);
             MarcarCambioPendienteDePresupuesto();
         }
 
-        // Para duplicar un evento: agrega los mismos platos (con sus cantidades) y servicios que tiene otro.
         public void CopiarMenuYServiciosDe(Evento origen)
         {
             if (origen == null)
@@ -309,7 +298,7 @@ namespace ProyectoEventos.Domain
         {
             if (Menu.ObtenerItems().Count == 0)
             {
-                throw new ReglaNegocioException("Debe agregar al menos un item al menú antes de generar un presupuesto.");
+                throw new NegocioException("Debe agregar al menos un item al menú antes de generar un presupuesto.");
             }
 
             Presupuesto presupuesto = new Presupuesto(proximoIdPresupuesto, this, fechaGeneracion);
@@ -319,8 +308,6 @@ namespace ProyectoEventos.Domain
             return presupuesto;
         }
 
-        // El evento coordina la aprobación porque la regla abarca a todos sus presupuestos:
-        // solo puede haber uno aprobado y solo se aprueba el que refleja los datos actuales.
         public Presupuesto AprobarPresupuesto(int idPresupuesto, bool reemplazarAprobado)
         {
             Presupuesto presupuesto = ValidarAprobacion(idPresupuesto);
@@ -328,7 +315,7 @@ namespace ProyectoEventos.Domain
             Presupuesto? otroAprobado = ObtenerPresupuestoAprobado();
             if (otroAprobado != null && !reemplazarAprobado)
             {
-                throw new ConflictoAprobacionException("Ya existe un presupuesto aprobado para este evento.");
+                throw new NegocioException("Ya existe un presupuesto aprobado para este evento.");
             }
 
             presupuesto.Aprobar();
@@ -336,9 +323,6 @@ namespace ProyectoEventos.Domain
             return presupuesto;
         }
 
-        // Controla que el presupuesto se pueda aprobar sin modificar nada: tiene que estar en espera o
-        // cancelado (por ejemplo, el cliente se arrepintió) y seguir vigente.
-        // No tiene en cuenta si ya hay otro aprobado: eso lo decide quien aprueba (reemplazar o no).
         public Presupuesto ValidarAprobacion(int idPresupuesto)
         {
             Presupuesto presupuesto = ObtenerPresupuestoExistente(idPresupuesto);
@@ -346,15 +330,13 @@ namespace ProyectoEventos.Domain
 
             if (!EsVigente(presupuesto))
             {
-                throw new ReglaNegocioException("El presupuesto está desactualizado. " +
+                throw new NegocioException("El presupuesto está desactualizado. " +
                     string.Join(" ", ObtenerMotivosDesactualizacion(presupuesto)) +
                     " Actualice el presupuesto para obtener uno con los valores actuales.");
             }
             return presupuesto;
         }
 
-        // Explica por qué un presupuesto dejó de estar vigente, comparando lo cotizado con el evento actual.
-        // Devuelve una lista vacía si sigue vigente.
         public List<string> ObtenerMotivosDesactualizacion(Presupuesto presupuesto)
         {
             List<string> motivos = new List<string>();
@@ -374,7 +356,7 @@ namespace ProyectoEventos.Domain
             {
                 motivos.Add("Cambió el lugar.");
             }
-            else if (presupuesto.CostoLugar != Lugar.CostoBase)
+            else if (presupuesto.CostoBaseLugar != Lugar.CostoBase || presupuesto.CostoPorHoraLugar != Lugar.CostoPorHora)
             {
                 motivos.Add("Cambió el costo del lugar.");
             }
@@ -414,7 +396,6 @@ namespace ProyectoEventos.Domain
                 return;
             }
 
-            // Mismos platos y cantidades: si el subtotal difiere es porque cambió el precio del producto
             for (int i = 0; i < cotizados.Count; i++)
             {
                 if (cotizados[i].Subtotal != actuales[i].Subtotal())
@@ -484,9 +465,6 @@ namespace ProyectoEventos.Domain
             return presupuestos.Find(presupuesto => presupuesto.Estado == EstadoPresupuesto.Aprobado);
         }
 
-        // Vigente = es el último generado, el evento no cambió desde entonces y los precios
-        // actuales (lugar, productos y servicios) son los mismos que se cotizaron.
-        // Un presupuesto aprobado conserva sus precios aunque deje de estar vigente.
         public bool EsVigente(Presupuesto presupuesto)
         {
             return presupuesto == ObtenerUltimoPresupuesto()
@@ -504,7 +482,6 @@ namespace ProyectoEventos.Domain
             return total;
         }
 
-        // El presupuesto que representa al evento: el aprobado o, si no hay, el último generado.
         public Presupuesto? ObtenerPresupuestoDeReferencia()
         {
             return ObtenerPresupuestoAprobado() ?? ObtenerUltimoPresupuesto();
@@ -515,8 +492,6 @@ namespace ProyectoEventos.Domain
             return presupuestos.Count == 0 ? null : presupuestos[presupuestos.Count - 1];
         }
 
-        // Los presupuestos ya generados no se tocan (son una foto de lo que se cotizó);
-        // solo se marca que hace falta generar uno nuevo con los datos actuales.
         private void MarcarCambioPendienteDePresupuesto()
         {
             huboCambiosDesdeUltimoPresupuesto = true;
@@ -526,7 +501,7 @@ namespace ProyectoEventos.Domain
         {
             if (valor <= 0)
             {
-                throw new ReglaNegocioException("La duración debe ser mayor a cero.");
+                throw new NegocioException("La duración debe ser mayor a cero.");
             }
         }
 
@@ -534,7 +509,7 @@ namespace ProyectoEventos.Domain
         {
             if (valor < 0)
             {
-                throw new ReglaNegocioException("La cantidad de " + tipoInvitado + " no puede ser negativa.");
+                throw new NegocioException("La cantidad de " + tipoInvitado + " no puede ser negativa.");
             }
         }
 
@@ -542,7 +517,7 @@ namespace ProyectoEventos.Domain
         {
             if (!lugar.AdmiteInvitados(cantidadAdultos + cantidadNinos))
             {
-                throw new ReglaNegocioException("La cantidad de invitados supera la capacidad del lugar.");
+                throw new NegocioException("La cantidad de invitados supera la capacidad del lugar.");
             }
         }
     }

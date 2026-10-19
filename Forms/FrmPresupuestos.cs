@@ -50,13 +50,10 @@ namespace ProyectoEventos.Forms
             dgvPresupuestos.DataSource = controlador.ObtenerPorEvento(idEvento);
 
             dgvPresupuestos.Columna("IdEvento").Visible = false;
-            // Cliente y lugar ya figuran arriba de la grilla (son los mismos en todas las filas)
             dgvPresupuestos.Columna("NombreCliente").Visible = false;
             dgvPresupuestos.Columna("NombreLugar").Visible = false;
-            // Se muestran juntos en la columna "Invitados"
             dgvPresupuestos.Columna("CantidadAdultos").Visible = false;
             dgvPresupuestos.Columna("CantidadNinos").Visible = false;
-            // La vigencia se muestra junto al estado (ver CellFormatting)
             dgvPresupuestos.Columna("Vigente").Visible = false;
 
             DarFormatoColumnas();
@@ -68,13 +65,11 @@ namespace ProyectoEventos.Forms
             }
         }
 
-        // Encabezados legibles, monto a la derecha con moneda y fechas con formato local
         private void DarFormatoColumnas()
         {
             dgvPresupuestos.Columna("Id").HeaderText = "N°";
             dgvPresupuestos.Columna("Id").FillWeight = 35;
             dgvPresupuestos.Columna("Estado").FillWeight = 160;
-            // Motivo por el que quedó desactualizado (vacío si está vigente)
             dgvPresupuestos.Columna("Detalle").FillWeight = 230;
 
             DataGridViewColumn costo = dgvPresupuestos.Columna("CostoTotal");
@@ -89,15 +84,11 @@ namespace ProyectoEventos.Forms
             fecha.HeaderText = "Fecha de generación";
             fecha.DefaultCellStyle.Format = Formato.FechaHora;
 
-            // Fecha del evento tal como quedó cotizada (puede diferir entre presupuestos)
             DataGridViewColumn fechaEvento = dgvPresupuestos.Columna("FechaEvento");
             fechaEvento.HeaderText = "Fecha del evento";
             fechaEvento.DefaultCellStyle.Format = Formato.FechaHora;
         }
 
-        // Colorea la celda de Estado: verde = aprobado, terracota = cancelado, arena = en espera.
-        // Si el evento o los precios cambiaron después de generarlo, se aclara que está desactualizado
-        // (un aprobado igual mantiene los precios que se cotizaron).
         private void dgvPresupuestos_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
         {
             if (e.RowIndex < 0 || e.ColumnIndex < 0 ||
@@ -106,12 +97,12 @@ namespace ProyectoEventos.Forms
                 return;
             }
 
-            EstadoPresupuestoVista.Aplicar(e, estado, dgvPresupuestos.DefaultCellStyle.Font ?? dgvPresupuestos.Font);
+            Tema.PintarEstado(e, estado);
 
             if (dgvPresupuestos.Rows[e.RowIndex].DataBoundItem is PresupuestoResultadoDTO presupuesto
                 && !presupuesto.Vigente)
             {
-                e.Value = EstadoPresupuestoVista.Texto(estado) + " (desactualizado)";
+                e.Value = estado.Texto() + " (desactualizado)";
             }
         }
 
@@ -131,7 +122,6 @@ namespace ProyectoEventos.Forms
 
             try
             {
-                // Primero se controla que se pueda aprobar, así no se pregunta por un reemplazo que después falla.
                 controlador.ValidarAprobacion(idEvento, seleccionado.Id);
 
                 bool reemplazar = false;
@@ -153,7 +143,6 @@ namespace ProyectoEventos.Forms
             }
         }
 
-        // Genera un presupuesto con los datos y precios actuales, si el último ya no está vigente.
         private void btnActualizar_Click(object sender, EventArgs e)
         {
             try
@@ -185,7 +174,7 @@ namespace ProyectoEventos.Forms
 
             try
             {
-                TicketPresupuesto.MostrarVistaPrevia(this, controlador.ObtenerDetalle(idEvento, seleccionado.Id));
+                TicketPresupuesto.Mostrar(this, controlador.ObtenerDetalle(idEvento, seleccionado.Id));
             }
             catch (NegocioException ex)
             {
@@ -202,7 +191,6 @@ namespace ProyectoEventos.Forms
                 return;
             }
 
-            // Uno ya cancelado no se confirma: el controlador avisa que ya está cancelado
             if (seleccionado.Estado != EstadoPresupuesto.Cancelado)
             {
                 string pregunta = seleccionado.Estado == EstadoPresupuesto.Aprobado

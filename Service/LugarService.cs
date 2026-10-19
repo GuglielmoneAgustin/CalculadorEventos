@@ -17,7 +17,6 @@ namespace ProyectoEventos.Service
         {
         }
 
-        // Los repositorios se reciben por constructor: el servicio depende de las interfaces, no de las clases concretas.
         public LugarService(IRepository<Lugar> repositorio, IEventoRepository eventoRepositorio)
         {
             this.repositorio = repositorio;
@@ -33,7 +32,7 @@ namespace ProyectoEventos.Service
 
             if (ExisteNombre(dto.Nombre, dto.Id))
             {
-                throw new ReglaNegocioException("Ya existe un lugar con ese nombre.");
+                throw new NegocioException("Ya existe un lugar con ese nombre.");
             }
 
             if (dto.Id == 0)
@@ -49,7 +48,7 @@ namespace ProyectoEventos.Service
         private void Crear(LugarDTO dto)
         {
             int nuevoId = repositorio.ObtenerProximoId();
-            Lugar nuevoLugar = new Lugar(nuevoId, dto.Nombre, dto.CostoBase, dto.Capacidad, dto.Ubicacion);
+            Lugar nuevoLugar = new Lugar(nuevoId, dto.Nombre, dto.CostoBase, dto.CostoPorHora, dto.Capacidad, dto.Ubicacion);
             repositorio.Agregar(nuevoLugar);
         }
 
@@ -66,15 +65,15 @@ namespace ProyectoEventos.Service
         private void Editar(LugarDTO dto)
         {
             Lugar lugar = repositorio.ObtenerExistente(dto.Id);
-            // Se arma un Lugar con los datos nuevos para validarlos todos antes de tocar el original.
-            Lugar validado = new Lugar(lugar.Id, dto.Nombre, dto.CostoBase, dto.Capacidad, dto.Ubicacion);
+            Lugar validado = new Lugar(lugar.Id, dto.Nombre, dto.CostoBase, dto.CostoPorHora, dto.Capacidad, dto.Ubicacion);
             if (eventoRepositorio.TieneEventoQueNoEntraEn(validado))
             {
-                throw new ReglaNegocioException("No se puede reducir la capacidad: hay eventos en este lugar con más invitados.");
+                throw new NegocioException("No se puede reducir la capacidad: hay eventos en este lugar con más invitados.");
             }
 
             lugar.Nombre = validado.Nombre;
             lugar.CostoBase = validado.CostoBase;
+            lugar.CostoPorHora = validado.CostoPorHora;
             lugar.Capacidad = validado.Capacidad;
             lugar.Ubicacion = validado.Ubicacion;
         }
@@ -83,7 +82,7 @@ namespace ProyectoEventos.Service
         {
             if (eventoRepositorio.TieneLugarAsociado(id))
             {
-                throw new ReglaNegocioException("No se puede eliminar el lugar porque está asociado a un evento.");
+                throw new NegocioException("No se puede eliminar el lugar porque está asociado a un evento.");
             }
             repositorio.Eliminar(id);
         }
@@ -101,6 +100,7 @@ namespace ProyectoEventos.Service
             dto.Id = lugar.Id;
             dto.Nombre = lugar.Nombre;
             dto.CostoBase = lugar.CostoBase;
+            dto.CostoPorHora = lugar.CostoPorHora;
             dto.Capacidad = lugar.Capacidad;
             dto.Ubicacion = lugar.Ubicacion;
             dto.Descripcion = lugar.ObtenerDescripcion();

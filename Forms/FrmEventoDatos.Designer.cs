@@ -155,12 +155,12 @@ namespace ProyectoEventos.Forms
             // 
             // numHorasDuracion
             // 
-            numHorasDuracion.DecimalPlaces = 1;
             numHorasDuracion.Dock = DockStyle.Fill;
             numHorasDuracion.Increment = new decimal(new int[] { 5, 0, 0, 65536 });
-            numHorasDuracion.Maximum = new decimal(new int[] { 72, 0, 0, 0 });
-            numHorasDuracion.Minimum = new decimal(new int[] { 5, 0, 0, 65536 });
             numHorasDuracion.Value = new decimal(new int[] { 4, 0, 0, 0 });
+            numHorasDuracion.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
+            numHorasDuracion.Minimum = new decimal(new int[] { 1000000, 0, 0, -2147483648 });
+            numHorasDuracion.DecimalPlaces = 2;
             numHorasDuracion.Name = "numHorasDuracion";
             numHorasDuracion.TabIndex = 7;
             // 
@@ -175,7 +175,8 @@ namespace ProyectoEventos.Forms
             // numCantidadAdultos
             // 
             numCantidadAdultos.Dock = DockStyle.Fill;
-            numCantidadAdultos.Maximum = new decimal(new int[] { 100000, 0, 0, 0 });
+            numCantidadAdultos.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
+            numCantidadAdultos.Minimum = new decimal(new int[] { 1000000, 0, 0, -2147483648 });
             numCantidadAdultos.Name = "numCantidadAdultos";
             numCantidadAdultos.TabIndex = 9;
             // 
@@ -190,7 +191,8 @@ namespace ProyectoEventos.Forms
             // numCantidadNinos
             // 
             numCantidadNinos.Dock = DockStyle.Fill;
-            numCantidadNinos.Maximum = new decimal(new int[] { 100000, 0, 0, 0 });
+            numCantidadNinos.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
+            numCantidadNinos.Minimum = new decimal(new int[] { 1000000, 0, 0, -2147483648 });
             numCantidadNinos.Name = "numCantidadNinos";
             numCantidadNinos.TabIndex = 11;
             // 
@@ -200,7 +202,6 @@ namespace ProyectoEventos.Forms
             lblInfoLugar.Margin = new Padding(3, 16, 3, 0);
             lblInfoLugar.Name = "lblInfoLugar";
             lblInfoLugar.TabIndex = 14;
-            // Al cambiar el lugar, el horario o los invitados se actualiza la capacidad y la disponibilidad
             cmbLugar.SelectedIndexChanged += DatosDelLugar_Changed;
             dtpFechaHora.ValueChanged += DatosDelLugar_Changed;
             numHorasDuracion.ValueChanged += DatosDelLugar_Changed;

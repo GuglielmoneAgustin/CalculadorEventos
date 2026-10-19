@@ -9,8 +9,6 @@ using ProyectoEventos.Forms.Utils;
 
 namespace ProyectoEventos.Forms
 {
-    // Paso 2 del alta/edición de un evento: menú (platos con cantidades por adulto y niño) y servicios adicionales.
-    // Cada acción se aplica directamente sobre el evento ya creado (idEvento).
     public partial class FrmEventoMenu : Form
     {
         private const string TodosLosProductos = "Todos los productos";
@@ -21,16 +19,12 @@ namespace ProyectoEventos.Forms
         private readonly ServicioAdicionalController servicioControlador;
         private readonly PresupuestoController presupuestoControlador;
         private readonly int idEvento;
-        // Verdadero cuando el usuario termino con "Finalizar" (y no con "Volver")
         public bool Finalizado { get; private set; }
         private int adultosEvento;
         private int ninosEvento;
-        // Plato que se está editando (0 = el formulario agrega platos nuevos)
         private int idItemEditando;
         private List<ProductoDTO> productosDisponibles = new List<ProductoDTO>();
-        // Productos marcados para agregar; se conservan aunque el filtro los oculte
         private readonly HashSet<int> idsMarcados = new HashSet<int>();
-        // Mientras se rellena la lista no se procesan los cambios de marca
         private bool llenandoLista;
         private List<ServicioAdicionalDTO> serviciosDisponibles = new List<ServicioAdicionalDTO>();
 
@@ -73,8 +67,6 @@ namespace ProyectoEventos.Forms
             RestablecerCantidadesItem();
         }
 
-        // ---------- Menú ----------
-
         private void CargarProductosDisponibles()
         {
             productosDisponibles = productoControlador.ObtenerTodos();
@@ -83,7 +75,6 @@ namespace ProyectoEventos.Forms
             lvProductos.Columns.Add("Producto");
             lvProductos.Columns.Add("Adulto / niño", 125, HorizontalAlignment.Right);
 
-            // Filtro por restricción alimentaria: todos o una restricción (se muestra con tildes)
             cmbFiltroRestriccion.Format += (sender, e) => e.Value = e.ListItem as string ?? TextoEnum.Texto(e.ListItem);
             cmbFiltroRestriccion.Items.Clear();
             cmbFiltroRestriccion.Items.Add(TodosLosProductos);
@@ -99,7 +90,6 @@ namespace ProyectoEventos.Forms
             LlenarListaProductos();
         }
 
-        // Productos agrupados por categoría (Principal, Guarnición, ...) con el precio por adulto y por niño
         private void LlenarListaProductos()
         {
             RestriccionesAlimenticias? filtro = cmbFiltroRestriccion.SelectedItem as RestriccionesAlimenticias?;
@@ -119,14 +109,13 @@ namespace ProyectoEventos.Forms
                     continue;
                 }
 
-                ListViewGroup grupo = new ListViewGroup(TextoEnum.Categoria(categoria));
+                ListViewGroup grupo = new ListViewGroup(categoria.Texto());
                 lvProductos.Groups.Add(grupo);
                 foreach (ProductoDTO producto in productos)
                 {
                     string nombre = producto.Restriccion == RestriccionesAlimenticias.Estandar
                         ? producto.Nombre
-                        : producto.Nombre + " · " + TextoEnum.Restriccion(producto.Restriccion);
-                    // Precios sin centavos para que entren en la columna: "$ 9.500 / 6.500"
+                        : producto.Nombre + " · " + producto.Restriccion.Texto();
                     string precios = producto.PrecioAdulto.ToString(FormatoPrecioCorto) + " / " + producto.PrecioNino.ToString("#,##0");
                     ListViewItem item = new ListViewItem(new[] { nombre, precios }, grupo);
                     item.Tag = producto;
@@ -164,7 +153,6 @@ namespace ProyectoEventos.Forms
             AjustarColumnasProductos();
         }
 
-        // El nombre ocupa todo el ancho que deja la columna de precios
         private void AjustarColumnasProductos()
         {
             if (lvProductos.Columns.Count < 2)
@@ -180,7 +168,6 @@ namespace ProyectoEventos.Forms
             ActualizarSubtotalPlato();
         }
 
-        // Cuánto suman los productos marcados con las cantidades elegidas, antes de agregarlos
         private void ActualizarSubtotalPlato()
         {
             if (idItemEditando != 0)
@@ -220,8 +207,6 @@ namespace ProyectoEventos.Forms
             lblTotalMenu.Text = "Total menú: " + controlador.ObtenerTotalMenu(idEvento).ToString(Formato.Moneda);
         }
 
-        // Igual que "Guardar" en los otros ABM: si se está editando un plato guarda sus cantidades,
-        // si no agrega un plato por cada producto marcado.
         private void btnAgregarItem_Click(object sender, EventArgs e)
         {
             if (idItemEditando != 0)
@@ -241,7 +226,6 @@ namespace ProyectoEventos.Forms
                 int cantidadAdultos = Convert.ToInt32(numCantAdultosItem.Value);
                 int cantidadNinos = Convert.ToInt32(numCantNinosItem.Value);
 
-                // Cada producto marcado se agrega como un plato propio del menú (todos o ninguno).
                 List<int> idsProductos = productosDisponibles.Where(p => idsMarcados.Contains(p.Id)).Select(p => p.Id).ToList();
                 controlador.AgregarPlatosAlMenu(idEvento, cantidadAdultos, cantidadNinos, idsProductos);
 
@@ -278,10 +262,6 @@ namespace ProyectoEventos.Forms
             }
         }
 
-        // ---------- Edición de un plato (como en los otros ABM: Editar carga, Guardar aplica) ----------
-
-        // Carga las cantidades del plato seleccionado en el formulario de la izquierda.
-        // El producto no se cambia: para otro producto se quita el plato y se agrega uno nuevo.
         private void btnEditarItem_Click(object sender, EventArgs e)
         {
             if (dgvItemsMenu.CurrentRow?.DataBoundItem is not ItemMenuResultadoDTO item)
@@ -330,7 +310,6 @@ namespace ProyectoEventos.Forms
             TerminarEdicionItem();
         }
 
-        // Vuelve el formulario al modo "agregar plato"
         private void TerminarEdicionItem()
         {
             idItemEditando = 0;
@@ -353,14 +332,11 @@ namespace ProyectoEventos.Forms
             ActualizarSubtotalPlato();
         }
 
-        // Por defecto un plato se sirve a todos los invitados del evento.
         private void RestablecerCantidadesItem()
         {
             numCantAdultosItem.Value = adultosEvento;
             numCantNinosItem.Value = ninosEvento;
         }
-
-        // ---------- Servicios adicionales ----------
 
         private void CargarServiciosDisponibles()
         {
@@ -428,8 +404,6 @@ namespace ProyectoEventos.Forms
                 Mensajes.Advertencia(ex.Message);
             }
         }
-
-        // ---------- Cierre ----------
 
         private void btnFinalizar_Click(object sender, EventArgs e)
         {

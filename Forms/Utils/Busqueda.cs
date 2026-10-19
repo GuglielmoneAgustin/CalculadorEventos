@@ -3,8 +3,6 @@ using System.Text;
 
 namespace ProyectoEventos.Forms.Utils
 {
-    // Filtro de las grillas: cada palabra buscada tiene que aparecer en alguno de los campos.
-    // No distingue mayúsculas ni tildes ("maria salon" encuentra "María González - Salón Jardín").
     internal static class Busqueda
     {
         public static List<T> Filtrar<T>(List<T> elementos, string texto, Func<T, IEnumerable<string>> campos)

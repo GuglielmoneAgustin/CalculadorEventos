@@ -12,7 +12,6 @@ namespace ProyectoEventos.Forms
         private readonly ServicioAdicionalController controlador;
         private List<ServicioAdicionalDTO> servicios = new List<ServicioAdicionalDTO>();
         private int idSeleccionado;
-        // Valores del formulario al cargarlo o limpiarlo: si cambian, hay datos sin guardar
         private string valoresGuardados = string.Empty;
 
         public FrmServiciosAdicionales()
@@ -56,7 +55,6 @@ namespace ProyectoEventos.Forms
             MostrarGrilla();
         }
 
-        // Muestra los servicios que coinciden con el texto de búsqueda (sin volver a pedirlos al controlador)
         private void MostrarGrilla()
         {
             dgvServicios.DataSource = null;
@@ -174,7 +172,6 @@ namespace ProyectoEventos.Forms
             numMonto.Value = dto.Monto;
         }
 
-        // El título de la tarjeta indica (y Cancelar permite descartar) que se está modificando un servicio existente
         private void MostrarModoEdicion(string nombre)
         {
             lblModo.Text = "Editando: " + nombre;

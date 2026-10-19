@@ -22,7 +22,6 @@ namespace ProyectoEventos.Service
         {
         }
 
-        // Los repositorios se reciben por constructor: el servicio depende de las interfaces, no de las clases concretas.
         public EventoService(IEventoRepository repositorio, IRepository<Cliente> clienteRepositorio, IRepository<Lugar> lugarRepositorio,
             IRepository<Producto> productoRepositorio, IRepository<ServicioAdicional> servicioRepositorio)
         {
@@ -32,8 +31,6 @@ namespace ProyectoEventos.Service
             this.productoRepositorio = productoRepositorio;
             this.servicioRepositorio = servicioRepositorio;
         }
-
-        // ---------- Datos del evento ----------
 
         public EventoResultadoDTO Guardar(EventoDTO dto)
         {
@@ -46,7 +43,7 @@ namespace ProyectoEventos.Service
             Lugar lugar = lugarRepositorio.ObtenerExistente(dto.IdLugar);
             if (repositorio.HayEventoEnLugarEnHorario(lugar.Id, dto.Fecha, dto.HorasDuracion, dto.Id))
             {
-                throw new ReglaNegocioException("El lugar ya tiene un evento en ese horario.");
+                throw new NegocioException("El lugar ya tiene un evento en ese horario.");
             }
 
             Evento evento = dto.Id == 0
@@ -60,7 +57,7 @@ namespace ProyectoEventos.Service
             Evento evento = repositorio.ObtenerExistente(id);
             if (evento.TienePresupuestoAprobado())
             {
-                throw new ReglaNegocioException("No se puede eliminar un evento con un presupuesto aprobado. Cancele primero ese presupuesto.");
+                throw new NegocioException("No se puede eliminar un evento con un presupuesto aprobado. Cancele primero ese presupuesto.");
             }
 
             repositorio.Eliminar(id);
@@ -113,9 +110,6 @@ namespace ProyectoEventos.Service
             return resumen;
         }
 
-        // Eventos próximos todavía no aprobados que necesitan algo: generar el presupuesto,
-        // actualizarlo porque cambió el evento o un precio, o una respuesta del cliente.
-        // Los que tienen todo cancelado no se incluyen (el cliente ya respondió).
         public List<PendienteDTO> ObtenerPendientes()
         {
             DateTime ahora = DateTime.Now;
@@ -158,7 +152,6 @@ namespace ProyectoEventos.Service
             return pendientes;
         }
 
-        // Eventos de los próximos días (hoy incluido) que todavía no tienen un presupuesto aprobado.
         public List<EventoResultadoDTO> ObtenerSinAprobarProximosDias(int dias)
         {
             DateTime ahora = DateTime.Now;
@@ -181,24 +174,6 @@ namespace ProyectoEventos.Service
             return dias == 1 ? "ayer" : "hace " + dias + " días";
         }
 
-        public void AgregarItemAlMenu(int idEvento, ItemMenuDTO itemDto)
-        {
-            Evento evento = repositorio.ObtenerExistente(idEvento);
-            if (itemDto == null || itemDto.IdsComponentes == null)
-            {
-                throw new ArgumentException("Los datos del plato son obligatorios.");
-            }
-
-            List<Producto> componentes = new List<Producto>();
-            foreach (int idComponente in itemDto.IdsComponentes)
-            {
-                componentes.Add(productoRepositorio.ObtenerExistente(idComponente));
-            }
-
-            evento.AgregarItemAlMenu(itemDto.CantidadAdultos, itemDto.CantidadNinos, componentes);
-        }
-
-        // Un plato por cada producto; si alguno falla no se agrega ninguno.
         public void AgregarPlatosAlMenu(int idEvento, int cantidadAdultos, int cantidadNinos, List<int> idsProductos)
         {
             Evento evento = repositorio.ObtenerExistente(idEvento);
@@ -243,8 +218,6 @@ namespace ProyectoEventos.Service
             return repositorio.ObtenerExistente(idEvento).Menu.CalcularSubtotal();
         }
 
-        // ---------- Servicios adicionales del evento ----------
-
         public void CopiarMenuYServicios(int idEventoOrigen, int idEventoDestino)
         {
             Evento origen = repositorio.ObtenerExistente(idEventoOrigen);
@@ -252,7 +225,11 @@ namespace ProyectoEventos.Service
             destino.CopiarMenuYServiciosDe(origen);
         }
 
-        // Para avisar mientras se cargan los datos, antes de intentar guardar el evento.
+        public decimal CalcularCostoLugar(int idLugar, decimal horasDuracion)
+        {
+            return lugarRepositorio.ObtenerExistente(idLugar).CalcularCosto(horasDuracion);
+        }
+
         public bool LugarDisponible(int idLugar, DateTime fecha, decimal horasDuracion, int idEventoAIgnorar)
         {
             return !repositorio.HayEventoEnLugarEnHorario(idLugar, fecha, horasDuracion, idEventoAIgnorar);
@@ -289,7 +266,6 @@ namespace ProyectoEventos.Service
         private Evento EditarEvento(int idEvento, Cliente cliente, Lugar lugar, EventoDTO dto)
         {
             Evento evento = repositorio.ObtenerExistente(idEvento);
-            // El evento valida todos los datos juntos (rangos y capacidad del lugar) antes de modificarse.
             evento.ActualizarDatos(cliente, lugar, dto.Fecha, dto.HorasDuracion, dto.CantidadAdultos, dto.CantidadNinos);
             return evento;
         }

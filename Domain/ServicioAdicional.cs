@@ -26,7 +26,7 @@ namespace ProyectoEventos.Domain
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    throw new ReglaNegocioException("El nombre del servicio no puede estar vacío.");
+                    throw new NegocioException("El nombre del servicio no puede estar vacío.");
                 }
                 nombre = value.Trim();
             }
@@ -48,11 +48,10 @@ namespace ProyectoEventos.Domain
             {
                 if (value <= 0)
                 {
-                    throw new ReglaNegocioException("El monto debe ser mayor a cero.");
+                    throw new NegocioException("El monto debe ser mayor a cero.");
                 }
                 monto = value;
             }
         }
-
     }
 }

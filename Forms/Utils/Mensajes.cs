@@ -1,6 +1,5 @@
 namespace ProyectoEventos.Forms.Utils
 {
-    // Cuadros de mensaje comunes a todas las pantallas (mismos títulos e íconos en todos lados).
     internal static class Mensajes
     {
         public static void Advertencia(string texto)

@@ -132,7 +132,7 @@ namespace ProyectoEventos.Forms
             // 
             btnImprimir.Margin = new Padding(10, 0, 0, 0);
             btnImprimir.Size = new Size(160, 38);
-            btnImprimir.Text = "Imprimir ticket";
+            btnImprimir.Text = "Ver ticket";
             btnImprimir.UseVisualStyleBackColor = true;
             btnImprimir.Name = "btnImprimir";
             btnImprimir.TabIndex = 5;

@@ -1,6 +1,6 @@
 # Calculadora de Eventos
 
-Aplicación de escritorio (Windows Forms, .NET 10) para armar y presupuestar eventos: se cargan clientes, lugares, productos y servicios adicionales; se arma cada evento con su menú y sus servicios, y el sistema genera los presupuestos, controla su vigencia y permite aprobarlos, cancelarlos e imprimirlos como ticket.
+Aplicación de escritorio (Windows Forms, .NET 10) para armar y presupuestar eventos: se cargan clientes, lugares, productos y servicios adicionales; se arma cada evento con su menú y sus servicios, y el sistema genera los presupuestos, controla su vigencia y permite aprobarlos, cancelarlos y verlos como ticket.
 
 ## Requisitos y cómo ejecutarla
 
@@ -42,7 +42,7 @@ Las cuatro pantallas funcionan igual (alta, edición y baja):
 
 Datos de cada uno:
 - **Clientes:** nombre, DNI (único), mail (con formato válido) y teléfono. La grilla muestra cuántos eventos tiene cada cliente.
-- **Lugares:** nombre (único), costo base, capacidad y ubicación. No se puede bajar la capacidad por debajo de los invitados de un evento ya cargado en ese lugar.
+- **Lugares:** nombre (único), costo base, costo por hora (puede ser 0 si el lugar cobra un precio fijo), capacidad y ubicación. El costo del lugar en un evento es `costo base + costo por hora × horas de duración`. No se puede bajar la capacidad por debajo de los invitados de un evento ya cargado en ese lugar.
 - **Productos:** nombre (único), precio por adulto, precio por niño, categoría (Principal, Guarnición, Bebida, Postre) y restricción alimentaria (Estándar, Celíaco, Vegetariano, Diabético, Hipertenso).
 - **Servicios adicionales:** nombre (único), descripción y monto.
 
@@ -55,8 +55,10 @@ Datos de cada uno:
 ### Alta y edición de un evento (asistente en dos pasos)
 
 **Paso 1 – Datos del evento:** cliente, lugar, fecha y hora, duración (4 horas por defecto) y cantidad de adultos y niños.
-- Mientras se cargan los datos se muestra la **capacidad del lugar**, cuántos lugares quedan libres (o cuánto se supera) y si el lugar **ya tiene otro evento en ese horario**.
+- Mientras se cargan los datos se muestra la **capacidad del lugar**, cuántos lugares quedan libres (o cuánto se supera) y si el lugar **ya tiene otro evento en ese horario**, junto con el **costo del lugar** para esa duración.
 - Si la fecha elegida ya pasó, se pide confirmación.
+- Si se cambiaron datos y se sale sin tocar Siguiente (Volver o cambiar de sección), se pregunta antes de descartarlos.
+- La duración debe ser mayor a cero: si se deja en 0, al tocar Siguiente se avisa con un mensaje.
 - Si se crea un evento y se sale sin finalizar, se ofrece descartarlo para que no quede a medio cargar.
 - **Duplicar** abre este mismo paso con los datos de otro evento (una semana después, a la misma hora) y copia su menú y sus servicios.
 
@@ -71,11 +73,11 @@ Datos de cada uno:
 ### Presupuestos de un evento
 - Grilla con número, fecha de generación, fecha del evento e invitados cotizados, costo total, estado y **detalle**.
 - Cada presupuesto es una foto de lo cotizado: si después cambia el evento, ya no se modifica.
-- **Vigencia:** un presupuesto está vigente si es el último generado y no cambiaron ni el evento ni los precios (lugar, productos o servicios). Si no, se marca "(desactualizado)" y la columna Detalle explica el motivo, por ejemplo "Cambió el precio de Bife de chorizo." o "Cambiaron los servicios adicionales.".
+- **Vigencia:** un presupuesto está vigente si es el último generado y no cambiaron ni el evento ni los precios (costo base o por hora del lugar, productos o servicios). Si no, se marca "(desactualizado)" y la columna Detalle explica el motivo, por ejemplo "Cambió el precio de Bife de chorizo." o "Cambiaron los servicios adicionales.".
 - **Aprobar:** solo se aprueba un presupuesto vigente, que esté en espera o cancelado (por ejemplo, si el cliente se arrepintió). Si ya hay otro aprobado, se pregunta si se reemplaza.
 - **Cancelar:** pide confirmación y avisa especialmente si el presupuesto está aprobado.
 - **Actualizar presupuesto:** genera uno nuevo con los datos y precios actuales (o avisa que ya está al día).
-- **Imprimir ticket:** vista previa de un ticket de 42 columnas con todos los datos cotizados, listo para imprimir.
+- **Ver ticket:** muestra en pantalla un ticket con todos los datos cotizados.
 - El presupuesto aprobado conserva sus precios aunque después cambien.
 - Ningún botón se deshabilita: cada acción valida y avisa con un mensaje si no corresponde.
 
@@ -83,13 +85,14 @@ Datos de cada uno:
 
 - Un evento no puede superar la capacidad del lugar ni superponerse con otro evento en el mismo lugar y horario.
 - DNI de clientes y nombres de lugares, productos y servicios no se repiten.
+- Los montos admiten centavos y ningún campo numérico se corrige solo: si un valor no es válido, se avisa con un mensaje al guardar.
 - Los precios de productos y los montos de servicios deben ser mayores a cero; las cantidades no pueden ser negativas y cada plato debe tener al menos un adulto o un niño.
 - No se pueden eliminar clientes, lugares, productos o servicios que estén en uso en algún evento.
 - Solo puede haber un presupuesto aprobado por evento.
 
 ## Formato
 
-Montos y fechas con formato argentino (`$ 4.500,00` y `22/10/2026 20:00`), sin depender de la configuración regional de Windows. Los textos de categorías y restricciones se muestran con tildes.
+Montos y fechas con formato argentino (`$ 4.500,00` y `22/10/2026 20:00`), sin depender de la configuración regional de Windows. Los textos de las enumeraciones (categorías, restricciones y estados) se definen con `[Description]` y se muestran con tildes.
 
 ## Estructura del proyecto
 

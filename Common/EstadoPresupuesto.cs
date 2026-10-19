@@ -1,8 +1,10 @@
-﻿namespace ProyectoEventos.Common
+using System.ComponentModel;
+
+namespace ProyectoEventos.Common
 {
     public enum EstadoPresupuesto
     {
-        EnEspera,
+        [Description("En espera")] EnEspera,
         Aprobado,
         Cancelado
     }

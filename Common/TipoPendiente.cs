@@ -1,10 +1,11 @@
+using System.ComponentModel;
+
 namespace ProyectoEventos.Common
 {
-    // Qué le falta a un evento próximo que todavía no está aprobado.
     public enum TipoPendiente
     {
-        SinPresupuesto,
+        [Description("Sin presupuesto")] SinPresupuesto,
         Desactualizado,
-        EsperandoRespuesta
+        [Description("Esperando respuesta")] EsperandoRespuesta
     }
 }

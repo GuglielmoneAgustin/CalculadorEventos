@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel;
 
 namespace ProyectoEventos.Common
 {
     public enum RestriccionesAlimenticias
     {
-        Estandar,
-        Celiaco,
+        [Description("Estándar")] Estandar,
+        [Description("Celíaco")] Celiaco,
         Vegetariano,
-        Diabetico,
+        [Description("Diabético")] Diabetico,
         Hipertenso
     }
 }

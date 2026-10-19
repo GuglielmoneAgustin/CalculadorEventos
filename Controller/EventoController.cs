@@ -53,11 +53,6 @@ namespace ProyectoEventos.Controller
             return servicio.ObtenerSinAprobarProximosDias(dias);
         }
 
-        public void AgregarItemAlMenu(int idEvento, ItemMenuDTO itemDto)
-        {
-            servicio.AgregarItemAlMenu(idEvento, itemDto);
-        }
-
         public void AgregarPlatosAlMenu(int idEvento, int cantidadAdultos, int cantidadNinos, List<int> idsProductos)
         {
             servicio.AgregarPlatosAlMenu(idEvento, cantidadAdultos, cantidadNinos, idsProductos);
@@ -86,6 +81,11 @@ namespace ProyectoEventos.Controller
         public void CopiarMenuYServicios(int idEventoOrigen, int idEventoDestino)
         {
             servicio.CopiarMenuYServicios(idEventoOrigen, idEventoDestino);
+        }
+
+        public decimal CalcularCostoLugar(int idLugar, decimal horasDuracion)
+        {
+            return servicio.CalcularCostoLugar(idLugar, horasDuracion);
         }
 
         public bool LugarDisponible(int idLugar, DateTime fecha, decimal horasDuracion, int idEventoAIgnorar)

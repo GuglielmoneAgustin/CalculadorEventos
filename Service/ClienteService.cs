@@ -17,7 +17,6 @@ namespace ProyectoEventos.Service
         {
         }
 
-        // Los repositorios se reciben por constructor: el servicio depende de las interfaces, no de las clases concretas.
         public ClienteService(IRepository<Cliente> repositorio, IEventoRepository eventoRepositorio)
         {
             this.repositorio = repositorio;
@@ -33,7 +32,7 @@ namespace ProyectoEventos.Service
 
             if (ExisteDni(dto.Dni, dto.Id))
             {
-                throw new ReglaNegocioException("Ya existe un cliente con ese DNI.");
+                throw new NegocioException("Ya existe un cliente con ese DNI.");
             }
 
             if (dto.Id == 0)
@@ -66,8 +65,6 @@ namespace ProyectoEventos.Service
         private void Editar(ClienteDTO dto)
         {
             Cliente cliente = repositorio.ObtenerExistente(dto.Id);
-            // Se arma un Cliente con los datos nuevos para validarlos todos antes de tocar el original:
-            // si alguno es inválido se lanza la excepción y el cliente queda sin cambios.
             Cliente validado = new Cliente(cliente.Id, dto.Nombre, dto.Dni, dto.Mail, dto.Telefono);
 
             cliente.Nombre = validado.Nombre;
@@ -80,7 +77,7 @@ namespace ProyectoEventos.Service
         {
             if (eventoRepositorio.TieneClienteAsociado(id))
             {
-                throw new ReglaNegocioException("No se puede eliminar el cliente porque está asociado a un evento.");
+                throw new NegocioException("No se puede eliminar el cliente porque está asociado a un evento.");
             }
             repositorio.Eliminar(id);
         }

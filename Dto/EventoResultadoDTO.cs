@@ -15,7 +15,6 @@ namespace ProyectoEventos.Dto
         public int CantidadAdultos { get; set; }
         public int CantidadNinos { get; set; }
 
-        // Total de invitados (adultos + niños), para mostrar en las grillas
         public int Invitados
         {
             get { return CantidadAdultos + CantidadNinos; }
@@ -23,7 +22,6 @@ namespace ProyectoEventos.Dto
 
         public EstadoPresupuesto? EstadoPresupuesto { get; set; }
 
-        // Total del presupuesto aprobado; si no hay, el del último generado; null si no hay ninguno.
         public decimal? Total { get; set; }
     }
 }

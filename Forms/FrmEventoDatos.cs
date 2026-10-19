@@ -7,8 +7,6 @@ using ProyectoEventos.Forms.Utils;
 
 namespace ProyectoEventos.Forms
 {
-    // Paso 1 del alta/edición de un evento: datos generales.
-    // "Siguiente" guarda (crea o edita) el evento y abre el paso 2 (menú y servicios).
     public partial class FrmEventoDatos : Form
     {
         private readonly EventoController controlador;
@@ -16,14 +14,11 @@ namespace ProyectoEventos.Forms
         private readonly LugarController lugarControlador;
         private readonly EventoResultadoDTO? eventoInicial;
         private int idEvento;
-        // El evento se creó en este asistente y todavía no se finalizó el paso 2
         private bool creadoSinFinalizar;
-        // Fecha que tiene el evento guardado (null si todavía no existe)
         private DateTime? fechaGuardada;
-        // Al duplicar: evento del que se copian los datos, el menú y los servicios (null si no se duplica)
         private EventoResultadoDTO? eventoACopiar;
-        // Mientras se cargan los combos y el formulario no se recalcula la información del lugar
         private bool cargando;
+        private string valoresGuardados = string.Empty;
 
         public FrmEventoDatos(EventoResultadoDTO? evento = null)
         {
@@ -38,7 +33,6 @@ namespace ProyectoEventos.Forms
             FormClosing += FrmEventoDatos_FormClosing;
         }
 
-        // Alta de un evento nuevo con los datos, el menú y los servicios de otro (cliente que repite).
         public static FrmEventoDatos ParaDuplicar(EventoResultadoDTO origen)
         {
             FrmEventoDatos pantalla = new FrmEventoDatos();
@@ -46,10 +40,14 @@ namespace ProyectoEventos.Forms
             return pantalla;
         }
 
-        // Si el usuario sale sin finalizar un evento nuevo, se ofrece descartarlo
-        // para que no quede un evento a medio cargar (sin menú ni presupuesto).
         private void FrmEventoDatos_FormClosing(object? sender, FormClosingEventArgs e)
         {
+            if (!Formulario.ConfirmarDescartarCambios(HayCambiosSinGuardar()))
+            {
+                e.Cancel = true;
+                return;
+            }
+
             if (!creadoSinFinalizar)
             {
                 return;
@@ -88,7 +86,6 @@ namespace ProyectoEventos.Forms
             }
             else if (eventoACopiar != null)
             {
-                // Misma hora que el original, una semana después de hoy: así no choca con el evento copiado
                 Text = "Duplicar evento — Paso 1 de 2";
                 CargarFormulario(eventoACopiar);
                 dtpFechaHora.Value = DateTime.Today.AddDays(7) + eventoACopiar.Fecha.TimeOfDay;
@@ -101,6 +98,7 @@ namespace ProyectoEventos.Forms
             }
             cargando = false;
             ActualizarInfoLugar();
+            valoresGuardados = Formulario.Valores(tlpTarjetaDatos);
         }
 
         private void DatosDelLugar_Changed(object? sender, EventArgs e)
@@ -111,7 +109,6 @@ namespace ProyectoEventos.Forms
             }
         }
 
-        // Muestra, antes de guardar, si los invitados entran en el lugar y si el lugar está libre en ese horario.
         private void ActualizarInfoLugar()
         {
             if (cmbLugar.SelectedItem is not LugarDTO lugar)
@@ -131,7 +128,13 @@ namespace ProyectoEventos.Forms
                 ? "El lugar está libre en ese horario."
                 : "Atención: el lugar ya tiene otro evento en ese horario.";
 
-            lblInfoLugar.Text = capacidad + Environment.NewLine + horario;
+            string costo = "Costo del lugar: " + controlador.CalcularCostoLugar(lugar.Id, numHorasDuracion.Value).ToString(Formato.Moneda);
+            if (lugar.CostoPorHora > 0)
+            {
+                costo += " (" + lugar.CostoBase.ToString(Formato.Moneda) + " + " + numHorasDuracion.Value.ToString("0.##") + " hs x " + lugar.CostoPorHora.ToString(Formato.Moneda) + ")";
+            }
+
+            lblInfoLugar.Text = capacidad + Environment.NewLine + horario + Environment.NewLine + costo;
             lblInfoLugar.ForeColor = libres < 0 || !disponible ? Tema.Peligro : Tema.TextoSuave;
         }
 
@@ -153,11 +156,11 @@ namespace ProyectoEventos.Forms
                 EventoResultadoDTO guardado = controlador.Guardar(ArmarDto());
                 idEvento = guardado.Id;
                 fechaGuardada = guardado.Fecha;
+                valoresGuardados = Formulario.Valores(tlpTarjetaDatos);
                 if (esNuevo)
                 {
                     creadoSinFinalizar = true;
                 }
-                // Al duplicar, el menú y los servicios se copian una sola vez (al crear el evento)
                 if (esNuevo && eventoACopiar != null)
                 {
                     controlador.CopiarMenuYServicios(eventoACopiar.Id, idEvento);
@@ -174,7 +177,6 @@ namespace ProyectoEventos.Forms
             pantallaMenu.Text += " — Paso 2 de 2";
             if (ParentForm is FrmPrincipal principal)
             {
-                // Se abre en el mismo panel; si el usuario finaliza, tambien se cierra este paso
                 principal.AbrirSubpantalla(pantallaMenu, () =>
                 {
                     if (pantallaMenu.Finalizado)
@@ -209,8 +211,6 @@ namespace ProyectoEventos.Forms
             cmbLugar.ValueMember = "Id";
         }
 
-        // Registrar un evento ya realizado es válido, pero suele ser un error de carga:
-        // si se elige (o se cambia a) un día anterior a hoy, se pide confirmación.
         private bool ConfirmarFechaPasada()
         {
             DateTime fecha = dtpFechaHora.Value;
@@ -250,6 +250,11 @@ namespace ProyectoEventos.Forms
             dto.CantidadAdultos = Convert.ToInt32(numCantidadAdultos.Value);
             dto.CantidadNinos = Convert.ToInt32(numCantidadNinos.Value);
             return dto;
+        }
+
+        private bool HayCambiosSinGuardar()
+        {
+            return Formulario.Valores(tlpTarjetaDatos) != valoresGuardados;
         }
 
         private void CargarFormulario(EventoResultadoDTO dto)

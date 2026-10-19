@@ -15,7 +15,6 @@ namespace ProyectoEventos.Forms
         private Button? botonActivo;
         private bool descartando;
 
-        // Pantallas que quedaron ocultas detras de una subpantalla (ej: Eventos -> Presupuestos)
         private readonly Stack<(Form Pantalla, Action? AlVolver, string Titulo)> historial = new();
 
         public FrmPrincipal()
@@ -28,9 +27,6 @@ namespace ProyectoEventos.Forms
             AbrirEnPanel(() => new FrmInicio(), btnInicio);
         }
 
-        // Carga un formulario dentro de pnlContenido (reemplaza al anterior). La pantalla nueva se crea
-        // recién cuando la actual se pudo cerrar: si tiene datos sin guardar y el usuario decide
-        // quedarse, no se cambia de sección.
         private void AbrirEnPanel(Func<Form> crearPantalla, Button boton)
         {
             descartando = true;
@@ -40,7 +36,6 @@ namespace ProyectoEventos.Forms
                 return;
             }
             pantallaActual?.Dispose();
-            // Al cambiar de sección se descarta toda la pila de subpantallas
             while (historial.Count > 0)
             {
                 Form oculta = historial.Pop().Pantalla;
@@ -56,7 +51,6 @@ namespace ProyectoEventos.Forms
             pantalla.FormBorderStyle = FormBorderStyle.None;
             pantalla.Dock = DockStyle.Fill;
 
-            // El boton "Volver" no tiene sentido cuando la pantalla esta incrustada
             foreach (Control volver in pantalla.Controls.Find("btnVolver", true))
             {
                 volver.Visible = false;
@@ -65,7 +59,6 @@ namespace ProyectoEventos.Forms
             pnlContenido.Controls.Add(pantalla);
             pantalla.Show();
 
-            // Al mostrarse, las grillas seleccionan la primera fila: la deseleccionamos
             QuitarSeleccionGrillas(pantalla);
             BeginInvoke(() => QuitarSeleccionGrillas(pantalla));
 
@@ -73,8 +66,6 @@ namespace ProyectoEventos.Forms
             MarcarBotonActivo(boton);
         }
 
-        // Abre una subpantalla en el mismo panel, encima de la actual. Al cerrarse (Close) se
-        // vuelve a la anterior y se ejecuta alVolver (por ejemplo, para refrescar una grilla).
         public void AbrirSubpantalla(Form subpantalla, Action? alVolver = null)
         {
             Form anterior = pantallaActual!;
@@ -116,8 +107,6 @@ namespace ProyectoEventos.Forms
             BeginInvoke(() => QuitarSeleccionGrillas(subpantalla));
         }
 
-        // Cierra la pantalla y avisa si se cerró de verdad (en FormClosing puede cancelarse,
-        // por ejemplo porque el usuario no quiere perder datos sin guardar).
         private static bool IntentarCerrar(Form pantalla)
         {
             bool cerrada = false;

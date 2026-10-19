@@ -5,8 +5,6 @@ using ProyectoEventos.Common.Exceptions;
 
 namespace ProyectoEventos.Domain
 {
-    // Solo lo crea el Evento (GenerarPresupuesto) y solo el Evento cambia su estado,
-    // porque las reglas de aprobación dependen de los demás presupuestos del evento.
     public class Presupuesto
     {
         private readonly List<DetalleMenuPresupuestado> itemsMenu;
@@ -17,7 +15,8 @@ namespace ProyectoEventos.Domain
             Id = id;
             FechaGeneracion = fechaGeneracion;
             EventoAsociado = eventoAsociado;
-            CostoLugar = eventoAsociado.Lugar.CostoBase;
+            CostoBaseLugar = eventoAsociado.Lugar.CostoBase;
+            CostoPorHoraLugar = eventoAsociado.Lugar.CostoPorHora;
             NombreCliente = eventoAsociado.Cliente.Nombre;
             NombreLugar = eventoAsociado.Lugar.Nombre;
             FechaEvento = eventoAsociado.Fecha;
@@ -33,13 +32,19 @@ namespace ProyectoEventos.Domain
 
         public DateTime FechaGeneracion { get; private set; }
 
-        public decimal CostoLugar { get; private set; }
+        public decimal CostoBaseLugar { get; private set; }
+
+        public decimal CostoPorHoraLugar { get; private set; }
+
+        public decimal CostoLugar
+        {
+            get { return CostoBaseLugar + CostoPorHoraLugar * HorasDuracion; }
+        }
 
         public string NombreCliente { get; private set; }
 
         public string NombreLugar { get; private set; }
 
-        // Datos del evento tal como estaban al generar el presupuesto (el presupuesto congela lo pactado).
         public DateTime FechaEvento { get; private set; }
 
         public decimal HorasDuracion { get; private set; }
@@ -87,21 +92,18 @@ namespace ProyectoEventos.Domain
             return total;
         }
 
-        // Se puede aprobar uno en espera o uno cancelado (el cliente se arrepintió);
-        // que siga vigente lo controla el Evento.
         internal void ValidarQuePuedeAprobarse()
         {
             if (Estado == EstadoPresupuesto.Aprobado)
             {
-                throw new ReglaNegocioException("El presupuesto ya está aprobado.");
+                throw new NegocioException("El presupuesto ya está aprobado.");
             }
         }
 
-        // Compara los precios cotizados con los actuales del evento. Como el evento no cambió
-        // (mismos platos, cantidades y servicios), alcanza con comparar cada subtotal.
         internal bool CoincidenPreciosCon(Evento evento)
         {
-            return CostoLugar == evento.Lugar.CostoBase
+            return CostoBaseLugar == evento.Lugar.CostoBase
+                && CostoPorHoraLugar == evento.Lugar.CostoPorHora
                 && CalcularSubtotalMenu() == evento.Menu.CalcularSubtotal()
                 && CalcularSubtotalServicios() == evento.CalcularSubtotalServicios();
         }
@@ -116,7 +118,7 @@ namespace ProyectoEventos.Domain
         {
             if (Estado == EstadoPresupuesto.Cancelado)
             {
-                throw new ReglaNegocioException("El presupuesto ya está cancelado.");
+                throw new NegocioException("El presupuesto ya está cancelado.");
             }
             Estado = EstadoPresupuesto.Cancelado;
         }

@@ -9,11 +9,9 @@ namespace ProyectoEventos.Forms
 {
     public partial class FrmInicio : Form
     {
-        // Ventana de días que se considera "urgente" (alerta y filas resaltadas)
         private const int DiasUrgentes = 7;
 
         private readonly EventoController eventoControlador;
-        private Font? fuenteNegrita;
 
         public FrmInicio()
         {
@@ -36,7 +34,6 @@ namespace ProyectoEventos.Forms
             CargarPendientes();
         }
 
-        // Franja que solo aparece si hay eventos muy cercanos que todavía no se aprobaron
         private void CargarAlerta()
         {
             List<EventoResultadoDTO> urgentes = eventoControlador.ObtenerSinAprobarProximosDias(DiasUrgentes);
@@ -57,7 +54,6 @@ namespace ProyectoEventos.Forms
             lblAlerta.Visible = true;
         }
 
-        // Tarjetas de arriba: próximos eventos, eventos esperando aprobación y total aprobado del mes
         private void CargarResumen()
         {
             ResumenEventosDTO resumen = eventoControlador.ObtenerResumen();
@@ -67,7 +63,6 @@ namespace ProyectoEventos.Forms
             lblResumenValorMes.Text = resumen.TotalAprobadoMes.ToString(Formato.Moneda);
         }
 
-        // Tarjeta destacada con el evento aprobado más cercano
         private void CargarProximoEvento(List<EventoResultadoDTO> proximos)
         {
             if (proximos.Count == 0)
@@ -112,61 +107,23 @@ namespace ProyectoEventos.Forms
             dgvPendientes.CurrentCell = null;
         }
 
-        // Los eventos de esta semana se resaltan y el "Falta" va en negrita
         private void dgvProximosEventos_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
         {
-            if (e.RowIndex < 0 || dgvProximosEventos.Rows[e.RowIndex].DataBoundItem is not FilaProximoEvento fila)
+            if (e.RowIndex >= 0 && dgvProximosEventos.Rows[e.RowIndex].DataBoundItem is FilaProximoEvento fila
+                && Formato.DiasHasta(fila.Fecha) <= DiasUrgentes)
             {
-                return;
-            }
-            if (Formato.DiasHasta(fila.Fecha) <= DiasUrgentes)
-            {
-                e.CellStyle!.BackColor = Tema.Vanilla;
-                e.CellStyle.SelectionBackColor = Tema.Chai;
-                if (dgvProximosEventos.Columns[e.ColumnIndex].Name == "Falta")
-                {
-                    e.CellStyle.Font = fuenteNegrita ??= new Font(dgvProximosEventos.DefaultCellStyle.Font ?? dgvProximosEventos.Font, FontStyle.Bold);
-                }
+                Tema.ResaltarFila(e, dgvProximosEventos.Columns[e.ColumnIndex].Name == "Falta");
             }
         }
 
-        // Situación con texto legible y color: sin presupuesto y desactualizado son lo más importante
         private void dgvPendientes_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
         {
-            if (e.RowIndex < 0 || dgvPendientes.Columns[e.ColumnIndex].Name != "Tipo" || e.Value is not TipoPendiente tipo)
+            if (e.RowIndex >= 0 && dgvPendientes.Columns[e.ColumnIndex].Name == "Tipo" && e.Value is TipoPendiente tipo)
             {
-                return;
+                Tema.PintarPendiente(e, tipo);
             }
-
-            Color fondo;
-            Color color;
-            switch (tipo)
-            {
-                case TipoPendiente.SinPresupuesto:
-                    e.Value = "Sin presupuesto";
-                    fondo = Color.FromArgb(235, 203, 195);
-                    color = Color.FromArgb(120, 52, 38);
-                    break;
-                case TipoPendiente.Desactualizado:
-                    e.Value = "Desactualizado";
-                    fondo = Tema.Chai;
-                    color = Tema.Texto;
-                    break;
-                default:
-                    e.Value = "Esperando respuesta";
-                    fondo = Tema.Vanilla;
-                    color = Tema.Carob;
-                    break;
-            }
-            e.FormattingApplied = true;
-            e.CellStyle!.BackColor = fondo;
-            e.CellStyle.ForeColor = color;
-            e.CellStyle.SelectionBackColor = fondo;
-            e.CellStyle.SelectionForeColor = color;
-            e.CellStyle.Font = fuenteNegrita ??= new Font(dgvPendientes.DefaultCellStyle.Font ?? dgvPendientes.Font, FontStyle.Bold);
         }
 
-        // Fila de la grilla de próximos eventos: solo lo que se muestra, en el orden de las columnas
         private sealed class FilaProximoEvento
         {
             public FilaProximoEvento(EventoResultadoDTO evento)

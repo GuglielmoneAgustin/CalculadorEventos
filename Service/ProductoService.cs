@@ -17,7 +17,6 @@ namespace ProyectoEventos.Service
         {
         }
 
-        // Los repositorios se reciben por constructor: el servicio depende de las interfaces, no de las clases concretas.
         public ProductoService(IRepository<Producto> repositorio, IEventoRepository eventoRepositorio)
         {
             this.repositorio = repositorio;
@@ -33,7 +32,7 @@ namespace ProyectoEventos.Service
 
             if (ExisteNombre(dto.Nombre, dto.Id))
             {
-                throw new ReglaNegocioException("Ya existe un producto con ese nombre.");
+                throw new NegocioException("Ya existe un producto con ese nombre.");
             }
 
             if (dto.Id == 0)
@@ -66,7 +65,6 @@ namespace ProyectoEventos.Service
         private void Editar(ProductoDTO dto)
         {
             Producto producto = repositorio.ObtenerExistente(dto.Id);
-            // Se arma un Producto con los datos nuevos para validarlos todos antes de tocar el original.
             Producto validado = new Producto(producto.Id, dto.Nombre, dto.PrecioAdulto, dto.PrecioNino, dto.Categoria, dto.Restriccion);
 
             producto.Nombre = validado.Nombre;
@@ -80,7 +78,7 @@ namespace ProyectoEventos.Service
         {
             if (eventoRepositorio.TieneProductoAsociado(id))
             {
-                throw new ReglaNegocioException("No se puede eliminar el producto porque forma parte del menú de un evento.");
+                throw new NegocioException("No se puede eliminar el producto porque forma parte del menú de un evento.");
             }
             repositorio.Eliminar(id);
         }

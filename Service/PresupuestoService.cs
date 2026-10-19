@@ -15,14 +15,11 @@ namespace ProyectoEventos.Service
         {
         }
 
-        // El repositorio se recibe por constructor: el servicio depende de la interfaz, no de la clase concreta.
         public PresupuestoService(IEventoRepository eventoRepositorio)
         {
             this.eventoRepositorio = eventoRepositorio;
         }
 
-        // Devuelve null cuando el evento no cambió desde el último presupuesto generado
-        // y por lo tanto no hace falta uno nuevo.
         public PresupuestoResultadoDTO? Generar(int idEvento)
         {
             Evento evento = eventoRepositorio.ObtenerExistente(idEvento);
@@ -46,7 +43,6 @@ namespace ProyectoEventos.Service
             return MapearAResultado(evento.CancelarPresupuesto(idPresupuesto));
         }
 
-        // Lanza la excepción de negocio si el presupuesto no se puede aprobar; no modifica nada.
         public void ValidarAprobacion(int idEvento, int idPresupuesto)
         {
             eventoRepositorio.ObtenerExistente(idEvento).ValidarAprobacion(idPresupuesto);
@@ -74,10 +70,12 @@ namespace ProyectoEventos.Service
             dto.HorasDuracion = presupuesto.HorasDuracion;
             dto.CantidadAdultos = presupuesto.CantidadAdultos;
             dto.CantidadNinos = presupuesto.CantidadNinos;
+            dto.CostoBaseLugar = presupuesto.CostoBaseLugar;
+            dto.CostoPorHoraLugar = presupuesto.CostoPorHoraLugar;
             dto.CostoLugar = presupuesto.CostoLugar;
-            dto.Items = presupuesto.ObtenerItemsMenu().Select(item => new PresupuestoItemDTO
+            dto.Items = presupuesto.ObtenerItemsMenu().Select(item => new ItemMenuResultadoDTO
             {
-                Descripcion = item.Descripcion,
+                DescripcionComponentes = item.Descripcion,
                 CantidadAdultos = item.CantidadAdultos,
                 CantidadNinos = item.CantidadNinos,
                 Subtotal = item.Subtotal

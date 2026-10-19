@@ -4,7 +4,6 @@ using ProyectoEventos.Common;
 
 namespace ProyectoEventos.Dto
 {
-    // Todo lo que quedó pactado en un presupuesto; es lo que se imprime en el ticket.
     public class PresupuestoDetalleDTO
     {
         public int Id { get; set; }
@@ -17,8 +16,10 @@ namespace ProyectoEventos.Dto
         public decimal HorasDuracion { get; set; }
         public int CantidadAdultos { get; set; }
         public int CantidadNinos { get; set; }
+        public decimal CostoBaseLugar { get; set; }
+        public decimal CostoPorHoraLugar { get; set; }
         public decimal CostoLugar { get; set; }
-        public List<PresupuestoItemDTO> Items { get; set; } = new List<PresupuestoItemDTO>();
+        public List<ItemMenuResultadoDTO> Items { get; set; } = new List<ItemMenuResultadoDTO>();
         public List<PresupuestoServicioDTO> Servicios { get; set; } = new List<PresupuestoServicioDTO>();
         public decimal SubtotalMenu { get; set; }
         public decimal SubtotalServicios { get; set; }

@@ -6,7 +6,6 @@ namespace ProyectoEventos.Domain
 {
     public class Cliente : IEntidad
     {
-        // Algo@algo.algo, sin espacios ni una segunda '@'.
         private static readonly Regex FormatoMail = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
 
         private string nombre = string.Empty;
@@ -32,7 +31,7 @@ namespace ProyectoEventos.Domain
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    throw new ReglaNegocioException("El nombre del cliente no puede estar vacío.");
+                    throw new NegocioException("El nombre del cliente no puede estar vacío.");
                 }
                 nombre = value.Trim();
             }
@@ -45,7 +44,7 @@ namespace ProyectoEventos.Domain
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    throw new ReglaNegocioException("El DNI del cliente no puede estar vacío.");
+                    throw new NegocioException("El DNI del cliente no puede estar vacío.");
                 }
                 dni = value.Trim();
             }
@@ -62,7 +61,7 @@ namespace ProyectoEventos.Domain
                 }
                 else if (!FormatoMail.IsMatch(value.Trim()))
                 {
-                    throw new ReglaNegocioException("El mail ingresado no es válido (ejemplo: nombre@dominio.com).");
+                    throw new NegocioException("El mail ingresado no es válido (ejemplo: nombre@dominio.com).");
                 }
                 else
                 {

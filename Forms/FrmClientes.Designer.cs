@@ -112,8 +112,6 @@ namespace ProyectoEventos.Forms
             tlpBotones.RowCount = 2;
             tlpBotones.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpBotones.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            // Guardar (la acción principal) ocupa toda la fila; al editar la comparte con Cancelar.
-            // Editar y Eliminar van debajo, media fila cada uno.
             btnGuardar.Dock = DockStyle.Fill;
             btnEditar.Dock = DockStyle.Fill;
             btnEliminar.Dock = DockStyle.Fill;

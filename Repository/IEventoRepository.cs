@@ -3,7 +3,6 @@ using ProyectoEventos.Domain;
 
 namespace ProyectoEventos.Repository
 {
-    // Consultas propias de los eventos, además de las operaciones comunes de IRepository.
     public interface IEventoRepository : IRepository<Evento>
     {
         bool TieneClienteAsociado(int idCliente);

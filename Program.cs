@@ -9,8 +9,6 @@ namespace ProyectoEventos
         [STAThread]
         static void Main()
         {
-            // Montos y fechas con formato argentino ($ 1.234,56 y 18/10/2026),
-            // sin depender de la configuración regional de Windows.
             CultureInfo cultura = new CultureInfo("es-AR");
             CultureInfo.DefaultThreadCurrentCulture = cultura;
             CultureInfo.DefaultThreadCurrentUICulture = cultura;

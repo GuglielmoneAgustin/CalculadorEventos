@@ -17,7 +17,6 @@ namespace ProyectoEventos.Service
         {
         }
 
-        // Los repositorios se reciben por constructor: el servicio depende de las interfaces, no de las clases concretas.
         public ServicioAdicionalService(IRepository<ServicioAdicional> repositorio, IEventoRepository eventoRepositorio)
         {
             this.repositorio = repositorio;
@@ -33,7 +32,7 @@ namespace ProyectoEventos.Service
 
             if (ExisteNombre(dto.Nombre, dto.Id))
             {
-                throw new ReglaNegocioException("Ya existe un servicio con ese nombre.");
+                throw new NegocioException("Ya existe un servicio con ese nombre.");
             }
 
             if (dto.Id == 0)
@@ -66,7 +65,6 @@ namespace ProyectoEventos.Service
         private void Editar(ServicioAdicionalDTO dto)
         {
             ServicioAdicional servicio = repositorio.ObtenerExistente(dto.Id);
-            // Se arma un ServicioAdicional con los datos nuevos para validarlos todos antes de tocar el original.
             ServicioAdicional validado = new ServicioAdicional(servicio.Id, dto.Nombre, dto.Descripcion, dto.Monto);
 
             servicio.Nombre = validado.Nombre;
@@ -78,7 +76,7 @@ namespace ProyectoEventos.Service
         {
             if (eventoRepositorio.TieneServicioAsociado(id))
             {
-                throw new ReglaNegocioException("No se puede eliminar el servicio porque está asociado a un evento.");
+                throw new NegocioException("No se puede eliminar el servicio porque está asociado a un evento.");
             }
             repositorio.Eliminar(id);
         }

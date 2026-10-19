@@ -12,7 +12,6 @@ namespace ProyectoEventos.Forms
         private readonly ClienteController controlador;
         private List<ClienteDTO> clientes = new List<ClienteDTO>();
         private int idSeleccionado;
-        // Valores del formulario al cargarlo o limpiarlo: si cambian, hay datos sin guardar
         private string valoresGuardados = string.Empty;
 
         public FrmClientes()
@@ -56,7 +55,6 @@ namespace ProyectoEventos.Forms
             MostrarGrilla();
         }
 
-        // Muestra los clientes que coinciden con el texto de búsqueda (sin volver a pedirlos al controlador)
         private void MostrarGrilla()
         {
             dgvClientes.DataSource = null;
@@ -179,7 +177,6 @@ namespace ProyectoEventos.Forms
             txtBoxTelefono.Text = dto.Telefono;
         }
 
-        // El título de la tarjeta indica (y Cancelar permite descartar) que se está modificando un cliente existente
         private void MostrarModoEdicion(string nombre)
         {
             lblModo.Text = "Editando: " + nombre;

@@ -29,20 +29,19 @@ namespace ProyectoEventos.Domain
             get { return cantidadNinos; }
         }
 
-        // Se validan las dos cantidades antes de asignar: si alguna es inválida el item queda igual.
         public void CambiarCantidades(int cantidadAdultos, int cantidadNinos)
         {
             if (cantidadAdultos < 0)
             {
-                throw new ReglaNegocioException("La cantidad de adultos no puede ser negativa.");
+                throw new NegocioException("La cantidad de adultos no puede ser negativa.");
             }
             if (cantidadNinos < 0)
             {
-                throw new ReglaNegocioException("La cantidad de niños no puede ser negativa.");
+                throw new NegocioException("La cantidad de niños no puede ser negativa.");
             }
             if (cantidadAdultos + cantidadNinos == 0)
             {
-                throw new ReglaNegocioException("El item del menú debe tener al menos un adulto o un niño.");
+                throw new NegocioException("El item del menú debe tener al menos un adulto o un niño.");
             }
 
             this.cantidadAdultos = cantidadAdultos;
