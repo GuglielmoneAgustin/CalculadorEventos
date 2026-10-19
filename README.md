@@ -20,15 +20,17 @@ Al ejecutar en modo **Debug** se cargan automáticamente datos de ejemplo (clien
 La ventana principal tiene un menú lateral (Inicio, Lugares, Clientes, Servicios, Productos, Eventos y Salir) y cada sección se abre dentro de la misma ventana.
 
 ### Inicio
-- La **fecha de hoy** arriba de todo.
 - **Alerta** (solo si hace falta) cuando hay eventos de los próximos 7 días que todavía no tienen presupuesto aprobado, con sus clientes.
 - Tarjeta destacada con el **próximo evento**: cuánto falta, día y hora, cliente, lugar, invitados y horario.
-- Tarjetas de resumen: **eventos aprobados** por venir, eventos **esperando aprobación** y **total aprobado del mes** en curso.
+- **Esta semana:** cuántos eventos hay en los próximos 7 días, cuántos están aprobados y cuántos no.
+- **Para atender:** cuántos pendientes hay y de qué tipo (sin presupuesto, desactualizado, esperando respuesta).
+- **Hoy:** el día de la semana y la fecha.
 - **Próximos eventos aprobados:** cuánto falta ("Hoy", "Mañana", "En 5 días"), cliente, lugar, fecha, horario de inicio a fin, invitados y total aprobado. Los de los próximos 7 días se resaltan.
 - **Para atender:** eventos próximos que necesitan algo, con un detalle de qué pasó:
   - **Sin presupuesto:** el evento se cargó pero no tiene presupuesto.
   - **Desactualizado:** el presupuesto en espera ya no vale (por ejemplo, "Cambió el precio de Bife de chorizo.").
   - **Esperando respuesta:** el presupuesto está vigente y se envió hace cierta cantidad de días.
+- Un botón **Ver presupuesto** sirve para las dos grillas: abre los presupuestos del evento elegido en cualquiera de ellas (al seleccionar en una grilla se deselecciona la otra). Al volver, Inicio se actualiza.
 
 ### Clientes, Lugares, Productos y Servicios adicionales
 Las cuatro pantallas funcionan igual (alta, edición y baja):
@@ -68,6 +70,7 @@ Datos de cada uno:
 - Un plato puede tener más porciones que invitados (para quienes repiten).
 - **Editar plato** carga sus cantidades en el formulario; **Guardar cambios** las aplica y **Cancelar edición** las descarta.
 - Servicios adicionales: se agregan y quitan del evento.
+- Si al salir (Volver, Finalizar o cambiar de sección) quedan productos o servicios marcados sin agregar, o cambios en un plato que se está editando, se pregunta antes de descartarlos.
 - **Finalizar** guarda y genera un presupuesto nuevo si el evento cambió desde el último.
 
 ### Presupuestos de un evento

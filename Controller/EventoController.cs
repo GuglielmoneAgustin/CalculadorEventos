@@ -38,11 +38,6 @@ namespace ProyectoEventos.Controller
             return servicio.ObtenerProximosAprobadosComoDto();
         }
 
-        public ResumenEventosDTO ObtenerResumen()
-        {
-            return servicio.ObtenerResumen();
-        }
-
         public List<PendienteDTO> ObtenerPendientes()
         {
             return servicio.ObtenerPendientes();

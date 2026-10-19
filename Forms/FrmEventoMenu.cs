@@ -23,6 +23,8 @@ namespace ProyectoEventos.Forms
         private int adultosEvento;
         private int ninosEvento;
         private int idItemEditando;
+        private int adultosItemEditando;
+        private int ninosItemEditando;
         private List<ProductoDTO> productosDisponibles = new List<ProductoDTO>();
         private readonly HashSet<int> idsMarcados = new HashSet<int>();
         private bool llenandoLista;
@@ -39,6 +41,7 @@ namespace ProyectoEventos.Forms
             this.idEvento = idEvento;
             dgvItemsMenu.MensajeSinFilas(() => "Todavía no hay platos. Marque productos a la izquierda y toque Agregar plato.");
             dgvServiciosEvento.MensajeSinFilas(() => "Sin servicios adicionales.");
+            FormClosing += FrmEventoMenu_FormClosing;
         }
 
         private void FrmEventoMenu_Load(object sender, EventArgs e)
@@ -48,6 +51,35 @@ namespace ProyectoEventos.Forms
             CargarServiciosDisponibles();
             CargarGrillaItems();
             CargarGrillaServicios();
+        }
+
+        private void FrmEventoMenu_FormClosing(object? sender, FormClosingEventArgs e)
+        {
+            if (!Finalizado && !ConfirmarDescartarPendientes())
+            {
+                e.Cancel = true;
+            }
+        }
+
+        private bool ConfirmarDescartarPendientes()
+        {
+            List<string> pendientes = new List<string>();
+            if (idsMarcados.Count > 0)
+            {
+                pendientes.Add(idsMarcados.Count == 1 ? "1 producto marcado sin agregar" : idsMarcados.Count + " productos marcados sin agregar");
+            }
+            if (idItemEditando != 0
+                && (numCantAdultosItem.Value != adultosItemEditando || numCantNinosItem.Value != ninosItemEditando))
+            {
+                pendientes.Add("cambios sin guardar en el plato que se está editando");
+            }
+            if (clbServicios.CheckedIndices.Count > 0)
+            {
+                pendientes.Add(clbServicios.CheckedIndices.Count == 1 ? "1 servicio marcado sin agregar" : clbServicios.CheckedIndices.Count + " servicios marcados sin agregar");
+            }
+
+            return pendientes.Count == 0
+                || Mensajes.Confirmar("Hay " + string.Join(", ", pendientes) + ". ¿Desea descartarlos?");
         }
 
         private void btnVolver_Click(object sender, EventArgs e)
@@ -272,6 +304,8 @@ namespace ProyectoEventos.Forms
 
             LimpiarSeleccionItem();
             idItemEditando = item.Id;
+            adultosItemEditando = item.CantidadAdultos;
+            ninosItemEditando = item.CantidadNinos;
             numCantAdultosItem.Value = item.CantidadAdultos;
             numCantNinosItem.Value = item.CantidadNinos;
 
@@ -407,6 +441,11 @@ namespace ProyectoEventos.Forms
 
         private void btnFinalizar_Click(object sender, EventArgs e)
         {
+            if (!ConfirmarDescartarPendientes())
+            {
+                return;
+            }
+
             try
             {
                 PresupuestoResultadoDTO? presupuesto = presupuestoControlador.Generar(idEvento);

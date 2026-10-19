@@ -18,36 +18,39 @@ namespace ProyectoEventos.Forms
         private void InitializeComponent()
         {
             tlpRaiz = new TableLayoutPanel();
-            lblFechaHoy = new Label();
             lblAlerta = new Label();
             tlpResumen = new TableLayoutPanel();
             tlpTarjetaProximoEvento = new TableLayoutPanel();
             lblResumenTituloProximoEvento = new Label();
             lblResumenValorProximoEvento = new Label();
-            lblProximoEventoDetalle = new Label();
-            tlpTarjetaProximos = new TableLayoutPanel();
-            lblResumenTituloProximos = new Label();
-            lblResumenValorProximos = new Label();
-            tlpTarjetaEnEspera = new TableLayoutPanel();
-            lblResumenTituloEnEspera = new Label();
-            lblResumenValorEnEspera = new Label();
-            tlpTarjetaMes = new TableLayoutPanel();
-            lblResumenTituloMes = new Label();
-            lblResumenValorMes = new Label();
+            lblResumenDetalleProximoEvento = new Label();
+            tlpTarjetaSemana = new TableLayoutPanel();
+            lblResumenTituloSemana = new Label();
+            lblResumenValorSemana = new Label();
+            lblResumenDetalleSemana = new Label();
+            tlpTarjetaHoy = new TableLayoutPanel();
+            lblResumenTituloHoy = new Label();
+            lblResumenValorHoy = new Label();
+            lblResumenDetalleHoy = new Label();
+            tlpTarjetaPendientes = new TableLayoutPanel();
+            lblResumenTituloPendientes = new Label();
+            lblResumenValorPendientes = new Label();
+            lblResumenDetallePendientes = new Label();
             tlpGrilla = new TableLayoutPanel();
             lblProximosEventos = new Label();
             dgvProximosEventos = new DataGridView();
             tlpGrillaPendientes = new TableLayoutPanel();
             lblPendientes = new Label();
+            btnVerPresupuestos = new Button();
             dgvPendientes = new DataGridView();
             ((System.ComponentModel.ISupportInitialize)dgvProximosEventos).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dgvPendientes).BeginInit();
             tlpRaiz.SuspendLayout();
             tlpResumen.SuspendLayout();
             tlpTarjetaProximoEvento.SuspendLayout();
-            tlpTarjetaProximos.SuspendLayout();
-            tlpTarjetaEnEspera.SuspendLayout();
-            tlpTarjetaMes.SuspendLayout();
+            tlpTarjetaSemana.SuspendLayout();
+            tlpTarjetaPendientes.SuspendLayout();
+            tlpTarjetaHoy.SuspendLayout();
             tlpGrilla.SuspendLayout();
             tlpGrillaPendientes.SuspendLayout();
             SuspendLayout();
@@ -56,27 +59,19 @@ namespace ProyectoEventos.Forms
             //
             tlpRaiz.ColumnCount = 1;
             tlpRaiz.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tlpRaiz.Controls.Add(lblFechaHoy, 0, 0);
-            tlpRaiz.Controls.Add(lblAlerta, 0, 1);
-            tlpRaiz.Controls.Add(tlpResumen, 0, 2);
-            tlpRaiz.Controls.Add(tlpGrilla, 0, 3);
-            tlpRaiz.Controls.Add(tlpGrillaPendientes, 0, 4);
+            tlpRaiz.Controls.Add(lblAlerta, 0, 0);
+            tlpRaiz.Controls.Add(tlpResumen, 0, 1);
+            tlpRaiz.Controls.Add(tlpGrilla, 0, 2);
+            tlpRaiz.Controls.Add(tlpGrillaPendientes, 0, 3);
+            tlpRaiz.Controls.Add(btnVerPresupuestos, 0, 4);
             tlpRaiz.Dock = DockStyle.Fill;
             tlpRaiz.Name = "tlpRaiz";
             tlpRaiz.RowCount = 5;
             tlpRaiz.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpRaiz.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            tlpRaiz.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpRaiz.RowStyles.Add(new RowStyle(SizeType.Percent, 55F));
             tlpRaiz.RowStyles.Add(new RowStyle(SizeType.Percent, 45F));
-            //
-            // lblFechaHoy
-            //
-            lblFechaHoy.AutoSize = true;
-            lblFechaHoy.Margin = new Padding(0, 0, 0, 14);
-            lblFechaHoy.Name = "lblFechaHoy";
-            lblFechaHoy.TabIndex = 0;
-            lblFechaHoy.Text = "Hoy";
+            tlpRaiz.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             //
             // lblAlerta
             //
@@ -91,14 +86,14 @@ namespace ProyectoEventos.Forms
             //
             tlpResumen.AutoSize = true;
             tlpResumen.ColumnCount = 4;
-            tlpResumen.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33F));
-            tlpResumen.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 18F));
-            tlpResumen.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 22F));
-            tlpResumen.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 27F));
+            tlpResumen.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 32F));
+            tlpResumen.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 24F));
+            tlpResumen.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            tlpResumen.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 19F));
             tlpResumen.Controls.Add(tlpTarjetaProximoEvento, 0, 0);
-            tlpResumen.Controls.Add(tlpTarjetaProximos, 1, 0);
-            tlpResumen.Controls.Add(tlpTarjetaEnEspera, 2, 0);
-            tlpResumen.Controls.Add(tlpTarjetaMes, 3, 0);
+            tlpResumen.Controls.Add(tlpTarjetaSemana, 1, 0);
+            tlpResumen.Controls.Add(tlpTarjetaPendientes, 2, 0);
+            tlpResumen.Controls.Add(tlpTarjetaHoy, 3, 0);
             tlpResumen.Dock = DockStyle.Fill;
             tlpResumen.Margin = new Padding(0, 0, 0, 20);
             tlpResumen.Name = "tlpResumen";
@@ -112,7 +107,7 @@ namespace ProyectoEventos.Forms
             tlpTarjetaProximoEvento.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tlpTarjetaProximoEvento.Controls.Add(lblResumenTituloProximoEvento, 0, 0);
             tlpTarjetaProximoEvento.Controls.Add(lblResumenValorProximoEvento, 0, 1);
-            tlpTarjetaProximoEvento.Controls.Add(lblProximoEventoDetalle, 0, 2);
+            tlpTarjetaProximoEvento.Controls.Add(lblResumenDetalleProximoEvento, 0, 2);
             tlpTarjetaProximoEvento.Dock = DockStyle.Fill;
             tlpTarjetaProximoEvento.Margin = new Padding(0, 0, 20, 0);
             tlpTarjetaProximoEvento.Name = "tlpTarjetaProximoEvento";
@@ -136,99 +131,126 @@ namespace ProyectoEventos.Forms
             lblResumenValorProximoEvento.TabIndex = 3;
             lblResumenValorProximoEvento.Text = "-";
             //
-            // lblProximoEventoDetalle
+            // lblResumenDetalleProximoEvento
             //
-            lblProximoEventoDetalle.AutoSize = true;
-            lblProximoEventoDetalle.Margin = new Padding(3, 4, 3, 0);
-            lblProximoEventoDetalle.Name = "lblProximoEventoDetalle";
-            lblProximoEventoDetalle.TabIndex = 4;
+            lblResumenDetalleProximoEvento.AutoSize = true;
+            lblResumenDetalleProximoEvento.Margin = new Padding(3, 4, 3, 0);
+            lblResumenDetalleProximoEvento.Name = "lblResumenDetalleProximoEvento";
+            lblResumenDetalleProximoEvento.TabIndex = 4;
             //
-            // tlpTarjetaProximos
+            // tlpTarjetaSemana
             //
-            tlpTarjetaProximos.AutoSize = true;
-            tlpTarjetaProximos.ColumnCount = 1;
-            tlpTarjetaProximos.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tlpTarjetaProximos.Controls.Add(lblResumenTituloProximos, 0, 0);
-            tlpTarjetaProximos.Controls.Add(lblResumenValorProximos, 0, 1);
-            tlpTarjetaProximos.Dock = DockStyle.Fill;
-            tlpTarjetaProximos.Margin = new Padding(0, 0, 20, 0);
-            tlpTarjetaProximos.Name = "tlpTarjetaProximos";
-            tlpTarjetaProximos.RowCount = 2;
-            tlpTarjetaProximos.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            tlpTarjetaProximos.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            tlpTarjetaSemana.AutoSize = true;
+            tlpTarjetaSemana.ColumnCount = 1;
+            tlpTarjetaSemana.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tlpTarjetaSemana.Controls.Add(lblResumenTituloSemana, 0, 0);
+            tlpTarjetaSemana.Controls.Add(lblResumenValorSemana, 0, 1);
+            tlpTarjetaSemana.Controls.Add(lblResumenDetalleSemana, 0, 2);
+            tlpTarjetaSemana.Dock = DockStyle.Fill;
+            tlpTarjetaSemana.Margin = new Padding(0, 0, 20, 0);
+            tlpTarjetaSemana.Name = "tlpTarjetaSemana";
+            tlpTarjetaSemana.RowCount = 3;
+            tlpTarjetaSemana.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            tlpTarjetaSemana.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            tlpTarjetaSemana.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             //
-            // lblResumenTituloProximos
+            // lblResumenTituloSemana
             //
-            lblResumenTituloProximos.AutoSize = true;
-            lblResumenTituloProximos.Name = "lblResumenTituloProximos";
-            lblResumenTituloProximos.TabIndex = 5;
-            lblResumenTituloProximos.Text = "Eventos aprobados";
+            lblResumenTituloSemana.AutoSize = true;
+            lblResumenTituloSemana.Name = "lblResumenTituloSemana";
+            lblResumenTituloSemana.TabIndex = 5;
+            lblResumenTituloSemana.Text = "Esta semana";
             //
-            // lblResumenValorProximos
+            // lblResumenValorSemana
             //
-            lblResumenValorProximos.AutoSize = true;
-            lblResumenValorProximos.Margin = new Padding(3, 6, 3, 0);
-            lblResumenValorProximos.Name = "lblResumenValorProximos";
-            lblResumenValorProximos.TabIndex = 6;
-            lblResumenValorProximos.Text = "0";
+            lblResumenValorSemana.AutoSize = true;
+            lblResumenValorSemana.Margin = new Padding(3, 6, 3, 0);
+            lblResumenValorSemana.Name = "lblResumenValorSemana";
+            lblResumenValorSemana.TabIndex = 6;
+            lblResumenValorSemana.Text = "0";
             //
-            // tlpTarjetaEnEspera
+            // lblResumenDetalleSemana
             //
-            tlpTarjetaEnEspera.AutoSize = true;
-            tlpTarjetaEnEspera.ColumnCount = 1;
-            tlpTarjetaEnEspera.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tlpTarjetaEnEspera.Controls.Add(lblResumenTituloEnEspera, 0, 0);
-            tlpTarjetaEnEspera.Controls.Add(lblResumenValorEnEspera, 0, 1);
-            tlpTarjetaEnEspera.Dock = DockStyle.Fill;
-            tlpTarjetaEnEspera.Margin = new Padding(0, 0, 20, 0);
-            tlpTarjetaEnEspera.Name = "tlpTarjetaEnEspera";
-            tlpTarjetaEnEspera.RowCount = 2;
-            tlpTarjetaEnEspera.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            tlpTarjetaEnEspera.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            lblResumenDetalleSemana.AutoSize = true;
+            lblResumenDetalleSemana.Margin = new Padding(3, 4, 3, 0);
+            lblResumenDetalleSemana.Name = "lblResumenDetalleSemana";
+            lblResumenDetalleSemana.TabIndex = 7;
             //
-            // lblResumenTituloEnEspera
+            // tlpTarjetaPendientes
             //
-            lblResumenTituloEnEspera.AutoSize = true;
-            lblResumenTituloEnEspera.Name = "lblResumenTituloEnEspera";
-            lblResumenTituloEnEspera.TabIndex = 7;
-            lblResumenTituloEnEspera.Text = "Esperando aprobación";
+            tlpTarjetaPendientes.AutoSize = true;
+            tlpTarjetaPendientes.ColumnCount = 1;
+            tlpTarjetaPendientes.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tlpTarjetaPendientes.Controls.Add(lblResumenTituloPendientes, 0, 0);
+            tlpTarjetaPendientes.Controls.Add(lblResumenValorPendientes, 0, 1);
+            tlpTarjetaPendientes.Controls.Add(lblResumenDetallePendientes, 0, 2);
+            tlpTarjetaPendientes.Dock = DockStyle.Fill;
+            tlpTarjetaPendientes.Margin = new Padding(0, 0, 20, 0);
+            tlpTarjetaPendientes.Name = "tlpTarjetaPendientes";
+            tlpTarjetaPendientes.RowCount = 3;
+            tlpTarjetaPendientes.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            tlpTarjetaPendientes.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            tlpTarjetaPendientes.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             //
-            // lblResumenValorEnEspera
+            // lblResumenTituloPendientes
             //
-            lblResumenValorEnEspera.AutoSize = true;
-            lblResumenValorEnEspera.Margin = new Padding(3, 6, 3, 0);
-            lblResumenValorEnEspera.Name = "lblResumenValorEnEspera";
-            lblResumenValorEnEspera.TabIndex = 8;
-            lblResumenValorEnEspera.Text = "0";
+            lblResumenTituloPendientes.AutoSize = true;
+            lblResumenTituloPendientes.Name = "lblResumenTituloPendientes";
+            lblResumenTituloPendientes.TabIndex = 8;
+            lblResumenTituloPendientes.Text = "Para atender";
             //
-            // tlpTarjetaMes
+            // lblResumenValorPendientes
             //
-            tlpTarjetaMes.AutoSize = true;
-            tlpTarjetaMes.ColumnCount = 1;
-            tlpTarjetaMes.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tlpTarjetaMes.Controls.Add(lblResumenTituloMes, 0, 0);
-            tlpTarjetaMes.Controls.Add(lblResumenValorMes, 0, 1);
-            tlpTarjetaMes.Dock = DockStyle.Fill;
-            tlpTarjetaMes.Margin = new Padding(0);
-            tlpTarjetaMes.Name = "tlpTarjetaMes";
-            tlpTarjetaMes.RowCount = 2;
-            tlpTarjetaMes.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            tlpTarjetaMes.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            lblResumenValorPendientes.AutoSize = true;
+            lblResumenValorPendientes.Margin = new Padding(3, 6, 3, 0);
+            lblResumenValorPendientes.Name = "lblResumenValorPendientes";
+            lblResumenValorPendientes.TabIndex = 9;
+            lblResumenValorPendientes.Text = "0";
             //
-            // lblResumenTituloMes
+            // lblResumenDetallePendientes
             //
-            lblResumenTituloMes.AutoSize = true;
-            lblResumenTituloMes.Name = "lblResumenTituloMes";
-            lblResumenTituloMes.TabIndex = 9;
-            lblResumenTituloMes.Text = "Aprobado este mes";
+            lblResumenDetallePendientes.AutoSize = true;
+            lblResumenDetallePendientes.Margin = new Padding(3, 4, 3, 0);
+            lblResumenDetallePendientes.Name = "lblResumenDetallePendientes";
+            lblResumenDetallePendientes.TabIndex = 10;
             //
-            // lblResumenValorMes
+            // tlpTarjetaHoy
             //
-            lblResumenValorMes.AutoSize = true;
-            lblResumenValorMes.Margin = new Padding(3, 6, 3, 0);
-            lblResumenValorMes.Name = "lblResumenValorMes";
-            lblResumenValorMes.TabIndex = 10;
-            lblResumenValorMes.Text = "$ 0,00";
+            tlpTarjetaHoy.AutoSize = true;
+            tlpTarjetaHoy.ColumnCount = 1;
+            tlpTarjetaHoy.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tlpTarjetaHoy.Controls.Add(lblResumenTituloHoy, 0, 0);
+            tlpTarjetaHoy.Controls.Add(lblResumenValorHoy, 0, 1);
+            tlpTarjetaHoy.Controls.Add(lblResumenDetalleHoy, 0, 2);
+            tlpTarjetaHoy.Dock = DockStyle.Fill;
+            tlpTarjetaHoy.Margin = new Padding(0);
+            tlpTarjetaHoy.Name = "tlpTarjetaHoy";
+            tlpTarjetaHoy.RowCount = 3;
+            tlpTarjetaHoy.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            tlpTarjetaHoy.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            tlpTarjetaHoy.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            //
+            // lblResumenTituloHoy
+            //
+            lblResumenTituloHoy.AutoSize = true;
+            lblResumenTituloHoy.Name = "lblResumenTituloHoy";
+            lblResumenTituloHoy.TabIndex = 17;
+            lblResumenTituloHoy.Text = "Hoy";
+            //
+            // lblResumenValorHoy
+            //
+            lblResumenValorHoy.AutoSize = true;
+            lblResumenValorHoy.Margin = new Padding(3, 6, 3, 0);
+            lblResumenValorHoy.Name = "lblResumenValorHoy";
+            lblResumenValorHoy.TabIndex = 18;
+            lblResumenValorHoy.Text = "-";
+            //
+            // lblResumenDetalleHoy
+            //
+            lblResumenDetalleHoy.AutoSize = true;
+            lblResumenDetalleHoy.Margin = new Padding(3, 4, 3, 0);
+            lblResumenDetalleHoy.Name = "lblResumenDetalleHoy";
+            lblResumenDetalleHoy.TabIndex = 19;
             //
             // tlpGrilla
             //
@@ -244,11 +266,12 @@ namespace ProyectoEventos.Forms
             //
             // lblProximosEventos
             //
+            lblProximosEventos.Anchor = AnchorStyles.Left;
             lblProximosEventos.AutoSize = true;
             lblProximosEventos.Margin = new Padding(3, 0, 3, 10);
-            lblProximosEventos.Text = "Próximos eventos aprobados";
             lblProximosEventos.Name = "lblProximosEventos";
             lblProximosEventos.TabIndex = 11;
+            lblProximosEventos.Text = "Próximos eventos aprobados";
             //
             // dgvProximosEventos
             //
@@ -262,8 +285,9 @@ namespace ProyectoEventos.Forms
             dgvProximosEventos.RowHeadersWidth = 51;
             dgvProximosEventos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvProximosEventos.Name = "dgvProximosEventos";
-            dgvProximosEventos.TabIndex = 12;
+            dgvProximosEventos.TabIndex = 13;
             dgvProximosEventos.CellFormatting += dgvProximosEventos_CellFormatting;
+            dgvProximosEventos.Enter += dgvProximosEventos_Enter;
             //
             // tlpGrillaPendientes
             //
@@ -279,11 +303,23 @@ namespace ProyectoEventos.Forms
             //
             // lblPendientes
             //
+            lblPendientes.Anchor = AnchorStyles.Left;
             lblPendientes.AutoSize = true;
             lblPendientes.Margin = new Padding(3, 0, 3, 10);
-            lblPendientes.Text = "Para atender";
             lblPendientes.Name = "lblPendientes";
-            lblPendientes.TabIndex = 13;
+            lblPendientes.TabIndex = 14;
+            lblPendientes.Text = "Para atender";
+            //
+            // btnVerPresupuestos
+            //
+            btnVerPresupuestos.Anchor = AnchorStyles.Right;
+            btnVerPresupuestos.AutoSize = true;
+            btnVerPresupuestos.Margin = new Padding(0, 16, 0, 0);
+            btnVerPresupuestos.Name = "btnVerPresupuestos";
+            btnVerPresupuestos.Padding = new Padding(16, 0, 16, 0);
+            btnVerPresupuestos.TabIndex = 15;
+            btnVerPresupuestos.Text = "Ver presupuesto";
+            btnVerPresupuestos.Click += btnVerPresupuestos_Click;
             //
             // dgvPendientes
             //
@@ -297,8 +333,9 @@ namespace ProyectoEventos.Forms
             dgvPendientes.RowHeadersWidth = 51;
             dgvPendientes.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvPendientes.Name = "dgvPendientes";
-            dgvPendientes.TabIndex = 14;
+            dgvPendientes.TabIndex = 16;
             dgvPendientes.CellFormatting += dgvPendientes_CellFormatting;
+            dgvPendientes.Enter += dgvPendientes_Enter;
             //
             // FrmInicio
             //
@@ -315,12 +352,12 @@ namespace ProyectoEventos.Forms
             ((System.ComponentModel.ISupportInitialize)dgvPendientes).EndInit();
             tlpTarjetaProximoEvento.ResumeLayout(false);
             tlpTarjetaProximoEvento.PerformLayout();
-            tlpTarjetaProximos.ResumeLayout(false);
-            tlpTarjetaProximos.PerformLayout();
-            tlpTarjetaEnEspera.ResumeLayout(false);
-            tlpTarjetaEnEspera.PerformLayout();
-            tlpTarjetaMes.ResumeLayout(false);
-            tlpTarjetaMes.PerformLayout();
+            tlpTarjetaSemana.ResumeLayout(false);
+            tlpTarjetaSemana.PerformLayout();
+            tlpTarjetaPendientes.ResumeLayout(false);
+            tlpTarjetaPendientes.PerformLayout();
+            tlpTarjetaHoy.ResumeLayout(false);
+            tlpTarjetaHoy.PerformLayout();
             tlpResumen.ResumeLayout(false);
             tlpResumen.PerformLayout();
             tlpGrilla.ResumeLayout(false);
@@ -335,27 +372,30 @@ namespace ProyectoEventos.Forms
         #endregion
 
         private TableLayoutPanel tlpRaiz;
-        private Label lblFechaHoy;
         private Label lblAlerta;
         private TableLayoutPanel tlpResumen;
         private TableLayoutPanel tlpTarjetaProximoEvento;
         private Label lblResumenTituloProximoEvento;
         private Label lblResumenValorProximoEvento;
-        private Label lblProximoEventoDetalle;
-        private TableLayoutPanel tlpTarjetaProximos;
-        private Label lblResumenTituloProximos;
-        private Label lblResumenValorProximos;
-        private TableLayoutPanel tlpTarjetaEnEspera;
-        private Label lblResumenTituloEnEspera;
-        private Label lblResumenValorEnEspera;
-        private TableLayoutPanel tlpTarjetaMes;
-        private Label lblResumenTituloMes;
-        private Label lblResumenValorMes;
+        private Label lblResumenDetalleProximoEvento;
+        private TableLayoutPanel tlpTarjetaSemana;
+        private Label lblResumenTituloSemana;
+        private Label lblResumenValorSemana;
+        private Label lblResumenDetalleSemana;
+        private TableLayoutPanel tlpTarjetaPendientes;
+        private Label lblResumenTituloPendientes;
+        private Label lblResumenValorPendientes;
+        private Label lblResumenDetallePendientes;
+        private TableLayoutPanel tlpTarjetaHoy;
+        private Label lblResumenTituloHoy;
+        private Label lblResumenValorHoy;
+        private Label lblResumenDetalleHoy;
         private TableLayoutPanel tlpGrilla;
         private Label lblProximosEventos;
         private DataGridView dgvProximosEventos;
         private TableLayoutPanel tlpGrillaPendientes;
         private Label lblPendientes;
+        private Button btnVerPresupuestos;
         private DataGridView dgvPendientes;
     }
 }

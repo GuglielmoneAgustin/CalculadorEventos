@@ -17,6 +17,7 @@ namespace ProyectoEventos.Forms
         {
             InitializeComponent();
             Tema.Aplicar(this);
+            lblResumenDetalleHoy.Font = new Font(lblResumenDetalleHoy.Font, FontStyle.Bold);
             tlpGrillaPendientes.Margin = new Padding(0, 20, 0, 0);
             eventoControlador = new EventoController();
             dgvProximosEventos.MensajeSinFilas(() => "No hay eventos aprobados próximos. Los eventos aparecen acá cuando se aprueba su presupuesto.");
@@ -25,18 +26,26 @@ namespace ProyectoEventos.Forms
 
         private void FrmInicio_Load(object sender, EventArgs e)
         {
-            lblFechaHoy.Text = Formato.FechaLarga(DateTime.Today);
-            List<EventoResultadoDTO> proximos = eventoControlador.ObtenerProximosAprobados();
-            CargarAlerta();
-            CargarResumen();
-            CargarProximoEvento(proximos);
-            CargarProximosEventos(proximos);
-            CargarPendientes();
+            Cargar();
         }
 
-        private void CargarAlerta()
+        private void Cargar()
         {
-            List<EventoResultadoDTO> urgentes = eventoControlador.ObtenerSinAprobarProximosDias(DiasUrgentes);
+            lblResumenValorHoy.Text = Formato.DiaSemana(DateTime.Today);
+            lblResumenDetalleHoy.Text = DateTime.Today.ToString("d 'de' MMMM");
+            List<EventoResultadoDTO> proximos = eventoControlador.ObtenerProximosAprobados();
+            List<EventoResultadoDTO> sinAprobar = eventoControlador.ObtenerSinAprobarProximosDias(DiasUrgentes);
+            List<PendienteDTO> pendientes = eventoControlador.ObtenerPendientes();
+            CargarAlerta(sinAprobar);
+            CargarSemana(proximos, sinAprobar);
+            CargarResumenPendientes(pendientes);
+            CargarProximoEvento(proximos);
+            CargarProximosEventos(proximos);
+            CargarPendientes(pendientes);
+        }
+
+        private void CargarAlerta(List<EventoResultadoDTO> urgentes)
+        {
             if (urgentes.Count == 0)
             {
                 lblAlerta.Visible = false;
@@ -54,13 +63,29 @@ namespace ProyectoEventos.Forms
             lblAlerta.Visible = true;
         }
 
-        private void CargarResumen()
+        private void CargarSemana(List<EventoResultadoDTO> proximos, List<EventoResultadoDTO> sinAprobar)
         {
-            ResumenEventosDTO resumen = eventoControlador.ObtenerResumen();
-            lblResumenValorProximos.Text = resumen.ProximosAprobados.ToString();
-            lblResumenValorEnEspera.Text = resumen.EnEspera.ToString();
-            lblResumenTituloMes.Text = "Aprobado en " + DateTime.Today.ToString("MMMM");
-            lblResumenValorMes.Text = resumen.TotalAprobadoMes.ToString(Formato.Moneda);
+            int aprobados = proximos.Count(e => Formato.DiasHasta(e.Fecha) <= DiasUrgentes);
+            int total = aprobados + sinAprobar.Count;
+            lblResumenValorSemana.Text = total == 1 ? "1 evento" : total + " eventos";
+            lblResumenDetalleSemana.Text = total == 0
+                ? "Nada en los próximos " + DiasUrgentes + " días."
+                : aprobados + (aprobados == 1 ? " aprobado" : " aprobados") + Environment.NewLine + sinAprobar.Count + " sin aprobar";
+        }
+
+        private void CargarResumenPendientes(List<PendienteDTO> pendientes)
+        {
+            lblResumenValorPendientes.Text = pendientes.Count.ToString();
+            if (pendientes.Count == 0)
+            {
+                lblResumenDetallePendientes.Text = "Todo al día.";
+                return;
+            }
+
+            lblResumenDetallePendientes.Text = string.Join(Environment.NewLine, pendientes
+                .GroupBy(p => p.Tipo)
+                .OrderBy(g => g.Key)
+                .Select(g => g.Count() + " " + g.Key.Texto().ToLower()));
         }
 
         private void CargarProximoEvento(List<EventoResultadoDTO> proximos)
@@ -69,14 +94,14 @@ namespace ProyectoEventos.Forms
             {
                 lblResumenTituloProximoEvento.Text = "Próximo evento";
                 lblResumenValorProximoEvento.Text = "Sin eventos aprobados";
-                lblProximoEventoDetalle.Text = "Aparece acá cuando se aprueba un presupuesto.";
+                lblResumenDetalleProximoEvento.Text = "Aparece acá cuando se aprueba un presupuesto.";
                 return;
             }
 
             EventoResultadoDTO proximo = proximos[0];
             lblResumenTituloProximoEvento.Text = "Próximo evento · " + Formato.Falta(proximo.Fecha);
             lblResumenValorProximoEvento.Text = Formato.FechaCorta(proximo.Fecha);
-            lblProximoEventoDetalle.Text = proximo.NombreCliente + " · " + proximo.NombreLugar + Environment.NewLine + proximo.Invitados + " invitados · " + Formato.Horario(proximo.Fecha, proximo.HorasDuracion);
+            lblResumenDetalleProximoEvento.Text = proximo.NombreCliente + " · " + proximo.NombreLugar + Environment.NewLine + proximo.Invitados + " invitados · " + Formato.Horario(proximo.Fecha, proximo.HorasDuracion);
         }
 
         private void CargarProximosEventos(List<EventoResultadoDTO> proximos)
@@ -93,10 +118,10 @@ namespace ProyectoEventos.Forms
             dgvProximosEventos.CurrentCell = null;
         }
 
-        private void CargarPendientes()
+        private void CargarPendientes(List<PendienteDTO> pendientes)
         {
             dgvPendientes.DataSource = null;
-            dgvPendientes.DataSource = eventoControlador.ObtenerPendientes();
+            dgvPendientes.DataSource = pendientes;
             dgvPendientes.Columna("IdEvento").Visible = false;
             dgvPendientes.Columna("NombreCliente").HeaderText = "Cliente";
             dgvPendientes.Columna("FechaEvento").HeaderText = "Fecha del evento";
@@ -105,6 +130,44 @@ namespace ProyectoEventos.Forms
             dgvPendientes.Columna("Detalle").FillWeight = 220;
             dgvPendientes.ClearSelection();
             dgvPendientes.CurrentCell = null;
+        }
+
+        private void dgvProximosEventos_Enter(object? sender, EventArgs e)
+        {
+            QuitarSeleccion(dgvPendientes);
+        }
+
+        private void dgvPendientes_Enter(object? sender, EventArgs e)
+        {
+            QuitarSeleccion(dgvProximosEventos);
+        }
+
+        private static void QuitarSeleccion(DataGridView grilla)
+        {
+            grilla.ClearSelection();
+            grilla.CurrentCell = null;
+        }
+
+        private void btnVerPresupuestos_Click(object sender, EventArgs e)
+        {
+            int? idEvento = dgvProximosEventos.Seleccionado<FilaProximoEvento>()?.IdEvento
+                ?? dgvPendientes.Seleccionado<PendienteDTO>()?.IdEvento;
+            if (idEvento == null)
+            {
+                Mensajes.Advertencia("Seleccione un evento en cualquiera de las dos grillas para ver sus presupuestos.");
+                return;
+            }
+
+            FrmPresupuestos pantalla = new FrmPresupuestos(idEvento.Value);
+            if (ParentForm is FrmPrincipal principal)
+            {
+                principal.AbrirSubpantalla(pantalla, Cargar);
+            }
+            else
+            {
+                pantalla.ShowDialog();
+                Cargar();
+            }
         }
 
         private void dgvProximosEventos_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
@@ -128,6 +191,7 @@ namespace ProyectoEventos.Forms
         {
             public FilaProximoEvento(EventoResultadoDTO evento)
             {
+                IdEvento = evento.Id;
                 Falta = Formato.Falta(evento.Fecha);
                 Cliente = evento.NombreCliente;
                 Lugar = evento.NombreLugar;
@@ -136,6 +200,9 @@ namespace ProyectoEventos.Forms
                 Invitados = evento.Invitados;
                 Total = evento.Total;
             }
+
+            [System.ComponentModel.Browsable(false)]
+            public int IdEvento { get; }
 
             public string Falta { get; }
             public string Cliente { get; }

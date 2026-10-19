@@ -129,7 +129,7 @@ namespace ProyectoEventos.Forms
             // btnCancelarEdicion
             // 
             btnCancelarEdicion.Dock = DockStyle.Fill;
-            btnCancelarEdicion.Margin = new Padding(0, 0, 0, 8);
+            btnCancelarEdicion.Margin = new Padding(8, 0, 0, 8);
             btnCancelarEdicion.Name = "btnCancelarEdicion";
             btnCancelarEdicion.Size = new Size(94, 38);
             btnCancelarEdicion.TabIndex = 30;
@@ -270,7 +270,7 @@ namespace ProyectoEventos.Forms
             // 
             // btnGuardar
             // 
-            btnGuardar.Margin = new Padding(0, 0, 8, 8);
+            btnGuardar.Margin = new Padding(0, 0, 0, 8);
             btnGuardar.Size = new Size(94, 29);
             btnGuardar.Text = "Guardar";
             btnGuardar.UseVisualStyleBackColor = true;
@@ -280,7 +280,7 @@ namespace ProyectoEventos.Forms
             // 
             // btnEditar
             // 
-            btnEditar.Margin = new Padding(0, 0, 8, 0);
+            btnEditar.Margin = new Padding(0);
             btnEditar.Size = new Size(94, 29);
             btnEditar.Text = "Editar";
             btnEditar.UseVisualStyleBackColor = true;
@@ -290,7 +290,7 @@ namespace ProyectoEventos.Forms
             // 
             // btnEliminar
             // 
-            btnEliminar.Margin = new Padding(0);
+            btnEliminar.Margin = new Padding(8, 0, 0, 0);
             btnEliminar.Size = new Size(94, 29);
             btnEliminar.Text = "Eliminar";
             btnEliminar.UseVisualStyleBackColor = true;

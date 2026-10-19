@@ -6,9 +6,9 @@ namespace ProyectoEventos.Forms.Utils
         public const string Fecha = "dd/MM/yyyy";
         public const string Moneda = "$ #,##0.00";
 
-        public static string FechaLarga(DateTime fecha)
+        public static string DiaSemana(DateTime fecha)
         {
-            return Capitalizar(fecha.ToString("dddd d 'de' MMMM 'de' yyyy"));
+            return Capitalizar(fecha.ToString("dddd"));
         }
 
         public static string FechaCorta(DateTime fecha)

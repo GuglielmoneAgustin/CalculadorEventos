@@ -243,6 +243,16 @@ namespace ProyectoEventos.Forms.Utils
                 etiqueta.Font = FuenteResumen;
                 etiqueta.ForeColor = Texto;
             }
+            else if (nombre.StartsWith("lblresumentitulo", StringComparison.Ordinal))
+            {
+                etiqueta.Font = FuenteNegrita;
+                etiqueta.ForeColor = TextoSuave;
+            }
+            else if (nombre.StartsWith("lblresumendetalle", StringComparison.Ordinal))
+            {
+                etiqueta.Font = FuenteNormal;
+                etiqueta.ForeColor = Texto;
+            }
             else if (nombre == "lblmodo")
             {
                 etiqueta.Font = FuenteTitulo;

@@ -84,32 +84,6 @@ namespace ProyectoEventos.Service
                 .ToList();
         }
 
-        public ResumenEventosDTO ObtenerResumen()
-        {
-            DateTime ahora = DateTime.Now;
-            ResumenEventosDTO resumen = new ResumenEventosDTO();
-
-            foreach (Evento evento in repositorio.ObtenerTodos())
-            {
-                if (evento.EsProximoAprobado(ahora))
-                {
-                    resumen.ProximosAprobados++;
-                }
-                if (evento.ObtenerEstadoPresupuesto() == EstadoPresupuesto.EnEspera)
-                {
-                    resumen.EnEspera++;
-                }
-
-                Presupuesto? aprobado = evento.ObtenerPresupuestoAprobado();
-                if (aprobado != null && evento.Fecha.Year == ahora.Year && evento.Fecha.Month == ahora.Month)
-                {
-                    resumen.TotalAprobadoMes += aprobado.CalcularTotal();
-                }
-            }
-
-            return resumen;
-        }
-
         public List<PendienteDTO> ObtenerPendientes()
         {
             DateTime ahora = DateTime.Now;
