@@ -26,7 +26,6 @@ namespace ProyectoEventos.Forms
             lblBuscar = new Label();
             btnNuevo = new Button();
             btnEditar = new Button();
-            btnDuplicar = new Button();
             chkOcultarRealizados = new CheckBox();
             btnMenu = new Button();
             btnPresupuestos = new Button();
@@ -56,7 +55,6 @@ namespace ProyectoEventos.Forms
             flowBotones.Controls.Add(btnEditar);
             flowBotones.Controls.Add(btnMenu);
             flowBotones.Controls.Add(btnPresupuestos);
-            flowBotones.Controls.Add(btnDuplicar);
             flowBotones.Controls.Add(btnEliminar);
             flowBotones.Controls.Add(btnVolver);
             flowBotones.AutoSize = true;
@@ -165,16 +163,6 @@ namespace ProyectoEventos.Forms
             btnPresupuestos.UseVisualStyleBackColor = true;
             btnPresupuestos.Click += btnPresupuestos_Click;
             // 
-            // btnDuplicar
-            // 
-            btnDuplicar.Margin = new Padding(0, 0, 12, 0);
-            btnDuplicar.Name = "btnDuplicar";
-            btnDuplicar.Size = new Size(150, 38);
-            btnDuplicar.TabIndex = 8;
-            btnDuplicar.Text = "Duplicar";
-            btnDuplicar.UseVisualStyleBackColor = true;
-            btnDuplicar.Click += btnDuplicar_Click;
-            // 
             // chkOcultarRealizados
             // 
             chkOcultarRealizados.Anchor = AnchorStyles.Right;
@@ -236,7 +224,6 @@ namespace ProyectoEventos.Forms
         private Label lblBuscar;
         private Button btnNuevo;
         private Button btnEditar;
-        private Button btnDuplicar;
         private CheckBox chkOcultarRealizados;
         private Button btnMenu;
         private Button btnPresupuestos;

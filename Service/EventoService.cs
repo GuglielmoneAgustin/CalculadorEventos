@@ -188,13 +188,6 @@ namespace ProyectoEventos.Service
             return repositorio.ObtenerExistente(idEvento).Menu.CalcularSubtotal();
         }
 
-        public void CopiarMenuYServicios(int idEventoOrigen, int idEventoDestino)
-        {
-            Evento origen = repositorio.ObtenerExistente(idEventoOrigen);
-            Evento destino = repositorio.ObtenerExistente(idEventoDestino);
-            destino.CopiarMenuYServiciosDe(origen);
-        }
-
         public decimal CalcularCostoLugar(int idLugar, decimal horasDuracion)
         {
             return lugarRepositorio.ObtenerExistente(idLugar).CalcularCosto(horasDuracion);

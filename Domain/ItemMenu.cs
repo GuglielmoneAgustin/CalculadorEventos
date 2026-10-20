@@ -57,11 +57,6 @@ namespace ProyectoEventos.Domain
             componentes.Add(producto);
         }
 
-        public IReadOnlyList<Producto> ObtenerComponentes()
-        {
-            return componentes.AsReadOnly();
-        }
-
         public string ObtenerDescripcion()
         {
             List<string> nombres = new List<string>();

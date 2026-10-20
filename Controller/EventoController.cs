@@ -73,11 +73,6 @@ namespace ProyectoEventos.Controller
             return servicio.ObtenerTotalMenu(idEvento);
         }
 
-        public void CopiarMenuYServicios(int idEventoOrigen, int idEventoDestino)
-        {
-            servicio.CopiarMenuYServicios(idEventoOrigen, idEventoDestino);
-        }
-
         public decimal CalcularCostoLugar(int idLugar, decimal horasDuracion)
         {
             return servicio.CalcularCostoLugar(idLugar, horasDuracion);

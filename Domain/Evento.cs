@@ -198,24 +198,6 @@ namespace ProyectoEventos.Domain
             return Fecha >= ahora && TienePresupuestoAprobado();
         }
 
-        private void AgregarItemAlMenu(int cantidadAdultos, int cantidadNinos, List<Producto> componentes)
-        {
-            if (componentes == null || componentes.Count == 0)
-            {
-                throw new NegocioException("El item debe incluir al menos un producto.");
-            }
-
-            ItemMenu item = new ItemMenu(proximoIdItemMenu, cantidadAdultos, cantidadNinos);
-            foreach (Producto componente in componentes)
-            {
-                item.AgregarComponente(componente);
-            }
-
-            proximoIdItemMenu++;
-            Menu.AgregarItem(item);
-            MarcarCambioPendienteDePresupuesto();
-        }
-
         public void AgregarPlatosAlMenu(int cantidadAdultos, int cantidadNinos, List<Producto> productos)
         {
             if (productos == null || productos.Count == 0)
@@ -278,26 +260,6 @@ namespace ProyectoEventos.Domain
             }
             servicios.Add(servicio);
             MarcarCambioPendienteDePresupuesto();
-        }
-
-        public void CopiarMenuYServiciosDe(Evento origen)
-        {
-            if (origen == null)
-            {
-                throw new ArgumentException("El evento a copiar no puede ser nulo.");
-            }
-
-            foreach (ItemMenu item in origen.Menu.ObtenerItems())
-            {
-                AgregarItemAlMenu(item.CantidadAdultos, item.CantidadNinos, new List<Producto>(item.ObtenerComponentes()));
-            }
-            foreach (ServicioAdicional servicio in origen.ObtenerServicios())
-            {
-                if (!TieneServicio(servicio.Id))
-                {
-                    AgregarServicio(servicio);
-                }
-            }
         }
 
         public void QuitarServicio(ServicioAdicional servicio)

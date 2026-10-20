@@ -159,18 +159,6 @@ namespace ProyectoEventos.Forms
             AbrirSubpantalla(new FrmPresupuestos(seleccionado.Id));
         }
 
-        private void btnDuplicar_Click(object sender, EventArgs e)
-        {
-            EventoResultadoDTO? seleccionado = ObtenerSeleccionado();
-            if (seleccionado == null)
-            {
-                Mensajes.Advertencia("Seleccione el evento que quiere duplicar.");
-                return;
-            }
-
-            AbrirSubpantalla(FrmEventoDatos.ParaDuplicar(seleccionado));
-        }
-
         private void btnEliminar_Click(object sender, EventArgs e)
         {
             EventoResultadoDTO? seleccionado = ObtenerSeleccionado();

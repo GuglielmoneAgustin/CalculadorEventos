@@ -1,3 +1,4 @@
+using System.Drawing.Printing;
 using ProyectoEventos.Dto;
 
 namespace ProyectoEventos.Forms.Utils
@@ -5,9 +6,12 @@ namespace ProyectoEventos.Forms.Utils
     internal static class TicketPresupuesto
     {
         private const int Ancho = 42;
+        private const string ImpresoraPdf = "Microsoft Print to PDF";
 
         public static void Mostrar(IWin32Window padre, PresupuestoDetalleDTO detalle)
         {
+            List<string> lineas = Armar(detalle);
+
             TextBox texto = new TextBox();
             texto.Multiline = true;
             texto.ReadOnly = true;
@@ -16,19 +20,96 @@ namespace ProyectoEventos.Forms.Utils
             texto.BorderStyle = BorderStyle.None;
             texto.BackColor = Color.White;
             texto.Font = new Font("Consolas", 10.5F);
-            texto.Text = string.Join(Environment.NewLine, Armar(detalle));
+            texto.Text = string.Join(Environment.NewLine, lineas);
             texto.SelectionStart = 0;
 
             using Form ventana = new Form();
+
+            Button btnGuardarPdf = new Button();
+            btnGuardarPdf.Name = "btnGuardar";
+            btnGuardarPdf.Text = "Guardar PDF";
+            btnGuardarPdf.Dock = DockStyle.Bottom;
+            btnGuardarPdf.Click += (s, e) => PedirRutaYGuardarPdf(ventana, lineas, "Presupuesto " + detalle.Id);
+
             ventana.Text = "Ticket del presupuesto " + detalle.Id;
             ventana.StartPosition = FormStartPosition.CenterParent;
-            ventana.ClientSize = new Size(440, 640);
+            ventana.ClientSize = new Size(440, 680);
             ventana.MinimizeBox = false;
             ventana.ShowInTaskbar = false;
             ventana.Padding = new Padding(16);
             ventana.BackColor = Color.White;
             ventana.Controls.Add(texto);
+            ventana.Controls.Add(btnGuardarPdf);
+            Tema.Aplicar(ventana);
+            ventana.BackColor = Color.White;
+            texto.BorderStyle = BorderStyle.None;
+            texto.BackColor = Color.White;
+            texto.Font = new Font("Consolas", 10.5F);
             ventana.ShowDialog(padre);
+        }
+
+        private static void PedirRutaYGuardarPdf(IWin32Window padre, List<string> lineas, string nombre)
+        {
+            if (!PrinterSettings.InstalledPrinters.Cast<string>().Contains(ImpresoraPdf))
+            {
+                Mensajes.Advertencia("No se encontró la impresora \"" + ImpresoraPdf + "\" de Windows, que se usa para generar el PDF.");
+                return;
+            }
+
+            using SaveFileDialog dialogo = new SaveFileDialog();
+            dialogo.Title = "Guardar ticket en PDF";
+            dialogo.Filter = "Archivo PDF (*.pdf)|*.pdf";
+            dialogo.FileName = nombre + ".pdf";
+            if (dialogo.ShowDialog(padre) != DialogResult.OK)
+            {
+                return;
+            }
+
+            GuardarPdf(lineas, dialogo.FileName, nombre);
+            Mensajes.Informacion("Ticket guardado en " + dialogo.FileName);
+        }
+
+        public static void GuardarPdf(List<string> lineas, string ruta, string nombreDocumento)
+        {
+            int proximaLinea = 0;
+            Font? fuente = null;
+            using PrintDocument documento = new PrintDocument();
+            documento.DocumentName = nombreDocumento;
+            documento.PrinterSettings.PrinterName = ImpresoraPdf;
+            documento.PrinterSettings.PrintToFile = true;
+            documento.PrinterSettings.PrintFileName = ruta;
+            documento.PrintController = new StandardPrintController();
+            documento.PrintPage += (s, e) =>
+            {
+                Graphics grafico = e.Graphics!;
+                fuente ??= CrearFuenteParaHoja(grafico, e.MarginBounds, lineas.Count);
+                float alto = fuente.GetHeight(grafico);
+                float anchoTicket = grafico.MeasureString(new string('0', Ancho), fuente, int.MaxValue, StringFormat.GenericTypographic).Width;
+                float x = e.MarginBounds.Left + (e.MarginBounds.Width - anchoTicket) / 2;
+                float y = e.MarginBounds.Top;
+                while (proximaLinea < lineas.Count && y + alto <= e.MarginBounds.Bottom)
+                {
+                    grafico.DrawString(lineas[proximaLinea], fuente, Brushes.Black, x, y, StringFormat.GenericTypographic);
+                    y += alto;
+                    proximaLinea++;
+                }
+                e.HasMorePages = proximaLinea < lineas.Count;
+            };
+            documento.Print();
+            fuente?.Dispose();
+        }
+
+        private static Font CrearFuenteParaHoja(Graphics grafico, Rectangle area, int cantidadLineas)
+        {
+            const float tamanoBase = 10F;
+            const float tamanoMaximo = 16F;
+            using Font baseFuente = new Font("Consolas", tamanoBase);
+            float anchoBase = grafico.MeasureString(new string('0', Ancho), baseFuente, int.MaxValue, StringFormat.GenericTypographic).Width;
+            float altoBase = baseFuente.GetHeight(grafico) * cantidadLineas;
+
+            float escala = Math.Min(area.Width / anchoBase, area.Height / altoBase);
+            float tamano = Math.Clamp(tamanoBase * escala, tamanoBase, tamanoMaximo);
+            return new Font("Consolas", tamano);
         }
 
         private static readonly string LineaDoble = new string('=', Ancho);

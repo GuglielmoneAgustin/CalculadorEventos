@@ -16,7 +16,6 @@ namespace ProyectoEventos.Forms
         private int idEvento;
         private bool creadoSinFinalizar;
         private DateTime? fechaGuardada;
-        private EventoResultadoDTO? eventoACopiar;
         private bool cargando;
         private string valoresGuardados = string.Empty;
 
@@ -31,13 +30,6 @@ namespace ProyectoEventos.Forms
             idEvento = evento == null ? 0 : evento.Id;
             fechaGuardada = evento?.Fecha;
             FormClosing += FrmEventoDatos_FormClosing;
-        }
-
-        public static FrmEventoDatos ParaDuplicar(EventoResultadoDTO origen)
-        {
-            FrmEventoDatos pantalla = new FrmEventoDatos();
-            pantalla.eventoACopiar = origen;
-            return pantalla;
         }
 
         private void FrmEventoDatos_FormClosing(object? sender, FormClosingEventArgs e)
@@ -83,12 +75,6 @@ namespace ProyectoEventos.Forms
             {
                 Text = "Editar evento — Paso 1 de 2";
                 CargarFormulario(eventoInicial);
-            }
-            else if (eventoACopiar != null)
-            {
-                Text = "Duplicar evento — Paso 1 de 2";
-                CargarFormulario(eventoACopiar);
-                dtpFechaHora.Value = DateTime.Today.AddDays(7) + eventoACopiar.Fecha.TimeOfDay;
             }
             else
             {
@@ -183,7 +169,6 @@ namespace ProyectoEventos.Forms
                 if (esNuevo)
                 {
                     creadoSinFinalizar = true;
-                    CopiarMenuDelEventoDuplicado();
                 }
                 return true;
             }
@@ -191,15 +176,6 @@ namespace ProyectoEventos.Forms
             {
                 Mensajes.Advertencia(ex.Message);
                 return false;
-            }
-        }
-
-        private void CopiarMenuDelEventoDuplicado()
-        {
-            if (eventoACopiar != null)
-            {
-                controlador.CopiarMenuYServicios(eventoACopiar.Id, idEvento);
-                eventoACopiar = null;
             }
         }
 

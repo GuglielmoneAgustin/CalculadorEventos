@@ -52,7 +52,7 @@ Datos de cada uno:
 - Grilla con número de evento, cliente, lugar, fecha y hora, duración, invitados, estado del presupuesto (con colores) y total.
 - Los eventos que ya se realizaron se muestran en gris y se pueden ocultar con **Ocultar eventos realizados**.
 - Buscador por cliente, lugar, fecha, número o estado del presupuesto.
-- Acciones: **Nuevo evento**, **Editar datos**, **Editar menú**, **Ver presupuestos**, **Duplicar** y **Eliminar** (no se puede eliminar un evento con presupuesto aprobado).
+- Acciones: **Nuevo evento**, **Editar datos**, **Editar menú**, **Ver presupuestos** y **Eliminar** (no se puede eliminar un evento con presupuesto aprobado).
 
 ### Alta y edición de un evento (asistente en dos pasos)
 
@@ -62,7 +62,6 @@ Datos de cada uno:
 - Si se cambiaron datos y se sale sin tocar Siguiente (Volver o cambiar de sección), se pregunta antes de descartarlos.
 - La duración debe ser mayor a cero: si se deja en 0, al tocar Siguiente se avisa con un mensaje.
 - Si se crea un evento y se sale sin finalizar, se ofrece descartarlo para que no quede a medio cargar.
-- **Duplicar** abre este mismo paso con los datos de otro evento (una semana después, a la misma hora) y copia su menú y sus servicios.
 
 **Paso 2 – Menú y servicios:**
 - Productos agrupados por categoría, con el precio por adulto y por niño, y filtro **"Apto para"** por restricción alimentaria.
@@ -80,7 +79,7 @@ Datos de cada uno:
 - **Aprobar:** solo se aprueba un presupuesto vigente, que esté en espera o cancelado (por ejemplo, si el cliente se arrepintió). Si ya hay otro aprobado, se pregunta si se reemplaza.
 - **Cancelar:** pide confirmación y avisa especialmente si el presupuesto está aprobado.
 - **Actualizar presupuesto:** genera uno nuevo con los datos y precios actuales (o avisa que ya está al día).
-- **Ver ticket:** muestra en pantalla un ticket con todos los datos cotizados.
+- **Ver ticket:** muestra en pantalla un ticket con todos los datos cotizados. Con **Guardar PDF** se elige dónde guardarlo y se genera el archivo usando la impresora "Microsoft Print to PDF" que trae Windows (si no está instalada, se avisa con un mensaje).
 - El presupuesto aprobado conserva sus precios aunque después cambien.
 - Ningún botón se deshabilita: cada acción valida y avisa con un mensaje si no corresponde.
 
