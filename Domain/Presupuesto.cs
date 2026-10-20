@@ -108,6 +108,83 @@ namespace ProyectoEventos.Domain
                 && CalcularSubtotalServicios() == evento.CalcularSubtotalServicios();
         }
 
+        internal List<string> ObtenerDiferenciasCon(Evento evento)
+        {
+            List<string> diferencias = new List<string>();
+            AgregarDiferenciasDelEvento(evento, diferencias);
+            AgregarDiferenciasDelMenu(evento, diferencias);
+            AgregarDiferenciasDeServicios(evento, diferencias);
+            return diferencias;
+        }
+
+        private void AgregarDiferenciasDelEvento(Evento evento, List<string> diferencias)
+        {
+            if (NombreLugar != evento.Lugar.Nombre)
+            {
+                diferencias.Add("Cambió el lugar.");
+            }
+            else if (CostoBaseLugar != evento.Lugar.CostoBase || CostoPorHoraLugar != evento.Lugar.CostoPorHora)
+            {
+                diferencias.Add("Cambió el costo del lugar.");
+            }
+            if (FechaEvento != evento.Fecha || HorasDuracion != evento.HorasDuracion)
+            {
+                diferencias.Add("Cambió la fecha o la duración.");
+            }
+            if (CantidadAdultos != evento.CantidadAdultos || CantidadNinos != evento.CantidadNinos)
+            {
+                diferencias.Add("Cambió la cantidad de invitados.");
+            }
+        }
+
+        private void AgregarDiferenciasDelMenu(Evento evento, List<string> diferencias)
+        {
+            IReadOnlyList<ItemMenu> actuales = evento.Menu.ObtenerItems();
+
+            bool mismosPlatos = itemsMenu.Count == actuales.Count;
+            for (int i = 0; mismosPlatos && i < itemsMenu.Count; i++)
+            {
+                mismosPlatos = itemsMenu[i].Descripcion == actuales[i].ObtenerDescripcion()
+                    && itemsMenu[i].CantidadAdultos == actuales[i].CantidadAdultos
+                    && itemsMenu[i].CantidadNinos == actuales[i].CantidadNinos;
+            }
+            if (!mismosPlatos)
+            {
+                diferencias.Add("Cambió el menú.");
+                return;
+            }
+
+            for (int i = 0; i < itemsMenu.Count; i++)
+            {
+                if (itemsMenu[i].Subtotal != actuales[i].Subtotal())
+                {
+                    diferencias.Add("Cambió el precio de " + itemsMenu[i].Descripcion + ".");
+                }
+            }
+        }
+
+        private void AgregarDiferenciasDeServicios(Evento evento, List<string> diferencias)
+        {
+            IReadOnlyList<ServicioAdicional> actuales = evento.ObtenerServicios();
+
+            bool mismosServicios = servicios.Count == actuales.Count
+                && servicios.All(cotizado => actuales.Any(s => s.Nombre == cotizado.Nombre));
+            if (!mismosServicios)
+            {
+                diferencias.Add("Cambiaron los servicios adicionales.");
+                return;
+            }
+
+            foreach (ServicioPresupuestado cotizado in servicios)
+            {
+                ServicioAdicional? actual = actuales.FirstOrDefault(s => s.Nombre == cotizado.Nombre);
+                if (actual != null && actual.Monto != cotizado.Monto)
+                {
+                    diferencias.Add("Cambió el monto de " + cotizado.Nombre + ".");
+                }
+            }
+        }
+
         internal void Aprobar()
         {
             ValidarQuePuedeAprobarse();

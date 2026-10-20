@@ -357,6 +357,12 @@ namespace ProyectoEventos.Domain
             return presupuesto;
         }
 
+        public List<string> ObtenerMotivosDesactualizacion()
+        {
+            Presupuesto? ultimo = ObtenerUltimoPresupuesto();
+            return ultimo == null ? new List<string>() : ObtenerMotivosDesactualizacion(ultimo);
+        }
+
         public List<string> ObtenerMotivosDesactualizacion(Presupuesto presupuesto)
         {
             List<string> motivos = new List<string>();
@@ -372,84 +378,12 @@ namespace ProyectoEventos.Domain
                 return motivos;
             }
 
-            AgregarMotivosDelEvento(presupuesto, motivos);
-            AgregarMotivosDelMenu(presupuesto, motivos);
-            AgregarMotivosDeServicios(presupuesto, motivos);
-
+            motivos.AddRange(presupuesto.ObtenerDiferenciasCon(this));
             if (motivos.Count == 0)
             {
                 motivos.Add("El evento se modificó después de generarlo.");
             }
             return motivos;
-        }
-
-        private void AgregarMotivosDelEvento(Presupuesto presupuesto, List<string> motivos)
-        {
-            if (presupuesto.NombreLugar != Lugar.Nombre)
-            {
-                motivos.Add("Cambió el lugar.");
-            }
-            else if (presupuesto.CostoBaseLugar != Lugar.CostoBase || presupuesto.CostoPorHoraLugar != Lugar.CostoPorHora)
-            {
-                motivos.Add("Cambió el costo del lugar.");
-            }
-            if (presupuesto.FechaEvento != Fecha || presupuesto.HorasDuracion != HorasDuracion)
-            {
-                motivos.Add("Cambió la fecha o la duración.");
-            }
-            if (presupuesto.CantidadAdultos != CantidadAdultos || presupuesto.CantidadNinos != CantidadNinos)
-            {
-                motivos.Add("Cambió la cantidad de invitados.");
-            }
-        }
-
-        private void AgregarMotivosDelMenu(Presupuesto presupuesto, List<string> motivos)
-        {
-            IReadOnlyList<DetalleMenuPresupuestado> cotizados = presupuesto.ObtenerItemsMenu();
-            IReadOnlyList<ItemMenu> actuales = Menu.ObtenerItems();
-
-            bool mismosPlatos = cotizados.Count == actuales.Count;
-            for (int i = 0; mismosPlatos && i < cotizados.Count; i++)
-            {
-                mismosPlatos = cotizados[i].Descripcion == actuales[i].ObtenerDescripcion()
-                    && cotizados[i].CantidadAdultos == actuales[i].CantidadAdultos
-                    && cotizados[i].CantidadNinos == actuales[i].CantidadNinos;
-            }
-            if (!mismosPlatos)
-            {
-                motivos.Add("Cambió el menú.");
-                return;
-            }
-
-            for (int i = 0; i < cotizados.Count; i++)
-            {
-                if (cotizados[i].Subtotal != actuales[i].Subtotal())
-                {
-                    motivos.Add("Cambió el precio de " + cotizados[i].Descripcion + ".");
-                }
-            }
-        }
-
-        private void AgregarMotivosDeServicios(Presupuesto presupuesto, List<string> motivos)
-        {
-            IReadOnlyList<ServicioPresupuestado> cotizados = presupuesto.ObtenerServicios();
-
-            bool mismosServicios = cotizados.Count == servicios.Count
-                && cotizados.All(cotizado => servicios.Exists(s => s.Nombre == cotizado.Nombre));
-            if (!mismosServicios)
-            {
-                motivos.Add("Cambiaron los servicios adicionales.");
-                return;
-            }
-
-            foreach (ServicioPresupuestado cotizado in cotizados)
-            {
-                ServicioAdicional? actual = servicios.Find(s => s.Nombre == cotizado.Nombre);
-                if (actual != null && actual.Monto != cotizado.Monto)
-                {
-                    motivos.Add("Cambió el monto de " + cotizado.Nombre + ".");
-                }
-            }
         }
 
         public Presupuesto CancelarPresupuesto(int idPresupuesto)
@@ -465,14 +399,9 @@ namespace ProyectoEventos.Domain
             return aprobado != null && aprobado.Id != idPresupuesto;
         }
 
-        public Presupuesto? ObtenerPresupuesto(int idPresupuesto)
-        {
-            return presupuestos.Find(presupuesto => presupuesto.Id == idPresupuesto);
-        }
-
         public Presupuesto ObtenerPresupuestoExistente(int idPresupuesto)
         {
-            Presupuesto? presupuesto = ObtenerPresupuesto(idPresupuesto);
+            Presupuesto? presupuesto = presupuestos.Find(p => p.Id == idPresupuesto);
             if (presupuesto == null)
             {
                 throw new NoEncontradoException("El presupuesto seleccionado no existe.");
@@ -485,7 +414,7 @@ namespace ProyectoEventos.Domain
             return presupuestos.AsReadOnly();
         }
 
-        public Presupuesto? ObtenerPresupuestoAprobado()
+        private Presupuesto? ObtenerPresupuestoAprobado()
         {
             return presupuestos.Find(presupuesto => presupuesto.Estado == EstadoPresupuesto.Aprobado);
         }
@@ -512,7 +441,7 @@ namespace ProyectoEventos.Domain
             return ObtenerPresupuestoAprobado() ?? ObtenerUltimoPresupuesto();
         }
 
-        public Presupuesto? ObtenerUltimoPresupuesto()
+        private Presupuesto? ObtenerUltimoPresupuesto()
         {
             return presupuestos.Count == 0 ? null : presupuestos[presupuestos.Count - 1];
         }

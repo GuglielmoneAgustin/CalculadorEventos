@@ -115,7 +115,7 @@ namespace ProyectoEventos.Service
                 case TipoPendiente.SinPresupuesto:
                     return "Genere el presupuesto desde Eventos > Ver presupuestos.";
                 case TipoPendiente.Desactualizado:
-                    return string.Join(" ", evento.ObtenerMotivosDesactualizacion(evento.ObtenerUltimoPresupuesto()!));
+                    return string.Join(" ", evento.ObtenerMotivosDesactualizacion());
                 default:
                     Presupuesto enEspera = evento.ObtenerPresupuestos().Last(p => p.Estado == EstadoPresupuesto.EnEspera);
                     return "Presupuesto N° " + enEspera.Id + " enviado " + DescribirAntiguedad(enEspera.FechaGeneracion) + ".";
