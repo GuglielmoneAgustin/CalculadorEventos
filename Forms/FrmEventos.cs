@@ -61,8 +61,13 @@ namespace ProyectoEventos.Forms
                 : eventos;
             dgvEventos.DataSource = null;
             dgvEventos.DataSource = Busqueda.Filtrar(visibles, txtBuscar.Text, ev => new[] { ev.Id.ToString(), ev.NombreCliente, ev.NombreLugar, ev.Fecha.ToString(Formato.FechaHora), ev.EstadoPresupuesto.Texto() });
-            dgvEventos.Columna("Fecha").DefaultCellStyle.Format = Formato.FechaHora;
+            ConfigurarColumnas();
+            dgvEventos.QuitarSeleccion();
+        }
 
+        private void ConfigurarColumnas()
+        {
+            dgvEventos.Columna("Fecha").DefaultCellStyle.Format = Formato.FechaHora;
             dgvEventos.Columna("Id").HeaderText = "N°";
             dgvEventos.Columna("NombreCliente").HeaderText = "Cliente";
             dgvEventos.Columna("NombreLugar").HeaderText = "Lugar";
@@ -75,7 +80,6 @@ namespace ProyectoEventos.Forms
             dgvEventos.Columna("Total").DefaultCellStyle.Format = Formato.Moneda;
             dgvEventos.Columna("IdCliente").Visible = false;
             dgvEventos.Columna("IdLugar").Visible = false;
-            
             dgvEventos.Columna("Id").FillWeight = 35;
             dgvEventos.Columna("NombreCliente").FillWeight = 130;
             dgvEventos.Columna("NombreLugar").FillWeight = 120;
@@ -84,12 +88,6 @@ namespace ProyectoEventos.Forms
             dgvEventos.Columna("Invitados").FillWeight = 70;
             dgvEventos.Columna("EstadoPresupuesto").FillWeight = 95;
             dgvEventos.Columna("Total").FillWeight = 115;
-
-            if (dgvEventos.Rows.Count > 0)
-            {
-                dgvEventos.ClearSelection();
-                dgvEventos.CurrentCell = null;
-            }
         }
 
         private void dgvEventos_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
@@ -117,15 +115,7 @@ namespace ProyectoEventos.Forms
 
         private void AbrirSubpantalla(Form pantalla)
         {
-            if (ParentForm is FrmPrincipal principal)
-            {
-                principal.AbrirSubpantalla(pantalla, CargarGrilla);
-            }
-            else
-            {
-                pantalla.ShowDialog();
-                CargarGrilla();
-            }
+            Navegacion.AbrirSubpantalla(this, pantalla, CargarGrilla);
         }
 
         private void btnNuevo_Click(object sender, EventArgs e)

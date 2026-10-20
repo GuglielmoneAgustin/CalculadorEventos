@@ -118,24 +118,44 @@ namespace ProyectoEventos.Forms
                 return;
             }
 
-            int invitados = Convert.ToInt32(numCantidadAdultos.Value + numCantidadNinos.Value);
-            int libres = lugar.Capacidad - invitados;
-            string capacidad = "Capacidad: " + lugar.Capacidad + " · Invitados: " + invitados + " · " +
-                (libres >= 0 ? "Quedan " + libres + " lugares." : "Supera la capacidad por " + (-libres) + ".");
-
+            int libres = lugar.Capacidad - InvitadosCargados();
             bool disponible = controlador.LugarDisponible(lugar.Id, dtpFechaHora.Value, numHorasDuracion.Value, idEvento);
-            string horario = disponible
+
+            lblInfoLugar.Text = TextoCapacidad(lugar) + Environment.NewLine + TextoDisponibilidad(disponible)
+                + Environment.NewLine + TextoCosto(lugar);
+            lblInfoLugar.ForeColor = libres < 0 || !disponible ? Tema.Peligro : Tema.TextoSuave;
+        }
+
+        private int InvitadosCargados()
+        {
+            return Convert.ToInt32(numCantidadAdultos.Value + numCantidadNinos.Value);
+        }
+
+        private string TextoCapacidad(LugarDTO lugar)
+        {
+            int invitados = InvitadosCargados();
+            int libres = lugar.Capacidad - invitados;
+            return "Capacidad: " + lugar.Capacidad + " · Invitados: " + invitados + " · " +
+                (libres >= 0 ? "Quedan " + libres + " lugares." : "Supera la capacidad por " + (-libres) + ".");
+        }
+
+        private static string TextoDisponibilidad(bool disponible)
+        {
+            return disponible
                 ? "El lugar está libre en ese horario."
                 : "Atención: el lugar ya tiene otro evento en ese horario.";
+        }
 
-            string costo = "Costo del lugar: " + controlador.CalcularCostoLugar(lugar.Id, numHorasDuracion.Value).ToString(Formato.Moneda);
+        private string TextoCosto(LugarDTO lugar)
+        {
+            decimal horas = numHorasDuracion.Value;
+            string costo = "Costo del lugar: " + controlador.CalcularCostoLugar(lugar.Id, horas).ToString(Formato.Moneda);
             if (lugar.CostoPorHora > 0)
             {
-                costo += " (" + lugar.CostoBase.ToString(Formato.Moneda) + " + " + numHorasDuracion.Value.ToString("0.##") + " hs x " + lugar.CostoPorHora.ToString(Formato.Moneda) + ")";
+                costo += " (" + lugar.CostoBase.ToString(Formato.Moneda) + " + " + horas.ToString("0.##") + " hs x "
+                    + lugar.CostoPorHora.ToString(Formato.Moneda) + ")";
             }
-
-            lblInfoLugar.Text = capacidad + Environment.NewLine + horario + Environment.NewLine + costo;
-            lblInfoLugar.ForeColor = libres < 0 || !disponible ? Tema.Peligro : Tema.TextoSuave;
+            return costo;
         }
 
         private void btnVolver_Click(object sender, EventArgs e)
@@ -145,11 +165,14 @@ namespace ProyectoEventos.Forms
 
         private void btnSiguiente_Click(object sender, EventArgs e)
         {
-            if (!ValidarSeleccionCombos() || !ConfirmarFechaPasada())
+            if (ValidarSeleccionCombos() && ConfirmarFechaPasada() && GuardarDatos())
             {
-                return;
+                AbrirPasoMenu();
             }
+        }
 
+        private bool GuardarDatos()
+        {
             try
             {
                 bool esNuevo = idEvento == 0;
@@ -160,41 +183,37 @@ namespace ProyectoEventos.Forms
                 if (esNuevo)
                 {
                     creadoSinFinalizar = true;
+                    CopiarMenuDelEventoDuplicado();
                 }
-                if (esNuevo && eventoACopiar != null)
-                {
-                    controlador.CopiarMenuYServicios(eventoACopiar.Id, idEvento);
-                    eventoACopiar = null;
-                }
+                return true;
             }
             catch (NegocioException ex)
             {
                 Mensajes.Advertencia(ex.Message);
-                return;
+                return false;
             }
+        }
 
+        private void CopiarMenuDelEventoDuplicado()
+        {
+            if (eventoACopiar != null)
+            {
+                controlador.CopiarMenuYServicios(eventoACopiar.Id, idEvento);
+                eventoACopiar = null;
+            }
+        }
+
+        private void AbrirPasoMenu()
+        {
             FrmEventoMenu pantallaMenu = new FrmEventoMenu(idEvento);
             pantallaMenu.Text += " — Paso 2 de 2";
-            if (ParentForm is FrmPrincipal principal)
+            Navegacion.AbrirSubpantalla(this, pantallaMenu, () =>
             {
-                principal.AbrirSubpantalla(pantallaMenu, () =>
+                if (pantallaMenu.Finalizado)
                 {
-                    if (pantallaMenu.Finalizado)
-                    {
-                        MarcarFinalizadoYCerrar();
-                    }
-                });
-            }
-            else
-            {
-                using (pantallaMenu)
-                {
-                    if (pantallaMenu.ShowDialog(this) == DialogResult.OK)
-                    {
-                        MarcarFinalizadoYCerrar();
-                    }
+                    MarcarFinalizadoYCerrar();
                 }
-            }
+            });
         }
 
         private void CargarComboCliente()

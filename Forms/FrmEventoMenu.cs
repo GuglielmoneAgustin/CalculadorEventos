@@ -145,14 +145,7 @@ namespace ProyectoEventos.Forms
                 lvProductos.Groups.Add(grupo);
                 foreach (ProductoDTO producto in productos)
                 {
-                    string nombre = producto.Restriccion == RestriccionesAlimenticias.Estandar
-                        ? producto.Nombre
-                        : producto.Nombre + " · " + producto.Restriccion.Texto();
-                    string precios = producto.PrecioAdulto.ToString(FormatoPrecioCorto) + " / " + producto.PrecioNino.ToString("#,##0");
-                    ListViewItem item = new ListViewItem(new[] { nombre, precios }, grupo);
-                    item.Tag = producto;
-                    item.Checked = idsMarcados.Contains(producto.Id);
-                    lvProductos.Items.Add(item);
+                    lvProductos.Items.Add(CrearItemProducto(producto, grupo));
                 }
             }
             lvProductos.EndUpdate();
@@ -160,6 +153,19 @@ namespace ProyectoEventos.Forms
 
             AjustarColumnasProductos();
             ActualizarSubtotalPlato();
+        }
+
+        private ListViewItem CrearItemProducto(ProductoDTO producto, ListViewGroup grupo)
+        {
+            string nombre = producto.Restriccion == RestriccionesAlimenticias.Estandar
+                ? producto.Nombre
+                : producto.Nombre + " · " + producto.Restriccion.Texto();
+            string precios = producto.PrecioAdulto.ToString(FormatoPrecioCorto) + " / " + producto.PrecioNino.ToString("#,##0");
+
+            ListViewItem item = new ListViewItem(new[] { nombre, precios }, grupo);
+            item.Tag = producto;
+            item.Checked = idsMarcados.Contains(producto.Id);
+            return item;
         }
 
         private void lvProductos_ItemChecked(object? sender, ItemCheckedEventArgs e)
@@ -467,8 +473,7 @@ namespace ProyectoEventos.Forms
         {
             if (grilla.Rows.Count > 0)
             {
-                grilla.ClearSelection();
-                grilla.CurrentCell = null;
+                grilla.QuitarSeleccion();
             }
         }
     }

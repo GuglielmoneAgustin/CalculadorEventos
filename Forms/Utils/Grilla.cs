@@ -8,6 +8,12 @@ namespace ProyectoEventos.Forms.Utils
                 ?? throw new InvalidOperationException("La grilla " + grilla.Name + " no tiene la columna " + nombre + ".");
         }
 
+        public static void QuitarSeleccion(this DataGridView grilla)
+        {
+            grilla.ClearSelection();
+            grilla.CurrentCell = null;
+        }
+
         public static T? Seleccionado<T>(this DataGridView grilla) where T : class
         {
             return grilla.CurrentRow?.DataBoundItem as T;

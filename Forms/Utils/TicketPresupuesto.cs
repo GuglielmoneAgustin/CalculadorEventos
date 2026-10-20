@@ -31,23 +31,37 @@ namespace ProyectoEventos.Forms.Utils
             ventana.ShowDialog(padre);
         }
 
+        private static readonly string LineaDoble = new string('=', Ancho);
+        private static readonly string LineaSimple = new string('-', Ancho);
+
         private static List<string> Armar(PresupuestoDetalleDTO d)
         {
-            string doble = new string('=', Ancho);
-            string simple = new string('-', Ancho);
             List<string> t = new List<string>();
+            ArmarEncabezado(t, d);
+            ArmarLugar(t, d);
+            ArmarMenu(t, d);
+            ArmarServicios(t, d);
+            ArmarTotal(t, d);
+            return t;
+        }
 
+        private static void ArmarEncabezado(List<string> t, PresupuestoDetalleDTO d)
+        {
             t.Add(Centrar("PRESUPUESTO N° " + d.Id));
             t.Add(Centrar("Evento N° " + d.IdEvento));
             t.Add(Centrar(d.Estado.Texto().ToUpper()));
-            t.Add(doble);
+            t.Add(LineaDoble);
             t.Add("Emitido: " + d.FechaGeneracion.ToString(Formato.FechaHora));
             t.Add("Cliente: " + d.NombreCliente);
             t.Add("Lugar: " + d.NombreLugar);
             t.Add("Fecha: " + d.FechaEvento.ToString(Formato.FechaHora));
             t.Add("Duración: " + d.HorasDuracion.ToString("0.##") + " hs");
             t.Add("Invitados: " + Personas(d.CantidadAdultos, d.CantidadNinos));
-            t.Add(simple);
+            t.Add(LineaSimple);
+        }
+
+        private static void ArmarLugar(List<string> t, PresupuestoDetalleDTO d)
+        {
             if (d.CostoPorHoraLugar == 0)
             {
                 t.AddRange(Fila("Costo del lugar", d.CostoLugar));
@@ -58,8 +72,11 @@ namespace ProyectoEventos.Forms.Utils
                 t.AddRange(Fila("Lugar (" + d.HorasDuracion.ToString("0.##") + " hs x " + d.CostoPorHoraLugar.ToString(Formato.Moneda) + ")",
                     d.CostoPorHoraLugar * d.HorasDuracion));
             }
-            t.Add(simple);
+            t.Add(LineaSimple);
+        }
 
+        private static void ArmarMenu(List<string> t, PresupuestoDetalleDTO d)
+        {
             t.Add("MENÚ");
             if (d.Items.Count == 0)
             {
@@ -71,8 +88,11 @@ namespace ProyectoEventos.Forms.Utils
                 t.Add("    " + Personas(item.CantidadAdultos, item.CantidadNinos));
             }
             t.AddRange(Fila("Subtotal menú", d.SubtotalMenu));
-            t.Add(simple);
+            t.Add(LineaSimple);
+        }
 
+        private static void ArmarServicios(List<string> t, PresupuestoDetalleDTO d)
+        {
             t.Add("SERVICIOS ADICIONALES");
             if (d.Servicios.Count == 0)
             {
@@ -83,12 +103,14 @@ namespace ProyectoEventos.Forms.Utils
                 t.AddRange(Fila("  " + servicio.Nombre, servicio.Monto));
             }
             t.AddRange(Fila("Subtotal servicios", d.SubtotalServicios));
-            t.Add(doble);
+            t.Add(LineaDoble);
+        }
 
+        private static void ArmarTotal(List<string> t, PresupuestoDetalleDTO d)
+        {
             t.AddRange(Fila("TOTAL", d.CostoTotal));
-            t.Add(doble);
+            t.Add(LineaDoble);
             t.Add(Centrar("Gracias por elegirnos"));
-            return t;
         }
 
         private static string Personas(int adultos, int ninos)

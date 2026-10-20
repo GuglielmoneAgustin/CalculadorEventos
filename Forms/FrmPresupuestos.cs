@@ -60,8 +60,7 @@ namespace ProyectoEventos.Forms
 
             if (dgvPresupuestos.Rows.Count > 0)
             {
-                dgvPresupuestos.ClearSelection();
-                dgvPresupuestos.CurrentCell = null;
+                dgvPresupuestos.QuitarSeleccion();
             }
         }
 

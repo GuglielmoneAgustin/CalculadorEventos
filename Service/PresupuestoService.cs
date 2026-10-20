@@ -57,8 +57,11 @@ namespace ProyectoEventos.Service
 
         public PresupuestoDetalleDTO ObtenerDetalle(int idEvento, int idPresupuesto)
         {
-            Presupuesto presupuesto = ObtenerPresupuesto(idEvento, idPresupuesto);
+            return MapearADetalle(ObtenerPresupuesto(idEvento, idPresupuesto));
+        }
 
+        private static PresupuestoDetalleDTO MapearADetalle(Presupuesto presupuesto)
+        {
             PresupuestoDetalleDTO dto = new PresupuestoDetalleDTO();
             dto.Id = presupuesto.Id;
             dto.IdEvento = presupuesto.EventoAsociado.Id;

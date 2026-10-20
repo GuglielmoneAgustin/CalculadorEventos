@@ -59,18 +59,18 @@ namespace ProyectoEventos.Forms
         {
             dgvClientes.DataSource = null;
             dgvClientes.DataSource = Busqueda.Filtrar(clientes, txtBuscar.Text, c => new[] { c.Nombre, c.Dni, c.Mail, c.Telefono });
+            ConfigurarColumnas();
+            dgvClientes.QuitarSeleccion();
+        }
+
+        private void ConfigurarColumnas()
+        {
             dgvClientes.Columna("Id").Visible = false;
             dgvClientes.Columna("Dni").HeaderText = "DNI";
             dgvClientes.Columna("Telefono").HeaderText = "Teléfono";
             dgvClientes.Columna("CantidadEventos").HeaderText = "Eventos";
             dgvClientes.Columna("CantidadEventos").FillWeight = 50;
             dgvClientes.Columna("Descripcion").Visible = false;
-
-            if (dgvClientes.Rows.Count > 0)
-            {
-                dgvClientes.ClearSelection();
-                dgvClientes.CurrentCell = null;
-            }
         }
 
         private ClienteDTO? ObtenerSeleccionado()

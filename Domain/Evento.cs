@@ -99,13 +99,7 @@ namespace ProyectoEventos.Domain
             ValidarCantidad(cantidadNinos, "niños");
             ValidarCapacidad(lugar, cantidadAdultos, cantidadNinos);
 
-            bool huboCambios = this.cliente == null || this.lugar == null
-                || this.cliente.Id != cliente.Id
-                || this.lugar.Id != lugar.Id
-                || this.fecha != fecha
-                || this.horasDuracion != horasDuracion
-                || this.cantidadAdultos != cantidadAdultos
-                || this.cantidadNinos != cantidadNinos;
+            bool huboCambios = HayCambios(cliente, lugar, fecha, horasDuracion, cantidadAdultos, cantidadNinos);
 
             this.cliente = cliente;
             this.lugar = lugar;
@@ -118,6 +112,17 @@ namespace ProyectoEventos.Domain
             {
                 MarcarCambioPendienteDePresupuesto();
             }
+        }
+
+        private bool HayCambios(Cliente cliente, Lugar lugar, DateTime fecha, decimal horasDuracion, int cantidadAdultos, int cantidadNinos)
+        {
+            return this.cliente == null || this.lugar == null
+                || this.cliente.Id != cliente.Id
+                || this.lugar.Id != lugar.Id
+                || this.fecha != fecha
+                || this.horasDuracion != horasDuracion
+                || this.cantidadAdultos != cantidadAdultos
+                || this.cantidadNinos != cantidadNinos;
         }
 
         public int TotalInvitados()
@@ -171,6 +176,20 @@ namespace ProyectoEventos.Domain
                 return EstadoPresupuesto.Cancelado;
             }
             return null;
+        }
+
+        public TipoPendiente? ObtenerTipoPendiente()
+        {
+            EstadoPresupuesto? estado = ObtenerEstadoPresupuesto();
+            if (estado == null)
+            {
+                return TipoPendiente.SinPresupuesto;
+            }
+            if (estado != EstadoPresupuesto.EnEspera)
+            {
+                return null;
+            }
+            return RequierePresupuestoNuevo ? TipoPendiente.Desactualizado : TipoPendiente.EsperandoRespuesta;
         }
 
         public bool EsProximoAprobado(DateTime ahora)
@@ -352,6 +371,19 @@ namespace ProyectoEventos.Domain
                 return motivos;
             }
 
+            AgregarMotivosDelEvento(presupuesto, motivos);
+            AgregarMotivosDelMenu(presupuesto, motivos);
+            AgregarMotivosDeServicios(presupuesto, motivos);
+
+            if (motivos.Count == 0)
+            {
+                motivos.Add("El evento se modificó después de generarlo.");
+            }
+            return motivos;
+        }
+
+        private void AgregarMotivosDelEvento(Presupuesto presupuesto, List<string> motivos)
+        {
             if (presupuesto.NombreLugar != Lugar.Nombre)
             {
                 motivos.Add("Cambió el lugar.");
@@ -368,14 +400,6 @@ namespace ProyectoEventos.Domain
             {
                 motivos.Add("Cambió la cantidad de invitados.");
             }
-            AgregarMotivosDelMenu(presupuesto, motivos);
-            AgregarMotivosDeServicios(presupuesto, motivos);
-
-            if (motivos.Count == 0)
-            {
-                motivos.Add("El evento se modificó después de generarlo.");
-            }
-            return motivos;
         }
 
         private void AgregarMotivosDelMenu(Presupuesto presupuesto, List<string> motivos)

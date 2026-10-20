@@ -96,6 +96,12 @@ namespace ProyectoEventos.Forms
         {
             dgvProductos.DataSource = null;
             dgvProductos.DataSource = Busqueda.Filtrar(productos, txtBuscar.Text, p => new[] { p.Nombre, p.Categoria.Texto(), p.Restriccion.Texto() });
+            ConfigurarColumnas();
+            dgvProductos.QuitarSeleccion();
+        }
+
+        private void ConfigurarColumnas()
+        {
             dgvProductos.Columna("Id").Visible = false;
             dgvProductos.Columna("PrecioAdulto").HeaderText = "Precio adulto";
             dgvProductos.Columna("PrecioNino").HeaderText = "Precio niño";
@@ -103,12 +109,6 @@ namespace ProyectoEventos.Forms
             dgvProductos.Columna("Restriccion").HeaderText = "Restricción";
             dgvProductos.Columna("PrecioAdulto").DefaultCellStyle.Format = Formato.Moneda;
             dgvProductos.Columna("PrecioNino").DefaultCellStyle.Format = Formato.Moneda;
-
-            if (dgvProductos.Rows.Count > 0)
-            {
-                dgvProductos.ClearSelection();
-                dgvProductos.CurrentCell = null;
-            }
         }
 
         private ProductoDTO? ObtenerSeleccionado()

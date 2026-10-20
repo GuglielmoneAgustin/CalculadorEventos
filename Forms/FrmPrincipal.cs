@@ -29,38 +29,17 @@ namespace ProyectoEventos.Forms
 
         private void AbrirEnPanel(Func<Form> crearPantalla, Button boton)
         {
-            descartando = true;
-            if (pantallaActual != null && !IntentarCerrar(pantallaActual))
+            if (!CerrarPantallas())
             {
-                descartando = false;
                 return;
             }
-            pantallaActual?.Dispose();
-            while (historial.Count > 0)
-            {
-                Form oculta = historial.Pop().Pantalla;
-                oculta.Close();
-                oculta.Dispose();
-            }
-            descartando = false;
 
             Form pantalla = crearPantalla();
-            pantallaActual = pantalla;
-
-            pantalla.TopLevel = false;
-            pantalla.FormBorderStyle = FormBorderStyle.None;
-            pantalla.Dock = DockStyle.Fill;
-
             foreach (Control volver in pantalla.Controls.Find("btnVolver", true))
             {
                 volver.Visible = false;
             }
-
-            pnlContenido.Controls.Add(pantalla);
-            pantalla.Show();
-
-            QuitarSeleccionGrillas(pantalla);
-            BeginInvoke(() => QuitarSeleccionGrillas(pantalla));
+            Incrustar(pantalla);
 
             lblPantalla.Text = boton.Text;
             MarcarBotonActivo(boton);
@@ -72,25 +51,7 @@ namespace ProyectoEventos.Forms
             historial.Push((anterior, alVolver, lblPantalla.Text));
             anterior.Visible = false;
 
-            subpantalla.TopLevel = false;
-            subpantalla.FormBorderStyle = FormBorderStyle.None;
-            subpantalla.Dock = DockStyle.Fill;
-            pantallaActual = subpantalla;
-
-            subpantalla.FormClosed += (s, e) =>
-            {
-                if (descartando || historial.Count == 0 || pantallaActual != subpantalla)
-                {
-                    return;
-                }
-                var previo = historial.Pop();
-                pnlContenido.Controls.Remove(subpantalla);
-                subpantalla.Dispose();
-                pantallaActual = previo.Pantalla;
-                previo.Pantalla.Visible = true;
-                lblPantalla.Text = previo.Titulo;
-                previo.AlVolver?.Invoke();
-            };
+            subpantalla.FormClosed += (s, e) => VolverAPantallaAnterior(subpantalla);
             subpantalla.TextChanged += (s, e) =>
             {
                 if (pantallaActual == subpantalla)
@@ -99,12 +60,56 @@ namespace ProyectoEventos.Forms
                 }
             };
 
-            pnlContenido.Controls.Add(subpantalla);
-            subpantalla.Show();
+            Incrustar(subpantalla);
             lblPantalla.Text = subpantalla.Text;
+        }
 
-            QuitarSeleccionGrillas(subpantalla);
-            BeginInvoke(() => QuitarSeleccionGrillas(subpantalla));
+        private bool CerrarPantallas()
+        {
+            descartando = true;
+            if (pantallaActual != null && !IntentarCerrar(pantallaActual))
+            {
+                descartando = false;
+                return false;
+            }
+            pantallaActual?.Dispose();
+            while (historial.Count > 0)
+            {
+                Form oculta = historial.Pop().Pantalla;
+                oculta.Close();
+                oculta.Dispose();
+            }
+            descartando = false;
+            return true;
+        }
+
+        private void Incrustar(Form pantalla)
+        {
+            pantalla.TopLevel = false;
+            pantalla.FormBorderStyle = FormBorderStyle.None;
+            pantalla.Dock = DockStyle.Fill;
+            pantallaActual = pantalla;
+
+            pnlContenido.Controls.Add(pantalla);
+            pantalla.Show();
+
+            QuitarSeleccionGrillas(pantalla);
+            BeginInvoke(() => QuitarSeleccionGrillas(pantalla));
+        }
+
+        private void VolverAPantallaAnterior(Form subpantalla)
+        {
+            if (descartando || historial.Count == 0 || pantallaActual != subpantalla)
+            {
+                return;
+            }
+            var previo = historial.Pop();
+            pnlContenido.Controls.Remove(subpantalla);
+            subpantalla.Dispose();
+            pantallaActual = previo.Pantalla;
+            previo.Pantalla.Visible = true;
+            lblPantalla.Text = previo.Titulo;
+            previo.AlVolver?.Invoke();
         }
 
         private static bool IntentarCerrar(Form pantalla)
@@ -127,8 +132,7 @@ namespace ProyectoEventos.Forms
             {
                 if (control is DataGridView grilla)
                 {
-                    grilla.ClearSelection();
-                    grilla.CurrentCell = null;
+                    grilla.QuitarSeleccion();
                 }
                 else
                 {

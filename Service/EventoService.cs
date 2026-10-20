@@ -91,39 +91,35 @@ namespace ProyectoEventos.Service
 
             foreach (Evento evento in repositorio.ObtenerTodos().Where(e => e.Fecha >= ahora).OrderBy(e => e.Fecha))
             {
-                EstadoPresupuesto? estado = evento.ObtenerEstadoPresupuesto();
-                PendienteDTO pendiente = new PendienteDTO
+                TipoPendiente? tipo = evento.ObtenerTipoPendiente();
+                if (tipo != null)
                 {
-                    IdEvento = evento.Id,
-                    NombreCliente = evento.Cliente.Nombre,
-                    FechaEvento = evento.Fecha
-                };
-
-                if (estado == null)
-                {
-                    pendiente.Tipo = TipoPendiente.SinPresupuesto;
-                    pendiente.Detalle = "Genere el presupuesto desde Eventos > Ver presupuestos.";
+                    pendientes.Add(new PendienteDTO
+                    {
+                        IdEvento = evento.Id,
+                        NombreCliente = evento.Cliente.Nombre,
+                        FechaEvento = evento.Fecha,
+                        Tipo = tipo.Value,
+                        Detalle = ArmarDetalle(evento, tipo.Value)
+                    });
                 }
-                else if (estado == EstadoPresupuesto.EnEspera && evento.RequierePresupuestoNuevo)
-                {
-                    pendiente.Tipo = TipoPendiente.Desactualizado;
-                    pendiente.Detalle = string.Join(" ", evento.ObtenerMotivosDesactualizacion(evento.ObtenerUltimoPresupuesto()!));
-                }
-                else if (estado == EstadoPresupuesto.EnEspera)
-                {
-                    Presupuesto enEspera = evento.ObtenerPresupuestos().Last(p => p.Estado == EstadoPresupuesto.EnEspera);
-                    pendiente.Tipo = TipoPendiente.EsperandoRespuesta;
-                    pendiente.Detalle = "Presupuesto N° " + enEspera.Id + " enviado " + DescribirAntiguedad(enEspera.FechaGeneracion) + ".";
-                }
-                else
-                {
-                    continue;
-                }
-
-                pendientes.Add(pendiente);
             }
 
             return pendientes;
+        }
+
+        private static string ArmarDetalle(Evento evento, TipoPendiente tipo)
+        {
+            switch (tipo)
+            {
+                case TipoPendiente.SinPresupuesto:
+                    return "Genere el presupuesto desde Eventos > Ver presupuestos.";
+                case TipoPendiente.Desactualizado:
+                    return string.Join(" ", evento.ObtenerMotivosDesactualizacion(evento.ObtenerUltimoPresupuesto()!));
+                default:
+                    Presupuesto enEspera = evento.ObtenerPresupuestos().Last(p => p.Estado == EstadoPresupuesto.EnEspera);
+                    return "Presupuesto N° " + enEspera.Id + " enviado " + DescribirAntiguedad(enEspera.FechaGeneracion) + ".";
+            }
         }
 
         public List<EventoResultadoDTO> ObtenerSinAprobarProximosDias(int dias)

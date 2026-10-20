@@ -114,8 +114,7 @@ namespace ProyectoEventos.Forms
             dgvProximosEventos.Columna("Falta").FillWeight = 70;
             dgvProximosEventos.Columna("Fecha").FillWeight = 80;
             dgvProximosEventos.Columna("Invitados").FillWeight = 60;
-            dgvProximosEventos.ClearSelection();
-            dgvProximosEventos.CurrentCell = null;
+            dgvProximosEventos.QuitarSeleccion();
         }
 
         private void CargarPendientes(List<PendienteDTO> pendientes)
@@ -128,24 +127,17 @@ namespace ProyectoEventos.Forms
             dgvPendientes.Columna("FechaEvento").DefaultCellStyle.Format = Formato.FechaHora;
             dgvPendientes.Columna("Tipo").HeaderText = "Situación";
             dgvPendientes.Columna("Detalle").FillWeight = 220;
-            dgvPendientes.ClearSelection();
-            dgvPendientes.CurrentCell = null;
+            dgvPendientes.QuitarSeleccion();
         }
 
         private void dgvProximosEventos_Enter(object? sender, EventArgs e)
         {
-            QuitarSeleccion(dgvPendientes);
+            dgvPendientes.QuitarSeleccion();
         }
 
         private void dgvPendientes_Enter(object? sender, EventArgs e)
         {
-            QuitarSeleccion(dgvProximosEventos);
-        }
-
-        private static void QuitarSeleccion(DataGridView grilla)
-        {
-            grilla.ClearSelection();
-            grilla.CurrentCell = null;
+            dgvProximosEventos.QuitarSeleccion();
         }
 
         private void btnVerPresupuestos_Click(object sender, EventArgs e)
@@ -158,16 +150,7 @@ namespace ProyectoEventos.Forms
                 return;
             }
 
-            FrmPresupuestos pantalla = new FrmPresupuestos(idEvento.Value);
-            if (ParentForm is FrmPrincipal principal)
-            {
-                principal.AbrirSubpantalla(pantalla, Cargar);
-            }
-            else
-            {
-                pantalla.ShowDialog();
-                Cargar();
-            }
+            Navegacion.AbrirSubpantalla(this, new FrmPresupuestos(idEvento.Value), Cargar);
         }
 
         private void dgvProximosEventos_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)

@@ -59,6 +59,12 @@ namespace ProyectoEventos.Forms
         {
             dgvLugares.DataSource = null;
             dgvLugares.DataSource = Busqueda.Filtrar(lugares, txtBuscar.Text, l => new[] { l.Nombre, l.Ubicacion });
+            ConfigurarColumnas();
+            dgvLugares.QuitarSeleccion();
+        }
+
+        private void ConfigurarColumnas()
+        {
             dgvLugares.Columna("Id").Visible = false;
             dgvLugares.Columna("CostoBase").HeaderText = "Costo base";
             dgvLugares.Columna("Ubicacion").HeaderText = "Ubicación";
@@ -66,12 +72,6 @@ namespace ProyectoEventos.Forms
             dgvLugares.Columna("CostoPorHora").HeaderText = "Costo por hora";
             dgvLugares.Columna("CostoPorHora").DefaultCellStyle.Format = Formato.Moneda;
             dgvLugares.Columna("Descripcion").Visible = false;
-
-            if (dgvLugares.Rows.Count > 0)
-            {
-                dgvLugares.ClearSelection();
-                dgvLugares.CurrentCell = null;
-            }
         }
 
         private LugarDTO? ObtenerSeleccionado()
