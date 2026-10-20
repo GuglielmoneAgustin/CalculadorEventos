@@ -97,6 +97,7 @@ namespace ProyectoEventos.Domain
             ValidarHorasDuracion(horasDuracion);
             ValidarCantidad(cantidadAdultos, "adultos");
             ValidarCantidad(cantidadNinos, "niños");
+            ValidarHayInvitados(cantidadAdultos, cantidadNinos);
             ValidarCapacidad(lugar, cantidadAdultos, cantidadNinos);
 
             bool huboCambios = HayCambios(cliente, lugar, fecha, horasDuracion, cantidadAdultos, cantidadNinos);
@@ -534,6 +535,14 @@ namespace ProyectoEventos.Domain
             if (valor < 0)
             {
                 throw new NegocioException("La cantidad de " + tipoInvitado + " no puede ser negativa.");
+            }
+        }
+
+        private static void ValidarHayInvitados(int cantidadAdultos, int cantidadNinos)
+        {
+            if (cantidadAdultos + cantidadNinos == 0)
+            {
+                throw new NegocioException("El evento debe tener al menos un invitado.");
             }
         }
 

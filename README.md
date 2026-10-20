@@ -86,6 +86,7 @@ Datos de cada uno:
 
 ## Reglas de negocio principales
 
+- Un evento debe tener al menos un invitado (adulto o niño).
 - Un evento no puede superar la capacidad del lugar ni superponerse con otro evento en el mismo lugar y horario.
 - DNI de clientes y nombres de lugares, productos y servicios no se repiten.
 - Los montos admiten centavos y ningún campo numérico se corrige solo: si un valor no es válido, se avisa con un mensaje al guardar.
