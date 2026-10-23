@@ -119,9 +119,18 @@ namespace ProyectoEventos.Forms
             return dgvEventos.Seleccionado<EventoResultadoDTO>();
         }
 
-        private void AbrirSubpantalla(Form pantalla)
+        private void AbrirSubpantalla(Form pantalla, int? idEvento = null)
         {
-            Navegacion.AbrirSubpantalla(this, pantalla, CargarGrilla);
+            int ultimoId = eventos.Count == 0 ? 0 : eventos.Max(ev => ev.Id);
+            Navegacion.AbrirSubpantalla(this, pantalla, () =>
+            {
+                CargarGrilla();
+                int? aSeleccionar = idEvento ?? eventos.Where(ev => ev.Id > ultimoId).Select(ev => (int?)ev.Id).Max();
+                if (aSeleccionar != null)
+                {
+                    dgvEventos.SeleccionarFila<EventoResultadoDTO>(ev => ev.Id == aSeleccionar);
+                }
+            });
         }
 
         private void btnNuevo_Click(object sender, EventArgs e)
@@ -138,7 +147,7 @@ namespace ProyectoEventos.Forms
                 return;
             }
 
-            AbrirSubpantalla(new FrmEventoDatos(seleccionado));
+            AbrirSubpantalla(new FrmEventoDatos(seleccionado), seleccionado.Id);
         }
 
         private void btnMenu_Click(object sender, EventArgs e)
@@ -150,7 +159,7 @@ namespace ProyectoEventos.Forms
                 return;
             }
 
-            AbrirSubpantalla(new FrmEventoMenu(seleccionado.Id));
+            AbrirSubpantalla(new FrmEventoMenu(seleccionado.Id), seleccionado.Id);
         }
 
         private void btnPresupuestos_Click(object sender, EventArgs e)
@@ -162,7 +171,7 @@ namespace ProyectoEventos.Forms
                 return;
             }
 
-            AbrirSubpantalla(new FrmPresupuestos(seleccionado.Id));
+            AbrirSubpantalla(new FrmPresupuestos(seleccionado.Id), seleccionado.Id);
         }
 
         private void btnEliminar_Click(object sender, EventArgs e)
