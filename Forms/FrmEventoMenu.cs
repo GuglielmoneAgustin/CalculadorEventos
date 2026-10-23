@@ -236,7 +236,8 @@ namespace ProyectoEventos.Forms
 
             dgvItemsMenu.Columna("Id").Visible = false;
             dgvItemsMenu.Columna("DescripcionComponentes").HeaderText = "Productos";
-            dgvItemsMenu.Columna("DescripcionComponentes").FillWeight = 250;
+            dgvItemsMenu.Columna("DescripcionComponentes").FillWeight = 160;
+            dgvItemsMenu.Columna("Subtotal").FillWeight = 130;
             dgvItemsMenu.Columna("CantidadAdultos").HeaderText = "Adultos";
             dgvItemsMenu.Columna("CantidadNinos").HeaderText = "Niños";
             dgvItemsMenu.Columna("Subtotal").HeaderText = "Subtotal";

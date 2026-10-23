@@ -57,6 +57,34 @@ namespace ProyectoEventos.Domain
 
         public EstadoPresupuesto Estado { get; private set; }
 
+        public decimal Sena { get; private set; }
+
+        public DateTime? FechaSena { get; private set; }
+
+        public DateTime? FechaPago { get; private set; }
+
+        public bool EstaPagado
+        {
+            get { return FechaPago != null; }
+        }
+
+        public decimal Saldo
+        {
+            get { return EstaPagado ? 0m : CalcularTotal() - Sena; }
+        }
+
+        public EstadoPago EstadoPago
+        {
+            get
+            {
+                if (EstaPagado)
+                {
+                    return EstadoPago.Pagado;
+                }
+                return Sena > 0 ? EstadoPago.Senado : EstadoPago.SinSena;
+            }
+        }
+
         public IReadOnlyList<DetalleMenuPresupuestado> ObtenerItemsMenu()
         {
             return itemsMenu.AsReadOnly();
@@ -193,11 +221,75 @@ namespace ProyectoEventos.Domain
 
         internal void Cancelar()
         {
+            ValidarQuePuedeCancelarse();
+            Estado = EstadoPresupuesto.Cancelado;
+        }
+
+        internal void ValidarQuePuedeCancelarse()
+        {
             if (Estado == EstadoPresupuesto.Cancelado)
             {
                 throw new NegocioException("El presupuesto ya está cancelado.");
             }
-            Estado = EstadoPresupuesto.Cancelado;
+            if (EstaPagado)
+            {
+                throw new NegocioException("El presupuesto N° " + Id + " ya está pagado: no se puede cancelar ni reemplazar.");
+            }
+        }
+
+        internal void RegistrarSena(decimal monto, DateTime fecha)
+        {
+            ValidarQuePuedeCobrarse();
+            if (Sena > 0)
+            {
+                throw new NegocioException("El presupuesto ya tiene una seña registrada.");
+            }
+            if (monto <= 0)
+            {
+                throw new NegocioException("La seña debe ser mayor a cero.");
+            }
+            if (monto >= CalcularTotal())
+            {
+                throw new NegocioException("La seña debe ser menor al total del presupuesto ($ " + CalcularTotal().ToString("#,##0.00") +
+                    "). Si el cliente paga todo, use Marcar como pagado.");
+            }
+            Sena = monto;
+            FechaSena = fecha;
+        }
+
+        internal void MarcarPagado(DateTime fecha)
+        {
+            ValidarQuePuedeCobrarse();
+            FechaPago = fecha;
+        }
+
+        internal void RecibirSenaDe(Presupuesto anterior)
+        {
+            if (anterior.Sena == 0)
+            {
+                return;
+            }
+            if (anterior.Sena >= CalcularTotal())
+            {
+                throw new NegocioException("La seña del presupuesto aprobado ($ " + anterior.Sena.ToString("#,##0.00") +
+                    ") no es menor al total de este presupuesto.");
+            }
+            Sena = anterior.Sena;
+            FechaSena = anterior.FechaSena;
+            anterior.Sena = 0;
+            anterior.FechaSena = null;
+        }
+
+        private void ValidarQuePuedeCobrarse()
+        {
+            if (Estado != EstadoPresupuesto.Aprobado)
+            {
+                throw new NegocioException("Solo se puede cobrar un presupuesto aprobado.");
+            }
+            if (EstaPagado)
+            {
+                throw new NegocioException("El presupuesto ya está pagado.");
+            }
         }
 
         private static List<DetalleMenuPresupuestado> CrearSnapshotMenu(MenuEvento menu)

@@ -28,14 +28,29 @@ namespace ProyectoEventos.Controller
             return servicio.Cancelar(idEvento, idPresupuesto);
         }
 
+        public PresupuestoResultadoDTO RegistrarSena(int idEvento, decimal monto)
+        {
+            return servicio.RegistrarSena(idEvento, monto);
+        }
+
+        public PresupuestoResultadoDTO MarcarPagado(int idEvento)
+        {
+            return servicio.MarcarPagado(idEvento);
+        }
+
+        public PresupuestoResultadoDTO? ObtenerAprobado(int idEvento)
+        {
+            return servicio.ObtenerAprobado(idEvento);
+        }
+
+        public PresupuestoDetalleDTO ObtenerDetalleAprobado(int idEvento)
+        {
+            return servicio.ObtenerDetalleAprobado(idEvento);
+        }
+
         public void ValidarAprobacion(int idEvento, int idPresupuesto)
         {
             servicio.ValidarAprobacion(idEvento, idPresupuesto);
-        }
-
-        public bool HayOtroAprobado(int idEvento, int idPresupuesto)
-        {
-            return servicio.HayOtroAprobado(idEvento, idPresupuesto);
         }
 
         public PresupuestoDetalleDTO ObtenerDetalle(int idEvento, int idPresupuesto)

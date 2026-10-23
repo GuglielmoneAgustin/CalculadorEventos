@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ProyectoEventos.Common;
 using ProyectoEventos.Domain;
 using ProyectoEventos.Dto;
 using ProyectoEventos.Repository;
@@ -43,16 +44,30 @@ namespace ProyectoEventos.Service
             return MapearAResultado(evento.CancelarPresupuesto(idPresupuesto));
         }
 
+        public PresupuestoResultadoDTO RegistrarSena(int idEvento, decimal monto)
+        {
+            return MapearAResultado(eventoRepositorio.ObtenerExistente(idEvento).RegistrarSena(monto, DateTime.Now));
+        }
+
+        public PresupuestoResultadoDTO MarcarPagado(int idEvento)
+        {
+            return MapearAResultado(eventoRepositorio.ObtenerExistente(idEvento).MarcarPagado(DateTime.Now));
+        }
+
+        public PresupuestoResultadoDTO? ObtenerAprobado(int idEvento)
+        {
+            Evento evento = eventoRepositorio.ObtenerExistente(idEvento);
+            return evento.TienePresupuestoAprobado() ? MapearAResultado(evento.ObtenerPresupuestoAprobadoExistente()) : null;
+        }
+
+        public PresupuestoDetalleDTO ObtenerDetalleAprobado(int idEvento)
+        {
+            return MapearADetalle(eventoRepositorio.ObtenerExistente(idEvento).ObtenerPresupuestoAprobadoExistente());
+        }
+
         public void ValidarAprobacion(int idEvento, int idPresupuesto)
         {
             eventoRepositorio.ObtenerExistente(idEvento).ValidarAprobacion(idPresupuesto);
-        }
-
-        public bool HayOtroAprobado(int idEvento, int idPresupuesto)
-        {
-            Evento evento = eventoRepositorio.ObtenerExistente(idEvento);
-            evento.ObtenerPresupuestoExistente(idPresupuesto);
-            return evento.HayOtroPresupuestoAprobado(idPresupuesto);
         }
 
         public PresupuestoDetalleDTO ObtenerDetalle(int idEvento, int idPresupuesto)
@@ -91,6 +106,11 @@ namespace ProyectoEventos.Service
             dto.SubtotalMenu = presupuesto.CalcularSubtotalMenu();
             dto.SubtotalServicios = presupuesto.CalcularSubtotalServicios();
             dto.CostoTotal = presupuesto.CalcularTotal();
+            dto.EstadoPago = presupuesto.EstadoPago;
+            dto.Sena = presupuesto.Sena;
+            dto.FechaSena = presupuesto.FechaSena;
+            dto.FechaPago = presupuesto.FechaPago;
+            dto.Saldo = presupuesto.Saldo;
             return dto;
         }
 
@@ -117,8 +137,15 @@ namespace ProyectoEventos.Service
             dto.CantidadNinos = presupuesto.CantidadNinos;
             dto.CostoTotal = presupuesto.CalcularTotal();
             dto.Estado = presupuesto.Estado;
+            dto.EstadoPago = presupuesto.Estado == EstadoPresupuesto.Aprobado ? presupuesto.EstadoPago : null;
+            dto.Sena = presupuesto.Sena;
+            dto.FechaSena = presupuesto.FechaSena;
+            dto.FechaPago = presupuesto.FechaPago;
+            dto.Saldo = presupuesto.Saldo;
             dto.Vigente = presupuesto.EventoAsociado.EsVigente(presupuesto);
-            dto.Detalle = string.Join(" ", presupuesto.EventoAsociado.ObtenerMotivosDesactualizacion(presupuesto));
+            dto.Detalle = presupuesto.Estado == EstadoPresupuesto.Cancelado && presupuesto.Sena > 0
+                ? "Seña de $ " + presupuesto.Sena.ToString("#,##0.00") + " no reembolsable."
+                : string.Join(" ", presupuesto.EventoAsociado.ObtenerMotivosDesactualizacion(presupuesto));
             return dto;
         }
     }

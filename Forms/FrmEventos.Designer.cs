@@ -41,25 +41,24 @@ namespace ProyectoEventos.Forms
             // 
             tlpRaiz.ColumnCount = 1;
             tlpRaiz.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tlpRaiz.Controls.Add(flowBotones, 0, 0);
-            tlpRaiz.Controls.Add(tlpGrilla, 0, 1);
+            tlpRaiz.Controls.Add(tlpGrilla, 0, 0);
             tlpRaiz.Dock = DockStyle.Fill;
             tlpRaiz.Name = "tlpRaiz";
-            tlpRaiz.RowCount = 2;
-            tlpRaiz.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            tlpRaiz.RowCount = 1;
             tlpRaiz.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             // 
             // flowBotones
             // 
-            flowBotones.Controls.Add(btnNuevo);
-            flowBotones.Controls.Add(btnEditar);
-            flowBotones.Controls.Add(btnMenu);
-            flowBotones.Controls.Add(btnPresupuestos);
-            flowBotones.Controls.Add(btnEliminar);
             flowBotones.Controls.Add(btnVolver);
+            flowBotones.Controls.Add(btnEliminar);
+            flowBotones.Controls.Add(btnPresupuestos);
+            flowBotones.Controls.Add(btnMenu);
+            flowBotones.Controls.Add(btnEditar);
+            flowBotones.Controls.Add(btnNuevo);
             flowBotones.AutoSize = true;
-            flowBotones.Dock = DockStyle.Top;
-            flowBotones.Margin = new Padding(0, 0, 0, 16);
+            flowBotones.Dock = DockStyle.Fill;
+            flowBotones.FlowDirection = FlowDirection.RightToLeft;
+            flowBotones.Margin = new Padding(3, 16, 3, 0);
             flowBotones.WrapContents = false;
             flowBotones.Name = "flowBotones";
             // 
@@ -76,6 +75,8 @@ namespace ProyectoEventos.Forms
             tlpGrilla.Controls.Add(txtBuscar, 3, 0);
             tlpGrilla.Controls.Add(dgvEventos, 0, 1);
             tlpGrilla.SetColumnSpan(dgvEventos, 4);
+            tlpGrilla.Controls.Add(flowBotones, 0, 2);
+            tlpGrilla.SetColumnSpan(flowBotones, 4);
             // 
             // lblBuscar
             // 
@@ -96,9 +97,10 @@ namespace ProyectoEventos.Forms
             txtBuscar.TextChanged += txtBuscar_TextChanged;
             tlpGrilla.Dock = DockStyle.Fill;
             tlpGrilla.Name = "tlpGrilla";
-            tlpGrilla.RowCount = 2;
+            tlpGrilla.RowCount = 3;
             tlpGrilla.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpGrilla.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tlpGrilla.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             // 
             // lblDgvEventos
             // 
@@ -125,7 +127,7 @@ namespace ProyectoEventos.Forms
             // 
             // btnNuevo
             // 
-            btnNuevo.Margin = new Padding(0, 0, 12, 0);
+            btnNuevo.Margin = new Padding(12, 0, 0, 0);
             btnNuevo.Name = "btnNuevo";
             btnNuevo.Size = new Size(150, 38);
             btnNuevo.TabIndex = 2;
@@ -135,7 +137,7 @@ namespace ProyectoEventos.Forms
             // 
             // btnEditar
             // 
-            btnEditar.Margin = new Padding(0, 0, 12, 0);
+            btnEditar.Margin = new Padding(12, 0, 0, 0);
             btnEditar.Name = "btnEditar";
             btnEditar.Size = new Size(150, 38);
             btnEditar.TabIndex = 3;
@@ -145,7 +147,7 @@ namespace ProyectoEventos.Forms
             // 
             // btnMenu
             // 
-            btnMenu.Margin = new Padding(0, 0, 12, 0);
+            btnMenu.Margin = new Padding(12, 0, 0, 0);
             btnMenu.Name = "btnMenu";
             btnMenu.Size = new Size(150, 38);
             btnMenu.TabIndex = 4;
@@ -155,7 +157,7 @@ namespace ProyectoEventos.Forms
             // 
             // btnPresupuestos
             // 
-            btnPresupuestos.Margin = new Padding(0, 0, 12, 0);
+            btnPresupuestos.Margin = new Padding(12, 0, 0, 0);
             btnPresupuestos.Name = "btnPresupuestos";
             btnPresupuestos.Size = new Size(160, 38);
             btnPresupuestos.TabIndex = 5;
@@ -176,7 +178,7 @@ namespace ProyectoEventos.Forms
             // 
             // btnEliminar
             // 
-            btnEliminar.Margin = new Padding(0, 0, 12, 0);
+            btnEliminar.Margin = new Padding(12, 0, 0, 0);
             btnEliminar.Name = "btnEliminar";
             btnEliminar.Size = new Size(150, 38);
             btnEliminar.TabIndex = 6;
@@ -186,7 +188,7 @@ namespace ProyectoEventos.Forms
             // 
             // btnVolver
             // 
-            btnVolver.Margin = new Padding(0, 0, 12, 0);
+            btnVolver.Margin = new Padding(12, 0, 0, 0);
             btnVolver.Name = "btnVolver";
             btnVolver.Size = new Size(150, 38);
             btnVolver.TabIndex = 7;

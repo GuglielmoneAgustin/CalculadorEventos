@@ -88,6 +88,8 @@ namespace ProyectoEventos.Forms
             dgvEventos.Columna("Invitados").FillWeight = 70;
             dgvEventos.Columna("EstadoPresupuesto").FillWeight = 95;
             dgvEventos.Columna("Total").FillWeight = 115;
+            dgvEventos.Columna("EstadoPago").HeaderText = "Pago";
+            dgvEventos.Columna("EstadoPago").FillWeight = 80;
         }
 
         private void dgvEventos_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
@@ -100,6 +102,10 @@ namespace ProyectoEventos.Forms
             if (dgvEventos.Columns[e.ColumnIndex].Name == "EstadoPresupuesto")
             {
                 Tema.PintarEstado(e, e.Value as EstadoPresupuesto?);
+            }
+            else if (dgvEventos.Columns[e.ColumnIndex].Name == "EstadoPago")
+            {
+                Tema.PintarEstadoPago(e, e.Value as EstadoPago?);
             }
             else if (dgvEventos.Rows[e.RowIndex].DataBoundItem is EventoResultadoDTO evento && EsRealizado(evento))
             {

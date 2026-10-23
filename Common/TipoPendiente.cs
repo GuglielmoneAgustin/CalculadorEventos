@@ -6,6 +6,7 @@ namespace ProyectoEventos.Common
     {
         [Description("Sin presupuesto")] SinPresupuesto,
         Desactualizado,
-        [Description("Esperando respuesta")] EsperandoRespuesta
+        [Description("Esperando respuesta")] EsperandoRespuesta,
+        [Description("Falta cobrar")] FaltaCobrar
     }
 }

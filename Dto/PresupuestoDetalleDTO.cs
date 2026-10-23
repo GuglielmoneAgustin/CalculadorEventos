@@ -24,5 +24,10 @@ namespace ProyectoEventos.Dto
         public decimal SubtotalMenu { get; set; }
         public decimal SubtotalServicios { get; set; }
         public decimal CostoTotal { get; set; }
+        public EstadoPago EstadoPago { get; set; }
+        public decimal Sena { get; set; }
+        public DateTime? FechaSena { get; set; }
+        public DateTime? FechaPago { get; set; }
+        public decimal Saldo { get; set; }
     }
 }

@@ -23,13 +23,14 @@ La ventana principal tiene un menú lateral (Inicio, Lugares, Clientes, Servicio
 - **Alerta** (solo si hace falta) cuando hay eventos de los próximos 7 días que todavía no tienen presupuesto aprobado, con sus clientes.
 - Tarjeta destacada con el **próximo evento**: cuánto falta, día y hora, cliente, lugar, invitados y horario.
 - **Esta semana:** cuántos eventos hay en los próximos 7 días, cuántos están aprobados y cuántos no.
-- **Para atender:** cuántos pendientes hay y de qué tipo (sin presupuesto, desactualizado, esperando respuesta).
+- **Para atender:** cuántos pendientes hay y de qué tipo (sin presupuesto, desactualizado, esperando respuesta, falta cobrar).
 - **Hoy:** el día de la semana y la fecha.
 - **Próximos eventos aprobados:** cuánto falta ("Hoy", "Mañana", "En 5 días"), cliente, lugar, fecha, horario de inicio a fin, invitados y total aprobado. Los de los próximos 7 días se resaltan.
 - **Para atender:** eventos próximos que necesitan algo, con un detalle de qué pasó:
   - **Sin presupuesto:** el evento se cargó pero no tiene presupuesto.
   - **Desactualizado:** el presupuesto en espera ya no vale (por ejemplo, "Cambió el precio de Bife de chorizo.").
   - **Esperando respuesta:** el presupuesto está vigente y se envió hace cierta cantidad de días.
+  - **Falta cobrar:** el evento es dentro de los próximos 7 días, tiene presupuesto aprobado y todavía no está pagado (indica cuánto falta y si tiene seña).
 - Un botón **Ver presupuesto** sirve para las dos grillas: abre los presupuestos del evento elegido en cualquiera de ellas (al seleccionar en una grilla se deselecciona la otra). Al volver, Inicio se actualiza.
 
 ### Clientes, Lugares, Productos y Servicios adicionales
@@ -49,7 +50,7 @@ Datos de cada uno:
 - **Servicios adicionales:** nombre (único), descripción y monto.
 
 ### Eventos
-- Grilla con número de evento, cliente, lugar, fecha y hora, duración, invitados, estado del presupuesto (con colores) y total.
+- Grilla con número de evento, cliente, lugar, fecha y hora, duración, invitados, estado del presupuesto (con colores), total y **pago** (sin seña, señado o pagado).
 - Los eventos que ya se realizaron se muestran en gris y se pueden ocultar con **Ocultar eventos realizados**.
 - Buscador por cliente, lugar, fecha, número o estado del presupuesto.
 - Acciones: **Nuevo evento**, **Editar datos**, **Editar menú**, **Ver presupuestos** y **Eliminar** (no se puede eliminar un evento con presupuesto aprobado).
@@ -73,13 +74,20 @@ Datos de cada uno:
 - **Finalizar** guarda y genera un presupuesto nuevo si el evento cambió desde el último.
 
 ### Presupuestos de un evento
-- Grilla con número, fecha de generación, fecha del evento e invitados cotizados, costo total, estado y **detalle**.
+- Grilla con número, fecha de generación, fecha del evento e invitados cotizados, costo total, estado, **pago** y **detalle**.
 - Cada presupuesto es una foto de lo cotizado: si después cambia el evento, ya no se modifica.
 - **Vigencia:** un presupuesto está vigente si es el último generado y no cambiaron ni el evento ni los precios (costo base o por hora del lugar, productos o servicios). Si no, se marca "(desactualizado)" y la columna Detalle explica el motivo, por ejemplo "Cambió el precio de Bife de chorizo." o "Cambiaron los servicios adicionales.".
 - **Aprobar:** solo se aprueba un presupuesto vigente, que esté en espera o cancelado (por ejemplo, si el cliente se arrepintió). Si ya hay otro aprobado, se pregunta si se reemplaza.
 - **Cancelar:** pide confirmación y avisa especialmente si el presupuesto está aprobado.
 - **Actualizar presupuesto:** genera uno nuevo con los datos y precios actuales (o avisa que ya está al día).
 - **Ver ticket:** muestra en pantalla un ticket con todos los datos cotizados. Con **Guardar PDF** se elige dónde guardarlo y se genera el archivo usando la impresora "Microsoft Print to PDF" que trae Windows (si no está instalada, se avisa con un mensaje).
+- **Cobro del presupuesto aprobado:** debajo de la grilla se ve el estado del pago (sin seña, señado o pagado, con cuánto falta cobrar) y no hace falta seleccionar nada:
+  - **Registrar seña:** se carga el monto y se confirma. Debe ser mayor a cero y menor al total; se registra una sola seña.
+  - **Marcar como pagado:** confirma que el cliente pagó lo que faltaba.
+  - **Ver comprobante:** comprobante de pago con la seña, el pago del saldo, lo pagado y lo que resta, con **Guardar PDF**. Se abre solo al registrar la seña o el pago.
+  - Si se cancela un presupuesto aprobado con seña, se avisa que la seña no se devuelve y queda indicada en el detalle del presupuesto cancelado. Si se aprueba otro presupuesto en su lugar, la seña pasa al nuevo.
+  - Un presupuesto pagado no se puede cancelar ni reemplazar.
+- El ticket de un presupuesto aprobado con seña o pago muestra también lo pagado y lo que resta.
 - El presupuesto aprobado conserva sus precios aunque después cambien.
 - Ningún botón se deshabilita: cada acción valida y avisa con un mensaje si no corresponde.
 
@@ -92,6 +100,7 @@ Datos de cada uno:
 - Los precios de productos y los montos de servicios deben ser mayores a cero; las cantidades no pueden ser negativas y cada plato debe tener al menos un adulto o un niño.
 - No se pueden eliminar clientes, lugares, productos o servicios que estén en uso en algún evento.
 - Solo puede haber un presupuesto aprobado por evento.
+- Solo se cobra el presupuesto aprobado: una seña (no reembolsable) y luego el pago del resto.
 
 ## Formato
 

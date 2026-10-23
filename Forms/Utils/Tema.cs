@@ -248,7 +248,7 @@ namespace ProyectoEventos.Forms.Utils
                 etiqueta.Font = FuenteNegrita;
                 etiqueta.ForeColor = TextoSuave;
             }
-            else if (nombre.StartsWith("lblresumendetalle", StringComparison.Ordinal))
+            else if (nombre.StartsWith("lblresumendetalle", StringComparison.Ordinal) || nombre == "lbldetallepago")
             {
                 etiqueta.Font = FuenteNormal;
                 etiqueta.ForeColor = Texto;
@@ -256,6 +256,11 @@ namespace ProyectoEventos.Forms.Utils
             else if (nombre == "lblmodo")
             {
                 etiqueta.Font = FuenteTitulo;
+                etiqueta.ForeColor = Texto;
+            }
+            else if (nombre == "lblestadopago")
+            {
+                etiqueta.Font = FuenteInfo;
                 etiqueta.ForeColor = Texto;
             }
             else if (nombre == "lblaviso")
@@ -276,11 +281,9 @@ namespace ProyectoEventos.Forms.Utils
             boton.FlatStyle = FlatStyle.Flat;
             boton.Cursor = Cursors.Hand;
             boton.Font = FuenteNegrita;
-            boton.Height = 38;
-            if (boton.Width < 110)
-            {
-                boton.Width = 110;
-            }
+            Size texto = TextRenderer.MeasureText(boton.Text, FuenteNegrita);
+            boton.Height = Math.Max(38, texto.Height + 14);
+            boton.Width = Math.Max(Math.Max(boton.Width, 110), texto.Width + 32);
             boton.FlatAppearance.BorderSize = 1;
 
             switch (boton.Name)
@@ -292,6 +295,8 @@ namespace ProyectoEventos.Forms.Utils
                 case "btnSiguiente":
                 case "btnAgregarItem":
                 case "btnAgregarServicio":
+                case "btnRegistrarSena":
+                case "btnMarcarPagado":
                     boton.BackColor = Primario;
                     boton.ForeColor = Color.White;
                     boton.FlatAppearance.BorderColor = Primario;
@@ -336,8 +341,13 @@ namespace ProyectoEventos.Forms.Utils
             grilla.ColumnHeadersDefaultCellStyle.SelectionBackColor = Carob;
             grilla.ColumnHeadersDefaultCellStyle.SelectionForeColor = Almond;
             grilla.ColumnHeadersDefaultCellStyle.Font = FuenteNegrita;
-            grilla.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            grilla.ColumnHeadersDefaultCellStyle.Padding = new Padding(10, 0, 0, 0);
+            grilla.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            grilla.ColumnHeadersDefaultCellStyle.Padding = new Padding(5, 0, 5, 0);
+            grilla.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.False;
+            grilla.CellPainting -= AjustarAnchoAlTitulo;
+            grilla.CellPainting += AjustarAnchoAlTitulo;
+            grilla.ColumnAdded -= SinOrdenar;
+            grilla.ColumnAdded += SinOrdenar;
 
             grilla.RowTemplate.Height = 36;
             grilla.DefaultCellStyle.BackColor = Tarjeta;
@@ -345,10 +355,32 @@ namespace ProyectoEventos.Forms.Utils
             grilla.DefaultCellStyle.SelectionBackColor = Pistache;
             grilla.DefaultCellStyle.SelectionForeColor = Texto;
             grilla.DefaultCellStyle.Font = FuenteNormal;
-            grilla.DefaultCellStyle.Padding = new Padding(10, 0, 0, 0);
+            grilla.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            grilla.DefaultCellStyle.Padding = new Padding(5, 0, 5, 0);
             grilla.AlternatingRowsDefaultCellStyle.BackColor = FilaAlterna;
             grilla.AlternatingRowsDefaultCellStyle.SelectionBackColor = Pistache;
             grilla.AlternatingRowsDefaultCellStyle.SelectionForeColor = Texto;
+        }
+
+        private static void SinOrdenar(object? sender, DataGridViewColumnEventArgs e)
+        {
+            e.Column.SortMode = DataGridViewColumnSortMode.NotSortable;
+        }
+
+        private static void AjustarAnchoAlTitulo(object? sender, DataGridViewCellPaintingEventArgs e)
+        {
+            if (e.RowIndex != -1 || e.ColumnIndex < 0 || sender is not DataGridView grilla)
+            {
+                return;
+            }
+
+            DataGridViewColumn columna = grilla.Columns[e.ColumnIndex];
+            int ancho = TextRenderer.MeasureText(columna.HeaderText, FuenteNegrita).Width
+                + columna.HeaderCell.InheritedStyle.Padding.Horizontal + 6;
+            if (columna.MinimumWidth < ancho)
+            {
+                grilla.BeginInvoke(() => columna.MinimumWidth = ancho);
+            }
         }
 
         public static void PintarCelda(DataGridViewCellFormattingEventArgs e, Color fondo, Color color)
@@ -378,6 +410,24 @@ namespace ProyectoEventos.Forms.Utils
             }
         }
 
+        public static void PintarEstadoPago(DataGridViewCellFormattingEventArgs e, EstadoPago? estado)
+        {
+            e.Value = estado?.Texto() ?? "-";
+            e.FormattingApplied = true;
+            switch (estado)
+            {
+                case EstadoPago.Pagado:
+                    PintarCelda(e, VerdeSuave, VerdeOscuro);
+                    break;
+                case EstadoPago.Senado:
+                    PintarCelda(e, Vanilla, Carob);
+                    break;
+                case EstadoPago.SinSena:
+                    PintarCelda(e, TerracotaSuave, TerracotaOscuro);
+                    break;
+            }
+        }
+
         public static void PintarPendiente(DataGridViewCellFormattingEventArgs e, TipoPendiente tipo)
         {
             e.Value = tipo.Texto();
@@ -389,6 +439,9 @@ namespace ProyectoEventos.Forms.Utils
                     break;
                 case TipoPendiente.Desactualizado:
                     PintarCelda(e, Chai, Texto);
+                    break;
+                case TipoPendiente.FaltaCobrar:
+                    PintarCelda(e, Pistache, Texto);
                     break;
                 default:
                     PintarCelda(e, Vanilla, Carob);

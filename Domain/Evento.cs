@@ -8,6 +8,8 @@ namespace ProyectoEventos.Domain
 {
     public class Evento : IEntidad
     {
+        public const int DiasParaCobrar = 7;
+
         private DateTime fecha;
         private decimal horasDuracion;
         private int cantidadAdultos;
@@ -179,12 +181,18 @@ namespace ProyectoEventos.Domain
             return null;
         }
 
-        public TipoPendiente? ObtenerTipoPendiente()
+        public TipoPendiente? ObtenerTipoPendiente(DateTime ahora)
         {
             EstadoPresupuesto? estado = ObtenerEstadoPresupuesto();
             if (estado == null)
             {
                 return TipoPendiente.SinPresupuesto;
+            }
+            if (estado == EstadoPresupuesto.Aprobado)
+            {
+                return ObtenerEstadoPago() != EstadoPago.Pagado && Fecha.Date <= ahora.Date.AddDays(DiasParaCobrar)
+                    ? TipoPendiente.FaltaCobrar
+                    : null;
             }
             if (estado != EstadoPresupuesto.EnEspera)
             {
@@ -300,9 +308,43 @@ namespace ProyectoEventos.Domain
                 throw new NegocioException("Ya existe un presupuesto aprobado para este evento.");
             }
 
+            if (otroAprobado != null)
+            {
+                otroAprobado.ValidarQuePuedeCancelarse();
+                presupuesto.RecibirSenaDe(otroAprobado);
+            }
             presupuesto.Aprobar();
             otroAprobado?.Cancelar();
             return presupuesto;
+        }
+
+        public Presupuesto RegistrarSena(decimal monto, DateTime fecha)
+        {
+            Presupuesto aprobado = ObtenerPresupuestoAprobadoExistente();
+            aprobado.RegistrarSena(monto, fecha);
+            return aprobado;
+        }
+
+        public Presupuesto MarcarPagado(DateTime fecha)
+        {
+            Presupuesto aprobado = ObtenerPresupuestoAprobadoExistente();
+            aprobado.MarcarPagado(fecha);
+            return aprobado;
+        }
+
+        public EstadoPago? ObtenerEstadoPago()
+        {
+            return ObtenerPresupuestoAprobado()?.EstadoPago;
+        }
+
+        public Presupuesto ObtenerPresupuestoAprobadoExistente()
+        {
+            Presupuesto? aprobado = ObtenerPresupuestoAprobado();
+            if (aprobado == null)
+            {
+                throw new NegocioException("El evento no tiene un presupuesto aprobado. Apruebe uno antes de registrar la seña, el pago o ver el comprobante.");
+            }
+            return aprobado;
         }
 
         public Presupuesto ValidarAprobacion(int idPresupuesto)
@@ -353,12 +395,6 @@ namespace ProyectoEventos.Domain
             Presupuesto presupuesto = ObtenerPresupuestoExistente(idPresupuesto);
             presupuesto.Cancelar();
             return presupuesto;
-        }
-
-        public bool HayOtroPresupuestoAprobado(int idPresupuesto)
-        {
-            Presupuesto? aprobado = ObtenerPresupuestoAprobado();
-            return aprobado != null && aprobado.Id != idPresupuesto;
         }
 
         public Presupuesto ObtenerPresupuestoExistente(int idPresupuesto)

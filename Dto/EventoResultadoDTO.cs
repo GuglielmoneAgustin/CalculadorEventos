@@ -23,5 +23,7 @@ namespace ProyectoEventos.Dto
         public EstadoPresupuesto? EstadoPresupuesto { get; set; }
 
         public decimal? Total { get; set; }
+
+        public EstadoPago? EstadoPago { get; set; }
     }
 }

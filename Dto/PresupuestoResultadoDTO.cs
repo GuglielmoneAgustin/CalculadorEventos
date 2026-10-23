@@ -22,7 +22,12 @@ namespace ProyectoEventos.Dto
 
         public decimal CostoTotal { get; set; }
         public EstadoPresupuesto Estado { get; set; }
+        public EstadoPago? EstadoPago { get; set; }
         public string Detalle { get; set; } = string.Empty;
         public bool Vigente { get; set; }
+        public decimal Sena { get; set; }
+        public DateTime? FechaSena { get; set; }
+        public DateTime? FechaPago { get; set; }
+        public decimal Saldo { get; set; }
     }
 }

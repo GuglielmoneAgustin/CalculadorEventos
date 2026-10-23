@@ -40,6 +40,7 @@ namespace ProyectoEventos
             AgregarServicios(eventos, idCena, serv, "DJ y sonido", "Decoración temática");
             PresupuestoResultadoDTO presupuestoCena = GenerarPresupuesto(presupuestos, idCena);
             presupuestos.Aprobar(idCena, presupuestoCena.Id, false);
+            presupuestos.RegistrarSena(idCena, Porcentaje(presupuestoCena.CostoTotal, 30));
 
             int idReunion = CrearEvento(eventos, cli["Carlos Rodríguez"].Id, lug["Terraza Norte"].Id, hoy.AddDays(14).AddHours(19), 4, 30, 10);
             AgregarPlatos(eventos, idReunion, 30, 10, prod, "Milanesa napolitana", "Ensalada mixta", "Gaseosas", "Flan con dulce de leche");
@@ -50,6 +51,7 @@ namespace ProyectoEventos
             AgregarServicios(eventos, idCasamiento, serv, "DJ y sonido", "Fotografía y video", "Mozos adicionales", "Barra de bebidas", "Decoración temática");
             PresupuestoResultadoDTO presupuestoCasamiento = GenerarPresupuesto(presupuestos, idCasamiento);
             presupuestos.Aprobar(idCasamiento, presupuestoCasamiento.Id, false);
+            presupuestos.RegistrarSena(idCasamiento, Porcentaje(presupuestoCasamiento.CostoTotal, 40));
 
             int idBautismo = CrearEvento(eventos, cli["Martín López"].Id, lug["Loft Palermo"].Id, hoy.AddDays(10).AddHours(18), 3, 25, 5);
             AgregarPlatos(eventos, idBautismo, 25, 5, prod, "Risotto de hongos", "Ensalada de quinoa", "Té helado", "Ensalada de frutas frescas");
@@ -80,6 +82,13 @@ namespace ProyectoEventos
             AgregarServicios(eventos, idPasado, serv, "DJ y sonido");
             PresupuestoResultadoDTO presupuestoPasado = GenerarPresupuesto(presupuestos, idPasado);
             presupuestos.Aprobar(idPasado, presupuestoPasado.Id, false);
+            presupuestos.RegistrarSena(idPasado, Porcentaje(presupuestoPasado.CostoTotal, 30));
+            presupuestos.MarcarPagado(idPasado);
+        }
+
+        private static decimal Porcentaje(decimal total, int porcentaje)
+        {
+            return Math.Round(total * porcentaje / 100 / 1000) * 1000;
         }
 
         private static void CargarClientes(ClienteController clientes)

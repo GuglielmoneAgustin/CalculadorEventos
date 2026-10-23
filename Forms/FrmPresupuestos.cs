@@ -55,6 +55,10 @@ namespace ProyectoEventos.Forms
             dgvPresupuestos.Columna("CantidadAdultos").Visible = false;
             dgvPresupuestos.Columna("CantidadNinos").Visible = false;
             dgvPresupuestos.Columna("Vigente").Visible = false;
+            dgvPresupuestos.Columna("Sena").Visible = false;
+            dgvPresupuestos.Columna("FechaSena").Visible = false;
+            dgvPresupuestos.Columna("FechaPago").Visible = false;
+            dgvPresupuestos.Columna("Saldo").Visible = false;
 
             DarFormatoColumnas();
 
@@ -62,6 +66,118 @@ namespace ProyectoEventos.Forms
             {
                 dgvPresupuestos.QuitarSeleccion();
             }
+            CargarEstadoPago();
+        }
+
+        private void CargarEstadoPago()
+        {
+            PresupuestoResultadoDTO? aprobado = controlador.ObtenerAprobado(idEvento);
+            lblEstadoPago.Text = aprobado == null
+                ? "Cobro"
+                : "Cobro del presupuesto N° " + aprobado.Id + ": " + aprobado.EstadoPago?.Texto();
+            lblDetallePago.Text = DetalleEstadoPago(aprobado);
+            numSena.Value = 0;
+        }
+
+        private static string DetalleEstadoPago(PresupuestoResultadoDTO? aprobado)
+        {
+            if (aprobado == null)
+            {
+                return "El evento todavía no tiene un presupuesto aprobado.";
+            }
+
+            string total = "Total " + aprobado.CostoTotal.ToString(Formato.Moneda);
+            switch (aprobado.EstadoPago)
+            {
+                case EstadoPago.Pagado:
+                    return total + "  ·  Pagado el " + aprobado.FechaPago?.ToString(Formato.Fecha);
+                case EstadoPago.Senado:
+                    return total + "  ·  Seña " + aprobado.Sena.ToString(Formato.Moneda) + " (" + aprobado.FechaSena?.ToString(Formato.Fecha) + ")" +
+                        "  ·  Falta cobrar " + aprobado.Saldo.ToString(Formato.Moneda);
+                default:
+                    return total + "  ·  Falta cobrar " + aprobado.Saldo.ToString(Formato.Moneda);
+            }
+        }
+
+        private PresupuestoResultadoDTO? ObtenerAprobadoParaCobrar()
+        {
+            PresupuestoResultadoDTO? aprobado = controlador.ObtenerAprobado(idEvento);
+            if (aprobado == null)
+            {
+                Mensajes.Advertencia("El evento no tiene un presupuesto aprobado. Apruebe uno antes de registrar la seña, el pago o ver el comprobante.");
+            }
+            return aprobado;
+        }
+
+        private void btnRegistrarSena_Click(object sender, EventArgs e)
+        {
+            PresupuestoResultadoDTO? aprobado = ObtenerAprobadoParaCobrar();
+            if (aprobado == null || !Mensajes.Confirmar("¿Registrar una seña de " + numSena.Value.ToString(Formato.Moneda) +
+                " para el presupuesto N° " + aprobado.Id + "? La seña no es reembolsable."))
+            {
+                return;
+            }
+
+            try
+            {
+                controlador.RegistrarSena(idEvento, numSena.Value);
+                CargarGrillaPresupuestos();
+                MostrarComprobante();
+            }
+            catch (NegocioException ex)
+            {
+                Mensajes.Advertencia(ex.Message);
+            }
+        }
+
+        private void btnMarcarPagado_Click(object sender, EventArgs e)
+        {
+            PresupuestoResultadoDTO? aprobado = ObtenerAprobadoParaCobrar();
+            if (aprobado == null)
+            {
+                return;
+            }
+            if (aprobado.EstadoPago == EstadoPago.Pagado)
+            {
+                Mensajes.Informacion("El presupuesto N° " + aprobado.Id + " ya está pagado.");
+                return;
+            }
+            if (!Mensajes.Confirmar("¿Confirmar que el cliente pagó " + aprobado.Saldo.ToString(Formato.Moneda) +
+                " y el presupuesto N° " + aprobado.Id + " queda PAGADO?"))
+            {
+                return;
+            }
+
+            try
+            {
+                controlador.MarcarPagado(idEvento);
+                CargarGrillaPresupuestos();
+                MostrarComprobante();
+            }
+            catch (NegocioException ex)
+            {
+                Mensajes.Advertencia(ex.Message);
+            }
+        }
+
+        private void btnComprobante_Click(object sender, EventArgs e)
+        {
+            PresupuestoResultadoDTO? aprobado = ObtenerAprobadoParaCobrar();
+            if (aprobado == null)
+            {
+                return;
+            }
+            if (aprobado.EstadoPago == EstadoPago.SinSena)
+            {
+                Mensajes.Advertencia("Todavía no se registró una seña ni un pago para el presupuesto N° " + aprobado.Id + ".");
+                return;
+            }
+            MostrarComprobante();
+        }
+
+        private void MostrarComprobante()
+        {
+            TicketPresupuesto.MostrarComprobante(this, controlador.ObtenerDetalleAprobado(idEvento));
         }
 
         private void DarFormatoColumnas()
@@ -70,14 +186,12 @@ namespace ProyectoEventos.Forms
             dgvPresupuestos.Columna("Id").FillWeight = 35;
             dgvPresupuestos.Columna("Estado").FillWeight = 160;
             dgvPresupuestos.Columna("Detalle").FillWeight = 230;
+            dgvPresupuestos.Columna("EstadoPago").HeaderText = "Pago";
+            dgvPresupuestos.Columna("EstadoPago").FillWeight = 80;
 
             DataGridViewColumn costo = dgvPresupuestos.Columna("CostoTotal");
             costo.HeaderText = "Costo total";
             costo.DefaultCellStyle.Format = Formato.Moneda;
-            costo.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-            costo.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;
-            costo.HeaderCell.Style.Padding = new Padding(0, 0, 10, 0);
-            costo.DefaultCellStyle.Padding = new Padding(0, 0, 10, 0);
 
             DataGridViewColumn fecha = dgvPresupuestos.Columna("FechaGeneracion");
             fecha.HeaderText = "Fecha de generación";
@@ -90,8 +204,16 @@ namespace ProyectoEventos.Forms
 
         private void dgvPresupuestos_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
         {
-            if (e.RowIndex < 0 || e.ColumnIndex < 0 ||
-                dgvPresupuestos.Columns[e.ColumnIndex].Name != "Estado" || e.Value is not EstadoPresupuesto estado)
+            if (e.RowIndex < 0 || e.ColumnIndex < 0)
+            {
+                return;
+            }
+            if (dgvPresupuestos.Columns[e.ColumnIndex].Name == "EstadoPago")
+            {
+                Tema.PintarEstadoPago(e, e.Value as EstadoPago?);
+                return;
+            }
+            if (dgvPresupuestos.Columns[e.ColumnIndex].Name != "Estado" || e.Value is not EstadoPresupuesto estado)
             {
                 return;
             }
@@ -124,9 +246,20 @@ namespace ProyectoEventos.Forms
                 controlador.ValidarAprobacion(idEvento, seleccionado.Id);
 
                 bool reemplazar = false;
-                if (controlador.HayOtroAprobado(idEvento, seleccionado.Id))
+                PresupuestoResultadoDTO? aprobado = controlador.ObtenerAprobado(idEvento);
+                if (aprobado != null && aprobado.Id != seleccionado.Id)
                 {
-                    if (!Mensajes.Confirmar("Ya hay un presupuesto aprobado para este evento. ¿Desea reemplazarlo por este?"))
+                    if (aprobado.EstadoPago == EstadoPago.Pagado)
+                    {
+                        Mensajes.Advertencia("El presupuesto aprobado N° " + aprobado.Id + " ya está pagado: no se puede reemplazar.");
+                        return;
+                    }
+                    string pregunta = "Ya hay un presupuesto aprobado para este evento (N° " + aprobado.Id + "). ¿Desea reemplazarlo por este?";
+                    if (aprobado.Sena > 0)
+                    {
+                        pregunta += " La seña de " + aprobado.Sena.ToString(Formato.Moneda) + " pasa al nuevo presupuesto.";
+                    }
+                    if (!Mensajes.Confirmar(pregunta))
                     {
                         return;
                     }
@@ -181,6 +314,21 @@ namespace ProyectoEventos.Forms
             }
         }
 
+        private static string PreguntaCancelar(PresupuestoResultadoDTO presupuesto)
+        {
+            if (presupuesto.Estado != EstadoPresupuesto.Aprobado)
+            {
+                return "¿Seguro que desea cancelar el presupuesto N° " + presupuesto.Id + "?";
+            }
+
+            string pregunta = "El presupuesto N° " + presupuesto.Id + " está APROBADO.";
+            if (presupuesto.Sena > 0)
+            {
+                pregunta += " Tiene una seña de " + presupuesto.Sena.ToString(Formato.Moneda) + " que no se devuelve.";
+            }
+            return pregunta + " ¿Seguro que desea cancelarlo?";
+        }
+
         private void btnCancelar_Click(object sender, EventArgs e)
         {
             PresupuestoResultadoDTO? seleccionado = ObtenerPresupuestoSeleccionado();
@@ -190,12 +338,15 @@ namespace ProyectoEventos.Forms
                 return;
             }
 
+            if (seleccionado.EstadoPago == EstadoPago.Pagado)
+            {
+                Mensajes.Advertencia("El presupuesto N° " + seleccionado.Id + " ya está pagado: no se puede cancelar.");
+                return;
+            }
+
             if (seleccionado.Estado != EstadoPresupuesto.Cancelado)
             {
-                string pregunta = seleccionado.Estado == EstadoPresupuesto.Aprobado
-                    ? "El presupuesto N° " + seleccionado.Id + " está APROBADO. ¿Seguro que desea cancelarlo?"
-                    : "¿Seguro que desea cancelar el presupuesto N° " + seleccionado.Id + "?";
-                if (!Mensajes.Confirmar(pregunta))
+                if (!Mensajes.Confirmar(PreguntaCancelar(seleccionado)))
                 {
                     return;
                 }

@@ -91,7 +91,7 @@ namespace ProyectoEventos.Service
 
             foreach (Evento evento in repositorio.ObtenerTodos().Where(e => e.Fecha >= ahora).OrderBy(e => e.Fecha))
             {
-                TipoPendiente? tipo = evento.ObtenerTipoPendiente();
+                TipoPendiente? tipo = evento.ObtenerTipoPendiente(ahora);
                 if (tipo != null)
                 {
                     pendientes.Add(new PendienteDTO
@@ -116,6 +116,10 @@ namespace ProyectoEventos.Service
                     return "Genere el presupuesto desde Eventos > Ver presupuestos.";
                 case TipoPendiente.Desactualizado:
                     return string.Join(" ", evento.ObtenerMotivosDesactualizacion());
+                case TipoPendiente.FaltaCobrar:
+                    Presupuesto aprobado = evento.ObtenerPresupuestoAprobadoExistente();
+                    return "Falta cobrar $ " + aprobado.Saldo.ToString("#,##0.00") +
+                        (aprobado.Sena > 0 ? " (señado $ " + aprobado.Sena.ToString("#,##0.00") + ")." : " (sin seña).");
                 default:
                     Presupuesto enEspera = evento.ObtenerPresupuestos().Last(p => p.Estado == EstadoPresupuesto.EnEspera);
                     return "Presupuesto N° " + enEspera.Id + " enviado " + DescribirAntiguedad(enEspera.FechaGeneracion) + ".";
@@ -247,6 +251,7 @@ namespace ProyectoEventos.Service
             dto.CantidadNinos = evento.CantidadNinos;
             dto.EstadoPresupuesto = evento.ObtenerEstadoPresupuesto();
             dto.Total = evento.ObtenerPresupuestoDeReferencia()?.CalcularTotal();
+            dto.EstadoPago = evento.ObtenerEstadoPago();
             return dto;
         }
     }

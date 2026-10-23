@@ -1,4 +1,5 @@
 using System.Drawing.Printing;
+using ProyectoEventos.Common;
 using ProyectoEventos.Dto;
 
 namespace ProyectoEventos.Forms.Utils
@@ -10,8 +11,17 @@ namespace ProyectoEventos.Forms.Utils
 
         public static void Mostrar(IWin32Window padre, PresupuestoDetalleDTO detalle)
         {
-            List<string> lineas = Armar(detalle);
+            MostrarVentana(padre, Armar(detalle), "Ticket del presupuesto " + detalle.Id, "Presupuesto " + detalle.Id);
+        }
 
+        public static void MostrarComprobante(IWin32Window padre, PresupuestoDetalleDTO detalle)
+        {
+            MostrarVentana(padre, ArmarComprobante(detalle, DateTime.Now), "Comprobante de pago del presupuesto " + detalle.Id,
+                "Comprobante presupuesto " + detalle.Id);
+        }
+
+        private static void MostrarVentana(IWin32Window padre, List<string> lineas, string titulo, string nombreArchivo)
+        {
             TextBox texto = new TextBox();
             texto.Multiline = true;
             texto.ReadOnly = true;
@@ -29,9 +39,9 @@ namespace ProyectoEventos.Forms.Utils
             btnGuardarPdf.Name = "btnGuardar";
             btnGuardarPdf.Text = "Guardar PDF";
             btnGuardarPdf.Dock = DockStyle.Bottom;
-            btnGuardarPdf.Click += (s, e) => PedirRutaYGuardarPdf(ventana, lineas, "Presupuesto " + detalle.Id);
+            btnGuardarPdf.Click += (s, e) => PedirRutaYGuardarPdf(ventana, lineas, nombreArchivo);
 
-            ventana.Text = "Ticket del presupuesto " + detalle.Id;
+            ventana.Text = titulo;
             ventana.StartPosition = FormStartPosition.CenterParent;
             ventana.ClientSize = new Size(440, 680);
             ventana.MinimizeBox = false;
@@ -190,8 +200,51 @@ namespace ProyectoEventos.Forms.Utils
         private static void ArmarTotal(List<string> t, PresupuestoDetalleDTO d)
         {
             t.AddRange(Fila("TOTAL", d.CostoTotal));
+            if (d.Estado == EstadoPresupuesto.Aprobado && d.EstadoPago != EstadoPago.SinSena)
+            {
+                ArmarCobrado(t, d);
+            }
             t.Add(LineaDoble);
             t.Add(Centrar("Gracias por elegirnos"));
+        }
+
+        private static List<string> ArmarComprobante(PresupuestoDetalleDTO d, DateTime emision)
+        {
+            List<string> t = new List<string>();
+            t.Add(Centrar("COMPROBANTE DE PAGO"));
+            t.Add(Centrar("Presupuesto N° " + d.Id + " - Evento N° " + d.IdEvento));
+            t.Add(LineaDoble);
+            t.Add("Emitido: " + emision.ToString(Formato.FechaHora));
+            t.Add("Cliente: " + d.NombreCliente);
+            t.Add("Lugar: " + d.NombreLugar);
+            t.Add("Fecha del evento: " + d.FechaEvento.ToString(Formato.FechaHora));
+            t.Add(LineaSimple);
+            if (d.Sena > 0)
+            {
+                t.AddRange(Fila("Seña (" + d.FechaSena?.ToString(Formato.Fecha) + ")", d.Sena));
+            }
+            if (d.FechaPago != null)
+            {
+                string concepto = d.Sena > 0 ? "Pago del saldo" : "Pago total";
+                t.AddRange(Fila(concepto + " (" + d.FechaPago.Value.ToString(Formato.Fecha) + ")", d.CostoTotal - d.Sena));
+            }
+            t.Add(LineaSimple);
+            t.AddRange(Fila("Total presupuesto", d.CostoTotal));
+            ArmarCobrado(t, d);
+            t.Add(LineaDoble);
+            if (d.Sena > 0)
+            {
+                t.Add(Centrar("La seña no es reembolsable."));
+            }
+            t.Add(Centrar("No válido como factura."));
+            t.Add(Centrar("Gracias por elegirnos"));
+            return t;
+        }
+
+        private static void ArmarCobrado(List<string> t, PresupuestoDetalleDTO d)
+        {
+            t.AddRange(Fila("Pagado", d.CostoTotal - d.Saldo));
+            t.AddRange(d.Saldo == 0 ? Fila("Resta - PAGADO", 0) : Fila("RESTA", d.Saldo));
         }
 
         private static string Personas(int adultos, int ninos)
