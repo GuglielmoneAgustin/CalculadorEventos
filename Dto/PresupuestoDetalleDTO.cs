@@ -8,6 +8,7 @@ namespace ProyectoEventos.Dto
         public int IdEvento { get; set; }
         public EstadoPresupuesto Estado { get; set; }
         public DateTime FechaGeneracion { get; set; }
+        public DateTime? FechaVencimiento { get; set; }
         public string NombreCliente { get; set; } = string.Empty;
         public string NombreLugar { get; set; } = string.Empty;
         public DateTime FechaEvento { get; set; }

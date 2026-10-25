@@ -112,7 +112,7 @@ namespace ProyectoEventos.Service
                         NombreCliente = evento.Cliente.Nombre,
                         FechaEvento = evento.Fecha,
                         Tipo = tipo.Value,
-                        Detalle = ArmarDetalle(evento, tipo.Value)
+                        Detalle = ArmarDetalle(evento, tipo.Value, ahora)
                     });
                 }
             }
@@ -223,7 +223,7 @@ namespace ProyectoEventos.Service
             return evento;
         }
 
-        private static string ArmarDetalle(Evento evento, TipoPendiente tipo)
+        private static string ArmarDetalle(Evento evento, TipoPendiente tipo, DateTime ahora)
         {
             switch (tipo)
             {
@@ -237,7 +237,12 @@ namespace ProyectoEventos.Service
                         (aprobado.Sena > 0 ? " (señado " + aprobado.Sena.ToString(Formato.Moneda) + ")." : " (sin seña).");
                 default:
                     Presupuesto enEspera = evento.ObtenerPresupuestoEnEspera()!;
-                    return "Presupuesto N° " + enEspera.Id + " enviado " + DescribirAntiguedad(enEspera.FechaGeneracion) + ".";
+                    string detalle = "Presupuesto N° " + enEspera.Id + " enviado " + DescribirAntiguedad(enEspera.FechaGeneracion) + ".";
+                    if (enEspera.FechaVencimiento == null)
+                    {
+                        return detalle;
+                    }
+                    return detalle + " " + Formato.Vencimiento(enEspera.FechaVencimiento.Value, enEspera.DiasParaVencer(ahora)!.Value);
             }
         }
 

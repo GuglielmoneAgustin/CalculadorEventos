@@ -215,7 +215,7 @@ namespace ProyectoEventos.Forms.Utils
                 etiqueta.Font = FuenteInfo;
                 etiqueta.ForeColor = Texto;
             }
-            else if (nombre.StartsWith("lblresumenvalor", StringComparison.Ordinal))
+            else if (nombre.StartsWith("lblresumenvalor", StringComparison.Ordinal) || nombre == "lblsaludo")
             {
                 etiqueta.Font = FuenteResumen;
                 etiqueta.ForeColor = Texto;
@@ -412,6 +412,7 @@ namespace ProyectoEventos.Forms.Utils
             switch (tipo)
             {
                 case TipoPendiente.SinPresupuesto:
+                case TipoPendiente.Vencido:
                     PintarCelda(e, TerracotaSuave, TerracotaOscuro);
                     break;
                 case TipoPendiente.Desactualizado:

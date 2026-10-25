@@ -30,6 +30,7 @@ namespace ProyectoEventos.Forms
 
         private void Cargar()
         {
+            lblSaludo.Text = Saludo(DateTime.Now) + ", " + new NegocioController().Obtener().Nombre;
             lblResumenValorHoy.Text = Formato.DiaSemana(DateTime.Today);
             lblResumenDetalleHoy.Text = DateTime.Today.ToString("d 'de' MMMM");
             List<EventoResultadoDTO> proximos = eventoControlador.ObtenerProximosAprobados();
@@ -41,6 +42,15 @@ namespace ProyectoEventos.Forms
             CargarProximoEvento(proximos);
             CargarProximosEventos(proximos);
             CargarPendientes(pendientes);
+        }
+
+        private static string Saludo(DateTime ahora)
+        {
+            if (ahora.Hour >= 6 && ahora.Hour < 13)
+            {
+                return "Buenos días";
+            }
+            return ahora.Hour >= 13 && ahora.Hour < 20 ? "Buenas tardes" : "Buenas noches";
         }
 
         private void CargarAlerta(List<EventoResultadoDTO> urgentes)

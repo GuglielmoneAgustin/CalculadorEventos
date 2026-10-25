@@ -193,7 +193,11 @@ namespace ProyectoEventos.Domain
             {
                 return null;
             }
-            return RequierePresupuestoNuevo ? TipoPendiente.Desactualizado : TipoPendiente.EsperandoRespuesta;
+            if (RequierePresupuestoNuevo)
+            {
+                return TipoPendiente.Desactualizado;
+            }
+            return ObtenerPresupuestoEnEspera()!.EstaVencido(ahora) ? TipoPendiente.Vencido : TipoPendiente.EsperandoRespuesta;
         }
 
         public bool EsProximoAprobado(DateTime ahora)
@@ -249,23 +253,29 @@ namespace ProyectoEventos.Domain
             return servicios.AsReadOnly();
         }
 
-        public Presupuesto GenerarPresupuesto(DateTime fechaGeneracion)
+        public Presupuesto GenerarPresupuesto(DateTime fechaGeneracion, int diasValidez)
         {
             if (Menu.EstaVacio())
             {
                 throw new NegocioException("Debe agregar al menos un item al menú antes de generar un presupuesto.");
             }
 
-            Presupuesto presupuesto = new Presupuesto(proximoIdPresupuesto, this, fechaGeneracion);
+            Presupuesto presupuesto = new Presupuesto(proximoIdPresupuesto, this, fechaGeneracion, diasValidez);
             proximoIdPresupuesto++;
             presupuestos.Add(presupuesto);
             huboCambiosDesdeUltimoPresupuesto = false;
             return presupuesto;
         }
 
-        public Presupuesto AprobarPresupuesto(int idPresupuesto, bool reemplazarAprobado)
+        public Presupuesto AprobarPresupuesto(int idPresupuesto, bool reemplazarAprobado, bool aprobarVencido, DateTime hoy)
         {
             Presupuesto presupuesto = ValidarAprobacion(idPresupuesto);
+
+            if (presupuesto.EstaVencido(hoy) && !aprobarVencido)
+            {
+                throw new NegocioException("El presupuesto N° " + presupuesto.Id + " venció el " +
+                    presupuesto.FechaVencimiento!.Value.ToString(Formato.Fecha) + ". Confirme si desea aprobarlo igual.");
+            }
 
             Presupuesto? otroAprobado = ObtenerPresupuestoAprobado();
             if (otroAprobado != null && !reemplazarAprobado)

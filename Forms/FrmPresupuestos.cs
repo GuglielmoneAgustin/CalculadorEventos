@@ -62,6 +62,9 @@ namespace ProyectoEventos.Forms
             dgvPresupuestos.Columna("FechaSena").Visible = false;
             dgvPresupuestos.Columna("FechaPago").Visible = false;
             dgvPresupuestos.Columna("Saldo").Visible = false;
+            dgvPresupuestos.Columna("FechaVencimiento").Visible = false;
+            dgvPresupuestos.Columna("Vencido").Visible = false;
+            dgvPresupuestos.Columna("SenaSugerida").Visible = false;
 
             DarFormatoColumnas();
 
@@ -79,16 +82,7 @@ namespace ProyectoEventos.Forms
                 ? "Cobro"
                 : "Cobro del presupuesto N° " + aprobado.Id + ": " + aprobado.EstadoPago?.Texto();
             lblDetallePago.Text = DetalleEstadoPago(aprobado);
-            numSena.Value = SenaSugerida(aprobado);
-        }
-
-        private decimal SenaSugerida(PresupuestoResultadoDTO? aprobado)
-        {
-            if (aprobado == null || aprobado.EstadoPago != EstadoPago.SinSena)
-            {
-                return 0;
-            }
-            return Math.Round(aprobado.CostoTotal * negocio.PorcentajeSena / 100, 2);
+            numSena.Value = aprobado == null ? 0 : aprobado.SenaSugerida;
         }
 
         private static string DetalleEstadoPago(PresupuestoResultadoDTO? aprobado)
@@ -225,6 +219,15 @@ namespace ProyectoEventos.Forms
                 Tema.PintarEstadoPago(e, e.Value as EstadoPago?);
                 return;
             }
+            if (dgvPresupuestos.Columns[e.ColumnIndex].Name == "Detalle")
+            {
+                if (dgvPresupuestos.Rows[e.RowIndex].DataBoundItem is PresupuestoResultadoDTO conDetalle && conDetalle.Vencido
+                    && conDetalle.Estado == EstadoPresupuesto.EnEspera)
+                {
+                    Tema.PintarCelda(e, Tema.TerracotaSuave, Tema.TerracotaOscuro);
+                }
+                return;
+            }
             if (dgvPresupuestos.Columns[e.ColumnIndex].Name != "Estado" || e.Value is not EstadoPresupuesto estado)
             {
                 return;
@@ -256,6 +259,11 @@ namespace ProyectoEventos.Forms
             try
             {
                 controlador.ValidarAprobacion(idEvento, seleccionado.Id);
+                if (seleccionado.Vencido && !Mensajes.Confirmar("El presupuesto N° " + seleccionado.Id + " venció el " +
+                    seleccionado.FechaVencimiento?.ToString(Formato.Fecha) + ". ¿Desea aprobarlo igual?"))
+                {
+                    return;
+                }
 
                 bool reemplazar = false;
                 PresupuestoResultadoDTO? aprobado = controlador.ObtenerAprobado(idEvento);
@@ -278,7 +286,7 @@ namespace ProyectoEventos.Forms
                     reemplazar = true;
                 }
 
-                controlador.Aprobar(idEvento, seleccionado.Id, reemplazar);
+                controlador.Aprobar(idEvento, seleccionado.Id, reemplazar, seleccionado.Vencido);
                 CargarGrillaPresupuestos();
             }
             catch (NegocioException ex)

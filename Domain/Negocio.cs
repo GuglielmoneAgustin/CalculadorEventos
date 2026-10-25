@@ -5,7 +5,16 @@ namespace ProyectoEventos.Domain
 {
     public class Negocio : IEntidad
     {
+        private const int LargoMaximoNombre = 60;
+        private const int LargoMaximoDireccion = 100;
+        private const int LargoMaximoTelefono = 30;
+        private const int LargoMaximoMail = 100;
+        private const int LargoMaximoInstagram = 40;
+        private const int LargoMaximoMensajePie = 120;
+        private const int DiasValidezMaximo = 365;
+
         private static readonly Regex FormatoMail = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+        private static readonly Regex FormatoTelefono = new Regex(@"^[0-9 +()\-]+$");
 
         private string nombre = string.Empty;
         private string direccion = string.Empty;
@@ -43,7 +52,7 @@ namespace ProyectoEventos.Domain
                 {
                     throw new NegocioException("El nombre del negocio no puede estar vacío.");
                 }
-                nombre = value.Trim();
+                nombre = ValidarLargo(value, LargoMaximoNombre, "El nombre del negocio");
             }
         }
 
@@ -52,7 +61,7 @@ namespace ProyectoEventos.Domain
             get { return direccion; }
             set
             {
-                direccion = (value ?? string.Empty).Trim();
+                direccion = ValidarLargo(value, LargoMaximoDireccion, "La dirección");
             }
         }
 
@@ -61,7 +70,12 @@ namespace ProyectoEventos.Domain
             get { return telefono; }
             set
             {
-                telefono = (value ?? string.Empty).Trim();
+                string limpio = ValidarLargo(value, LargoMaximoTelefono, "El teléfono");
+                if (limpio.Length > 0 && !FormatoTelefono.IsMatch(limpio))
+                {
+                    throw new NegocioException("El teléfono solo puede tener números, espacios, +, - y paréntesis.");
+                }
+                telefono = limpio;
             }
         }
 
@@ -70,18 +84,12 @@ namespace ProyectoEventos.Domain
             get { return mail; }
             set
             {
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    mail = string.Empty;
-                }
-                else if (!FormatoMail.IsMatch(value.Trim()))
+                string limpio = ValidarLargo(value, LargoMaximoMail, "El mail");
+                if (limpio.Length > 0 && !FormatoMail.IsMatch(limpio))
                 {
                     throw new NegocioException("El mail ingresado no es válido (ejemplo: nombre@dominio.com).");
                 }
-                else
-                {
-                    mail = value.Trim();
-                }
+                mail = limpio;
             }
         }
 
@@ -121,7 +129,12 @@ namespace ProyectoEventos.Domain
             get { return instagram; }
             set
             {
-                instagram = (value ?? string.Empty).Trim();
+                string limpio = ValidarLargo(value, LargoMaximoInstagram, "El Instagram");
+                if (limpio.Contains(' '))
+                {
+                    throw new NegocioException("El Instagram no puede tener espacios (ejemplo: @minegocio).");
+                }
+                instagram = limpio;
             }
         }
 
@@ -130,7 +143,7 @@ namespace ProyectoEventos.Domain
             get { return mensajePie; }
             set
             {
-                mensajePie = (value ?? string.Empty).Trim();
+                mensajePie = ValidarLargo(value, LargoMaximoMensajePie, "El mensaje al pie");
             }
         }
 
@@ -139,9 +152,9 @@ namespace ProyectoEventos.Domain
             get { return diasValidez; }
             set
             {
-                if (value < 0)
+                if (value < 0 || value > DiasValidezMaximo)
                 {
-                    throw new NegocioException("Los días de validez del presupuesto no pueden ser negativos.");
+                    throw new NegocioException("Los días de validez del presupuesto deben estar entre 0 y " + DiasValidezMaximo + ".");
                 }
                 diasValidez = value;
             }
@@ -152,12 +165,31 @@ namespace ProyectoEventos.Domain
             get { return porcentajeSena; }
             set
             {
-                if (value < 0 || value > 100)
+                if (value < 0 || value >= 100)
                 {
-                    throw new NegocioException("El porcentaje de seña sugerido debe estar entre 0 y 100.");
+                    throw new NegocioException("El porcentaje de seña sugerido debe ser menor a 100 (el 100 % es el pago completo).");
                 }
                 porcentajeSena = value;
             }
+        }
+
+        public decimal CalcularSenaSugerida(decimal total)
+        {
+            if (total <= 0)
+            {
+                return 0;
+            }
+            return Math.Round(total * porcentajeSena / 100, 2);
+        }
+
+        private static string ValidarLargo(string? valor, int largoMaximo, string campo)
+        {
+            string limpio = (valor ?? string.Empty).Trim();
+            if (limpio.Length > largoMaximo)
+            {
+                throw new NegocioException(campo + " no puede tener más de " + largoMaximo + " caracteres.");
+            }
+            return limpio;
         }
     }
 }

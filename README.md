@@ -20,16 +20,18 @@ Al ejecutar en modo **Debug** se cargan automáticamente datos de ejemplo (clien
 La ventana principal tiene un menú lateral (Inicio, Lugares, Clientes, Servicios, Productos, Eventos, Mi negocio y Salir) y cada sección se abre dentro de la misma ventana. Arriba del menú y en el título de la ventana se muestra el nombre del negocio.
 
 ### Inicio
+- **Saludo** con el nombre del negocio ("Buenas tardes, Salón Las Rosas"), según la hora del día.
 - **Alerta** (solo si hace falta) cuando hay eventos de los próximos 7 días que todavía no tienen presupuesto aprobado, con sus clientes.
 - Tarjeta destacada con el **próximo evento**: cuánto falta, día y hora, cliente, lugar, invitados y horario.
 - **Esta semana:** cuántos eventos hay en los próximos 7 días, cuántos están aprobados y cuántos no.
-- **Para atender:** cuántos pendientes hay y de qué tipo (sin presupuesto, desactualizado, esperando respuesta, falta cobrar).
+- **Para atender:** cuántos pendientes hay y de qué tipo (sin presupuesto, desactualizado, vencido, esperando respuesta, falta cobrar).
 - **Hoy:** el día de la semana y la fecha.
 - **Próximos eventos aprobados:** cuánto falta ("Hoy", "Mañana", "En 5 días"), cliente, lugar, fecha, horario de inicio a fin, invitados y total aprobado. Los de los próximos 7 días se resaltan.
 - **Para atender:** eventos próximos que necesitan algo, con un detalle de qué pasó:
   - **Sin presupuesto:** el evento se cargó pero no tiene presupuesto.
   - **Desactualizado:** el presupuesto en espera ya no vale (por ejemplo, "Cambió el precio de Bife de chorizo.").
-  - **Esperando respuesta:** el presupuesto está vigente y se envió hace cierta cantidad de días.
+  - **Esperando respuesta:** el presupuesto está vigente y se envió hace cierta cantidad de días; si el negocio tiene validez configurada, indica cuándo vence.
+  - **Vencido:** el presupuesto en espera superó los días de validez del negocio ("Vencido el 09/11/2026."). Conviene llamar al cliente o actualizarlo.
   - **Falta cobrar:** el evento es dentro de los próximos 7 días, tiene presupuesto aprobado y todavía no está pagado (indica cuánto falta y si tiene seña).
 - Un botón **Ver presupuesto** sirve para las dos grillas: abre los presupuestos del evento elegido en cualquiera de ellas (al seleccionar en una grilla se deselecciona la otra). Al volver, Inicio se actualiza.
 
@@ -57,10 +59,10 @@ Datos de cada uno:
 
 ### Mi negocio
 Datos propios del negocio, que se usan en los tickets y en la interfaz:
-- **Nombre del local** (obligatorio), dirección, teléfono / WhatsApp, mail (con formato válido), CUIT (11 números, con o sin guiones) e Instagram: aparecen en el encabezado del ticket y del comprobante. Los que se dejan vacíos no se imprimen.
+- **Nombre del local** (obligatorio, hasta 60 caracteres), dirección, teléfono / WhatsApp (números, espacios, +, - y paréntesis), mail (con formato válido), CUIT (11 números, con o sin guiones) e Instagram (sin espacios): aparecen en el encabezado del ticket y del comprobante. Los que se dejan vacíos no se imprimen.
 - **Mensaje al pie del ticket:** reemplaza el "Gracias por elegirnos" fijo.
-- **Validez del presupuesto (días):** el ticket de un presupuesto en espera muestra "Válido hasta" (con 0 no se muestra).
-- **Seña sugerida (%):** al cobrar un presupuesto aprobado sin seña, el campo Seña ya viene calculado con ese porcentaje del total (se puede cambiar).
+- **Validez del presupuesto (días):** el ticket de un presupuesto en espera muestra "Válido hasta", y Presupuestos e Inicio avisan cuándo vence o si ya venció (entre 0 y 365; con 0 no vence).
+- **Seña sugerida (%):** al cobrar un presupuesto aprobado sin seña, el campo Seña ya viene calculado con ese porcentaje del total (se puede cambiar). Debe ser menor a 100 %, porque el 100 % es el pago completo.
 - A la derecha hay una **vista previa del ticket** que se actualiza mientras se escribe.
 - Si no se cargaron datos, el negocio se llama "Mi negocio".
 
@@ -86,7 +88,8 @@ Datos propios del negocio, que se usan en los tickets y en la interfaz:
 - Grilla con número, fecha de generación, fecha del evento e invitados cotizados, costo total, estado, **pago** y **detalle**.
 - Cada presupuesto es una foto de lo cotizado: si después cambia el evento, ya no se modifica.
 - **Vigencia:** un presupuesto está vigente si es el último generado y no cambiaron ni el evento ni los precios (costo base o por hora del lugar, productos o servicios). Si no, se marca "(desactualizado)" y la columna Detalle explica el motivo, por ejemplo "Cambió el precio de Bife de chorizo." o "Cambiaron los servicios adicionales.".
-- **Aprobar:** solo se aprueba un presupuesto vigente, que esté en espera o cancelado (por ejemplo, si el cliente se arrepintió). Si ya hay otro aprobado, se pregunta si se reemplaza.
+- **Vencimiento:** cada presupuesto guarda su fecha de vencimiento al generarse, según la validez configurada en Mi negocio en ese momento. Si después se cambia la validez, los presupuestos ya emitidos conservan la suya (la misma que figura en el ticket del cliente). La columna Detalle muestra "Vence el 09/11/2026 (en 15 días)." o, si ya pasó, "Vencido el …" resaltado.
+- **Aprobar:** solo se aprueba un presupuesto vigente, que esté en espera o cancelado (por ejemplo, si el cliente se arrepintió). Si ya hay otro aprobado, se pregunta si se reemplaza. Si está vencido, se pregunta si se aprueba igual.
 - **Cancelar:** pide confirmación y avisa especialmente si el presupuesto está aprobado.
 - **Actualizar presupuesto:** genera uno nuevo con los datos y precios actuales (o avisa que ya está al día).
 - **Ver ticket:** muestra en pantalla un ticket con los datos del negocio y todos los datos cotizados. Con **Guardar PDF** se elige dónde guardarlo y se genera el archivo usando la impresora "Microsoft Print to PDF" que trae Windows (si no está instalada, se avisa con un mensaje).
@@ -109,6 +112,7 @@ Datos propios del negocio, que se usan en los tickets y en la interfaz:
 - Los precios de productos y los montos de servicios deben ser mayores a cero; las cantidades no pueden ser negativas y cada plato debe tener al menos un adulto o un niño.
 - No se pueden eliminar clientes, lugares, productos o servicios que estén en uso en algún evento.
 - Solo puede haber un presupuesto aprobado por evento.
+- Un presupuesto vencido solo se aprueba si se confirma expresamente. Un presupuesto aprobado ya no vence.
 - Solo se cobra el presupuesto aprobado: una seña (no reembolsable) y luego el pago del resto.
 
 ## Formato

@@ -24,6 +24,9 @@ namespace ProyectoEventos.Dto
         public EstadoPago? EstadoPago { get; set; }
         public string Detalle { get; set; } = string.Empty;
         public bool Vigente { get; set; }
+        public DateTime? FechaVencimiento { get; set; }
+        public bool Vencido { get; set; }
+        public decimal SenaSugerida { get; set; }
         public decimal Sena { get; set; }
         public DateTime? FechaSena { get; set; }
         public DateTime? FechaPago { get; set; }

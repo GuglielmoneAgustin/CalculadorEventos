@@ -10,15 +10,17 @@ namespace ProyectoEventos.Service
     public class PresupuestoService
     {
         private readonly IRepository<Evento> eventoRepositorio;
+        private readonly NegocioService negocioServicio;
 
         public PresupuestoService()
-            : this(EventoRepository.ObtenerInstancia())
+            : this(EventoRepository.ObtenerInstancia(), new NegocioService())
         {
         }
 
-        public PresupuestoService(IRepository<Evento> eventoRepositorio)
+        public PresupuestoService(IRepository<Evento> eventoRepositorio, NegocioService negocioServicio)
         {
             this.eventoRepositorio = eventoRepositorio;
+            this.negocioServicio = negocioServicio;
         }
 
         public PresupuestoResultadoDTO? Generar(int idEvento)
@@ -29,15 +31,15 @@ namespace ProyectoEventos.Service
                 return null;
             }
 
-            Presupuesto presupuesto = evento.GenerarPresupuesto(DateTime.Now);
+            Presupuesto presupuesto = evento.GenerarPresupuesto(DateTime.Now, negocioServicio.ObtenerDiasValidez());
             eventoRepositorio.Actualizar(evento);
             return MapearAResultado(presupuesto);
         }
 
-        public PresupuestoResultadoDTO Aprobar(int idEvento, int idPresupuesto, bool reemplazarAprobado)
+        public PresupuestoResultadoDTO Aprobar(int idEvento, int idPresupuesto, bool reemplazarAprobado, bool aprobarVencido)
         {
             Evento evento = eventoRepositorio.ObtenerExistente(idEvento);
-            Presupuesto presupuesto = evento.AprobarPresupuesto(idPresupuesto, reemplazarAprobado);
+            Presupuesto presupuesto = evento.AprobarPresupuesto(idPresupuesto, reemplazarAprobado, aprobarVencido, DateTime.Today);
             eventoRepositorio.Actualizar(evento);
             return MapearAResultado(presupuesto);
         }
@@ -94,6 +96,7 @@ namespace ProyectoEventos.Service
             dto.IdEvento = presupuesto.EventoAsociado.Id;
             dto.Estado = presupuesto.Estado;
             dto.FechaGeneracion = presupuesto.FechaGeneracion;
+            dto.FechaVencimiento = presupuesto.FechaVencimiento;
             dto.NombreCliente = presupuesto.NombreCliente;
             dto.NombreLugar = presupuesto.NombreLugar;
             dto.FechaEvento = presupuesto.FechaEvento;
@@ -155,10 +158,30 @@ namespace ProyectoEventos.Service
             dto.FechaPago = presupuesto.FechaPago;
             dto.Saldo = presupuesto.Saldo;
             dto.Vigente = presupuesto.EventoAsociado.EsVigente(presupuesto);
-            dto.Detalle = presupuesto.Estado == EstadoPresupuesto.Cancelado && presupuesto.Sena > 0
-                ? "Seña de " + presupuesto.Sena.ToString(Formato.Moneda) + " no reembolsable."
-                : string.Join(" ", presupuesto.EventoAsociado.ObtenerMotivosDesactualizacion(presupuesto));
+            dto.FechaVencimiento = presupuesto.FechaVencimiento;
+            dto.Vencido = presupuesto.EstaVencido(DateTime.Today);
+            dto.SenaSugerida = presupuesto.EstadoPago == EstadoPago.SinSena && presupuesto.Estado == EstadoPresupuesto.Aprobado
+                ? negocioServicio.CalcularSenaSugerida(presupuesto.CalcularTotal())
+                : 0;
+            dto.Detalle = ArmarDetalle(presupuesto, dto.Vigente);
             return dto;
+        }
+
+        private static string ArmarDetalle(Presupuesto presupuesto, bool vigente)
+        {
+            if (presupuesto.Estado == EstadoPresupuesto.Cancelado && presupuesto.Sena > 0)
+            {
+                return "Seña de " + presupuesto.Sena.ToString(Formato.Moneda) + " no reembolsable.";
+            }
+            if (!vigente)
+            {
+                return string.Join(" ", presupuesto.EventoAsociado.ObtenerMotivosDesactualizacion(presupuesto));
+            }
+            if (presupuesto.Estado == EstadoPresupuesto.EnEspera && presupuesto.FechaVencimiento != null)
+            {
+                return Formato.Vencimiento(presupuesto.FechaVencimiento.Value, presupuesto.DiasParaVencer(DateTime.Today)!.Value);
+            }
+            return string.Empty;
         }
     }
 }

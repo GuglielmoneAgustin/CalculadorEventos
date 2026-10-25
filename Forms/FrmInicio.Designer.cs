@@ -18,6 +18,7 @@ namespace ProyectoEventos.Forms
         private void InitializeComponent()
         {
             tlpRaiz = new TableLayoutPanel();
+            lblSaludo = new Label();
             lblAlerta = new Label();
             tlpResumen = new TableLayoutPanel();
             tlpTarjetaProximoEvento = new TableLayoutPanel();
@@ -59,19 +60,28 @@ namespace ProyectoEventos.Forms
             //
             tlpRaiz.ColumnCount = 1;
             tlpRaiz.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tlpRaiz.Controls.Add(lblAlerta, 0, 0);
-            tlpRaiz.Controls.Add(tlpResumen, 0, 1);
-            tlpRaiz.Controls.Add(tlpGrilla, 0, 2);
-            tlpRaiz.Controls.Add(tlpGrillaPendientes, 0, 3);
-            tlpRaiz.Controls.Add(btnVerPresupuestos, 0, 4);
+            tlpRaiz.Controls.Add(lblSaludo, 0, 0);
+            tlpRaiz.Controls.Add(lblAlerta, 0, 1);
+            tlpRaiz.Controls.Add(tlpResumen, 0, 2);
+            tlpRaiz.Controls.Add(tlpGrilla, 0, 3);
+            tlpRaiz.Controls.Add(tlpGrillaPendientes, 0, 4);
+            tlpRaiz.Controls.Add(btnVerPresupuestos, 0, 5);
             tlpRaiz.Dock = DockStyle.Fill;
             tlpRaiz.Name = "tlpRaiz";
-            tlpRaiz.RowCount = 5;
+            tlpRaiz.RowCount = 6;
+            tlpRaiz.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpRaiz.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpRaiz.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpRaiz.RowStyles.Add(new RowStyle(SizeType.Percent, 55F));
             tlpRaiz.RowStyles.Add(new RowStyle(SizeType.Percent, 45F));
             tlpRaiz.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            //
+            // lblSaludo
+            //
+            lblSaludo.AutoSize = true;
+            lblSaludo.Margin = new Padding(0, 0, 0, 16);
+            lblSaludo.Name = "lblSaludo";
+            lblSaludo.TabIndex = 0;
             //
             // lblAlerta
             //
@@ -372,6 +382,7 @@ namespace ProyectoEventos.Forms
         #endregion
 
         private TableLayoutPanel tlpRaiz;
+        private Label lblSaludo;
         private Label lblAlerta;
         private TableLayoutPanel tlpResumen;
         private TableLayoutPanel tlpTarjetaProximoEvento;

@@ -130,7 +130,7 @@ namespace ProyectoEventos.Forms.Utils
         {
             List<string> t = new List<string>();
             ArmarDatosNegocio(t, negocio);
-            ArmarEncabezado(t, d, negocio);
+            ArmarEncabezado(t, d);
             ArmarLugar(t, d);
             ArmarMenu(t, d);
             ArmarServicios(t, d);
@@ -143,7 +143,7 @@ namespace ProyectoEventos.Forms.Utils
         {
             List<string> t = new List<string>();
             ArmarDatosNegocio(t, negocio);
-            t.Add(Centrar("PRESUPUESTO N° 1"));
+            t.Add(Centrar("PRESUPUESTO"));
             t.Add(LineaDoble);
             t.Add("Emitido: " + DateTime.Now.ToString(Formato.FechaHora));
             if (negocio.DiasValidez > 0)
@@ -181,16 +181,15 @@ namespace ProyectoEventos.Forms.Utils
             t.AddRange(CentrarEnLineas(negocio.MensajePie));
         }
 
-        private static void ArmarEncabezado(List<string> t, PresupuestoDetalleDTO d, NegocioDTO negocio)
+        private static void ArmarEncabezado(List<string> t, PresupuestoDetalleDTO d)
         {
-            t.Add(Centrar("PRESUPUESTO N° " + d.Id));
-            t.Add(Centrar("Evento N° " + d.IdEvento));
+            t.Add(Centrar("PRESUPUESTO"));
             t.Add(Centrar(d.Estado.Texto().ToUpper()));
             t.Add(LineaDoble);
             t.Add("Emitido: " + d.FechaGeneracion.ToString(Formato.FechaHora));
-            if (d.Estado == EstadoPresupuesto.EnEspera && negocio.DiasValidez > 0)
+            if (d.Estado == EstadoPresupuesto.EnEspera && d.FechaVencimiento != null)
             {
-                t.Add("Válido hasta: " + d.FechaGeneracion.AddDays(negocio.DiasValidez).ToString(Formato.Fecha));
+                t.Add("Válido hasta: " + d.FechaVencimiento.Value.ToString(Formato.Fecha));
             }
             t.Add("Cliente: " + d.NombreCliente);
             t.Add("Lugar: " + d.NombreLugar);
@@ -261,7 +260,6 @@ namespace ProyectoEventos.Forms.Utils
             List<string> t = new List<string>();
             ArmarDatosNegocio(t, negocio);
             t.Add(Centrar("COMPROBANTE DE PAGO"));
-            t.Add(Centrar("Presupuesto N° " + d.Id + " - Evento N° " + d.IdEvento));
             t.Add(LineaDoble);
             t.Add("Emitido: " + emision.ToString(Formato.FechaHora));
             t.Add("Cliente: " + d.NombreCliente);

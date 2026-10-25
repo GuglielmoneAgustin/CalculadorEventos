@@ -9,10 +9,16 @@ namespace ProyectoEventos.Domain
         private readonly List<DetalleMenuPresupuestado> itemsMenu;
         private readonly List<ServicioPresupuestado> servicios;
 
-        internal Presupuesto(int id, Evento eventoAsociado, DateTime fechaGeneracion)
+        internal Presupuesto(int id, Evento eventoAsociado, DateTime fechaGeneracion, int diasValidez)
         {
+            if (diasValidez < 0)
+            {
+                throw new NegocioException("Los días de validez del presupuesto no pueden ser negativos.");
+            }
+
             Id = id;
             FechaGeneracion = fechaGeneracion;
+            FechaVencimiento = diasValidez == 0 ? null : fechaGeneracion.Date.AddDays(diasValidez);
             EventoAsociado = eventoAsociado;
             CostoBaseLugar = eventoAsociado.Lugar.CostoBase;
             CostoPorHoraLugar = eventoAsociado.Lugar.CostoPorHora;
@@ -30,6 +36,8 @@ namespace ProyectoEventos.Domain
         public int Id { get; private set; }
 
         public DateTime FechaGeneracion { get; private set; }
+
+        public DateTime? FechaVencimiento { get; private set; }
 
         public decimal CostoBaseLugar { get; private set; }
 
@@ -277,6 +285,20 @@ namespace ProyectoEventos.Domain
             FechaSena = anterior.FechaSena;
             anterior.Sena = 0;
             anterior.FechaSena = null;
+        }
+
+        public bool EstaVencido(DateTime hoy)
+        {
+            return Estado != EstadoPresupuesto.Aprobado && FechaVencimiento != null && hoy.Date > FechaVencimiento.Value;
+        }
+
+        public int? DiasParaVencer(DateTime hoy)
+        {
+            if (FechaVencimiento == null)
+            {
+                return null;
+            }
+            return (FechaVencimiento.Value - hoy.Date).Days;
         }
 
         private void ValidarQuePuedeCobrarse()

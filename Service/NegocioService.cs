@@ -24,6 +24,16 @@ namespace ProyectoEventos.Service
             return MapearADto(ObtenerNegocio());
         }
 
+        public int ObtenerDiasValidez()
+        {
+            return ObtenerNegocio().DiasValidez;
+        }
+
+        public decimal CalcularSenaSugerida(decimal total)
+        {
+            return ObtenerNegocio().CalcularSenaSugerida(total);
+        }
+
         public void Guardar(NegocioDTO dto)
         {
             if (dto == null)

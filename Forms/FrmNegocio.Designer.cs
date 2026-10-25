@@ -239,7 +239,8 @@ namespace ProyectoEventos.Forms
             // numDiasValidez
             //
             numDiasValidez.Dock = DockStyle.Fill;
-            numDiasValidez.Maximum = new decimal(new int[] { 365, 0, 0, 0 });
+            numDiasValidez.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
+            numDiasValidez.Minimum = new decimal(new int[] { 1000000, 0, 0, -2147483648 });
             numDiasValidez.Name = "numDiasValidez";
             numDiasValidez.TabIndex = 8;
             numDiasValidez.ValueChanged += Campo_Changed;
@@ -254,6 +255,9 @@ namespace ProyectoEventos.Forms
             // numPorcentajeSena
             //
             numPorcentajeSena.Dock = DockStyle.Fill;
+            numPorcentajeSena.DecimalPlaces = 2;
+            numPorcentajeSena.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
+            numPorcentajeSena.Minimum = new decimal(new int[] { 1000000, 0, 0, -2147483648 });
             numPorcentajeSena.Name = "numPorcentajeSena";
             numPorcentajeSena.TabIndex = 9;
             numPorcentajeSena.ValueChanged += Campo_Changed;
