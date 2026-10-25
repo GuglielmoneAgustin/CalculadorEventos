@@ -7,7 +7,7 @@ namespace ProyectoEventos.Forms.Utils
 {
     internal static class TicketPresupuesto
     {
-        private const int Ancho = 42;
+        public const int Ancho = 42;
         private const string ImpresoraPdf = "Microsoft Print to PDF";
 
         public static void Mostrar(IWin32Window padre, PresupuestoDetalleDTO detalle, NegocioDTO negocio)

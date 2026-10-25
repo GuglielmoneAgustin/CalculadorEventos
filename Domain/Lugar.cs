@@ -4,6 +4,9 @@ namespace ProyectoEventos.Domain
 {
     public class Lugar : IEntidad
     {
+        private const int LargoMaximoNombre = 60;
+        private const int LargoMaximoUbicacion = 100;
+
         private string nombre = string.Empty;
         private decimal costoBase;
         private decimal costoPorHora;
@@ -28,6 +31,10 @@ namespace ProyectoEventos.Domain
                 if (string.IsNullOrWhiteSpace(value))
                 {
                     throw new NegocioException("El nombre del lugar no puede estar vacío.");
+                }
+                if (value.Trim().Length > LargoMaximoNombre)
+                {
+                    throw new NegocioException("El nombre del lugar no puede tener más de " + LargoMaximoNombre + " caracteres.");
                 }
                 nombre = value.Trim();
             }
@@ -81,6 +88,10 @@ namespace ProyectoEventos.Domain
                 if (string.IsNullOrWhiteSpace(value))
                 {
                     throw new NegocioException("La ubicación del lugar no puede estar vacía.");
+                }
+                if (value.Trim().Length > LargoMaximoUbicacion)
+                {
+                    throw new NegocioException("La ubicación del lugar no puede tener más de " + LargoMaximoUbicacion + " caracteres.");
                 }
                 ubicacion = value.Trim();
             }

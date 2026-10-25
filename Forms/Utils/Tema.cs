@@ -112,7 +112,11 @@ namespace ProyectoEventos.Forms.Utils
                         EstilarTabla(tabla);
                         break;
                 }
-                EstilarHijos(control);
+                // El NumericUpDown tiene adentro su propio cuadro de texto: si se estiliza, le queda un borde extra.
+                if (control is not NumericUpDown)
+                {
+                    EstilarHijos(control);
+                }
             }
         }
 

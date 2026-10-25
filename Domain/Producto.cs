@@ -5,6 +5,8 @@ namespace ProyectoEventos.Domain
 {
     public class Producto : IEntidad
     {
+        private const int LargoMaximoNombre = 60;
+
         private string nombre = string.Empty;
         private decimal precioAdulto;
         private decimal precioNino;
@@ -30,6 +32,10 @@ namespace ProyectoEventos.Domain
                 if (string.IsNullOrWhiteSpace(value))
                 {
                     throw new NegocioException("El nombre del producto no puede estar vacío.");
+                }
+                if (value.Trim().Length > LargoMaximoNombre)
+                {
+                    throw new NegocioException("El nombre del producto no puede tener más de " + LargoMaximoNombre + " caracteres.");
                 }
                 nombre = value.Trim();
             }

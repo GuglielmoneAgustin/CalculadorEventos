@@ -5,6 +5,11 @@ namespace ProyectoEventos.Domain
 {
     public class Cliente : IEntidad
     {
+        private const int LargoMaximoNombre = 80;
+        private const int LargoMaximoDni = 15;
+        private const int LargoMaximoMail = 100;
+        private const int LargoMaximoTelefono = 30;
+
         private static readonly Regex FormatoMail = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
 
         private string nombre = string.Empty;
@@ -32,6 +37,10 @@ namespace ProyectoEventos.Domain
                 {
                     throw new NegocioException("El nombre del cliente no puede estar vacío.");
                 }
+                if (value.Trim().Length > LargoMaximoNombre)
+                {
+                    throw new NegocioException("El nombre del cliente no puede tener más de " + LargoMaximoNombre + " caracteres.");
+                }
                 nombre = value.Trim();
             }
         }
@@ -45,6 +54,10 @@ namespace ProyectoEventos.Domain
                 {
                     throw new NegocioException("El DNI del cliente no puede estar vacío.");
                 }
+                if (value.Trim().Length > LargoMaximoDni)
+                {
+                    throw new NegocioException("El DNI del cliente no puede tener más de " + LargoMaximoDni + " caracteres.");
+                }
                 dni = value.Trim();
             }
         }
@@ -57,6 +70,10 @@ namespace ProyectoEventos.Domain
                 if (string.IsNullOrWhiteSpace(value))
                 {
                     mail = string.Empty;
+                }
+                else if (value.Trim().Length > LargoMaximoMail)
+                {
+                    throw new NegocioException("El mail no puede tener más de " + LargoMaximoMail + " caracteres.");
                 }
                 else if (!FormatoMail.IsMatch(value.Trim()))
                 {
@@ -74,7 +91,12 @@ namespace ProyectoEventos.Domain
             get { return telefono; }
             set
             {
-                telefono = (value ?? string.Empty).Trim();
+                string limpio = (value ?? string.Empty).Trim();
+                if (limpio.Length > LargoMaximoTelefono)
+                {
+                    throw new NegocioException("El teléfono no puede tener más de " + LargoMaximoTelefono + " caracteres.");
+                }
+                telefono = limpio;
             }
         }
 

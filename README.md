@@ -46,10 +46,10 @@ Las cuatro pantallas funcionan igual (alta, edición y baja):
 - Cuando la grilla está vacía se muestra una guía de qué hacer.
 
 Datos de cada uno:
-- **Clientes:** nombre, DNI (único), mail (con formato válido) y teléfono. La grilla muestra cuántos eventos tiene cada cliente.
-- **Lugares:** nombre (único), costo base, costo por hora (puede ser 0 si el lugar cobra un precio fijo), capacidad y ubicación. El costo del lugar en un evento es `costo base + costo por hora × horas de duración`. No se puede bajar la capacidad por debajo de los invitados de un evento ya cargado en ese lugar.
-- **Productos:** nombre (único), precio por adulto, precio por niño, categoría (Principal, Guarnición, Bebida, Postre) y restricción alimentaria (Estándar, Celíaco, Vegetariano, Diabético, Hipertenso).
-- **Servicios adicionales:** nombre (único), descripción y monto.
+- **Clientes:** nombre (hasta 80 caracteres), DNI (único, hasta 15), mail (con formato válido, hasta 100) y teléfono (hasta 30). La grilla muestra cuántos eventos tiene cada cliente.
+- **Lugares:** nombre (único, hasta 60 caracteres), costo base, costo por hora (puede ser 0 si el lugar cobra un precio fijo), capacidad y ubicación (hasta 100 caracteres). El costo del lugar en un evento es `costo base + costo por hora × horas de duración`. No se puede bajar la capacidad por debajo de los invitados de un evento ya cargado en ese lugar.
+- **Productos:** nombre (único, hasta 60 caracteres), precio por adulto, precio por niño, categoría (Principal, Guarnición, Bebida, Postre) y restricción alimentaria (Estándar, Celíaco, Vegetariano, Diabético, Hipertenso).
+- **Servicios adicionales:** nombre (único, hasta 60 caracteres), descripción (hasta 200) y monto.
 
 ### Eventos
 - Grilla con número de evento, cliente, lugar, fecha y hora, duración, invitados, estado del presupuesto (con colores), total y **pago** (sin seña, señado o pagado).
@@ -59,6 +59,7 @@ Datos de cada uno:
 
 ### Mi negocio
 Datos propios del negocio, que se usan en los tickets y en la interfaz:
+- La pantalla abre en **modo lectura** para no cambiar nada sin querer. No queda ningún campo seleccionado al entrar ni al tocar Editar. **Editar** habilita los campos; **Guardar** aplica los cambios y **Cancelar** los descarta (si hay cambios, pregunta antes).
 - **Nombre del local** (obligatorio, hasta 60 caracteres), dirección, teléfono / WhatsApp (números, espacios, +, - y paréntesis), mail (con formato válido), CUIT (11 números, con o sin guiones) e Instagram (sin espacios): aparecen en el encabezado del ticket y del comprobante. Los que se dejan vacíos no se imprimen.
 - **Mensaje al pie del ticket:** reemplaza el "Gracias por elegirnos" fijo.
 - **Validez del presupuesto (días):** el ticket de un presupuesto en espera muestra "Válido hasta", y Presupuestos e Inicio avisan cuándo vence o si ya venció (entre 0 y 365; con 0 no vence).

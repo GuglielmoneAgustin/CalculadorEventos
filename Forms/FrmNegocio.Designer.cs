@@ -39,7 +39,10 @@ namespace ProyectoEventos.Forms
             lblPorcentajeSena = new Label();
             numPorcentajeSena = new NumericUpDown();
             lblAyuda = new Label();
+            tlpBotones = new TableLayoutPanel();
+            btnEditar = new Button();
             btnGuardar = new Button();
+            btnCancelarEdicion = new Button();
             lblAviso = new Label();
             tlpTarjetaVistaPrevia = new TableLayoutPanel();
             lblVistaPrevia = new Label();
@@ -48,6 +51,7 @@ namespace ProyectoEventos.Forms
             ((System.ComponentModel.ISupportInitialize)numPorcentajeSena).BeginInit();
             tlpRaiz.SuspendLayout();
             tlpFormulario.SuspendLayout();
+            tlpBotones.SuspendLayout();
             tlpTarjetaVistaPrevia.SuspendLayout();
             SuspendLayout();
             //
@@ -88,7 +92,7 @@ namespace ProyectoEventos.Forms
             tlpFormulario.Controls.Add(numDiasValidez, 0, 12);
             tlpFormulario.Controls.Add(numPorcentajeSena, 1, 12);
             tlpFormulario.Controls.Add(lblAyuda, 0, 13);
-            tlpFormulario.Controls.Add(btnGuardar, 0, 14);
+            tlpFormulario.Controls.Add(tlpBotones, 0, 14);
             tlpFormulario.Controls.Add(lblAviso, 0, 15);
             tlpFormulario.SetColumnSpan(lblModo, 2);
             tlpFormulario.SetColumnSpan(lblNombre, 2);
@@ -98,7 +102,7 @@ namespace ProyectoEventos.Forms
             tlpFormulario.SetColumnSpan(lblMensajePie, 2);
             tlpFormulario.SetColumnSpan(txtBoxMensajePie, 2);
             tlpFormulario.SetColumnSpan(lblAyuda, 2);
-            tlpFormulario.SetColumnSpan(btnGuardar, 2);
+            tlpFormulario.SetColumnSpan(tlpBotones, 2);
             tlpFormulario.SetColumnSpan(lblAviso, 2);
             tlpFormulario.Dock = DockStyle.Fill;
             tlpFormulario.Name = "tlpFormulario";
@@ -270,14 +274,49 @@ namespace ProyectoEventos.Forms
             lblAyuda.Name = "lblAyuda";
             lblAyuda.Text = "Con validez 0 el ticket no muestra hasta cuándo vale el presupuesto. La seña sugerida completa el campo Seña al cobrar un presupuesto aprobado.";
             //
+            // tlpBotones
+            //
+            tlpBotones.AutoSize = true;
+            tlpBotones.ColumnCount = 2;
+            tlpBotones.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tlpBotones.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tlpBotones.Controls.Add(btnGuardar, 0, 0);
+            tlpBotones.Controls.Add(btnCancelarEdicion, 1, 0);
+            tlpBotones.Controls.Add(btnEditar, 0, 1);
+            tlpBotones.SetColumnSpan(btnEditar, 2);
+            tlpBotones.Dock = DockStyle.Top;
+            tlpBotones.Margin = new Padding(3, 16, 3, 3);
+            tlpBotones.Name = "tlpBotones";
+            tlpBotones.RowCount = 2;
+            tlpBotones.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            tlpBotones.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            //
+            // btnEditar
+            //
+            btnEditar.Dock = DockStyle.Fill;
+            btnEditar.Margin = new Padding(0);
+            btnEditar.Name = "btnEditar";
+            btnEditar.TabIndex = 10;
+            btnEditar.Text = "Editar";
+            btnEditar.Click += btnEditar_Click;
+            //
             // btnGuardar
             //
-            btnGuardar.Dock = DockStyle.Top;
-            btnGuardar.Margin = new Padding(3, 16, 3, 3);
+            btnGuardar.Dock = DockStyle.Fill;
+            btnGuardar.Margin = new Padding(0);
             btnGuardar.Name = "btnGuardar";
-            btnGuardar.TabIndex = 10;
+            btnGuardar.TabIndex = 11;
             btnGuardar.Text = "Guardar";
             btnGuardar.Click += btnGuardar_Click;
+            //
+            // btnCancelarEdicion
+            //
+            btnCancelarEdicion.Dock = DockStyle.Fill;
+            btnCancelarEdicion.Margin = new Padding(8, 0, 0, 0);
+            btnCancelarEdicion.Name = "btnCancelarEdicion";
+            btnCancelarEdicion.TabIndex = 12;
+            btnCancelarEdicion.Text = "Cancelar";
+            btnCancelarEdicion.Click += btnCancelarEdicion_Click;
             //
             // lblAviso
             //
@@ -306,7 +345,7 @@ namespace ProyectoEventos.Forms
             //
             // txtVistaPrevia
             //
-            txtVistaPrevia.Dock = DockStyle.Fill;
+            txtVistaPrevia.Anchor = AnchorStyles.Top | AnchorStyles.Bottom;
             txtVistaPrevia.Multiline = true;
             txtVistaPrevia.Name = "txtVistaPrevia";
             txtVistaPrevia.ReadOnly = true;
@@ -324,11 +363,13 @@ namespace ProyectoEventos.Forms
             Text = "Mi negocio";
             WindowState = FormWindowState.Maximized;
             Load += FrmNegocio_Load;
+            Shown += FrmNegocio_Shown;
             FormClosing += FrmNegocio_FormClosing;
             ((System.ComponentModel.ISupportInitialize)numDiasValidez).EndInit();
             ((System.ComponentModel.ISupportInitialize)numPorcentajeSena).EndInit();
             tlpTarjetaVistaPrevia.ResumeLayout(false);
             tlpTarjetaVistaPrevia.PerformLayout();
+            tlpBotones.ResumeLayout(false);
             tlpFormulario.ResumeLayout(false);
             tlpFormulario.PerformLayout();
             tlpRaiz.ResumeLayout(false);
@@ -359,7 +400,10 @@ namespace ProyectoEventos.Forms
         private Label lblPorcentajeSena;
         private NumericUpDown numPorcentajeSena;
         private Label lblAyuda;
+        private TableLayoutPanel tlpBotones;
+        private Button btnEditar;
         private Button btnGuardar;
+        private Button btnCancelarEdicion;
         private Label lblAviso;
         private TableLayoutPanel tlpTarjetaVistaPrevia;
         private Label lblVistaPrevia;
