@@ -9,9 +9,6 @@ namespace ProyectoEventos.Forms
 {
     public partial class FrmPrincipal : Form
     {
-        private static readonly Color ColorBotonNormal = Tema.Carob;
-        private static readonly Color ColorBotonActivo = Tema.Matcha;
-
         private Form? pantallaActual;
         private Button? botonActivo;
         private bool descartando;
@@ -21,6 +18,7 @@ namespace ProyectoEventos.Forms
         public FrmPrincipal()
         {
             InitializeComponent();
+            Tema.EstilarMenu(pnlMenu, lblTitulo, pnlEncabezado, lblPantalla);
         }
 
         private void FrmPrincipal_Load(object sender, EventArgs e)
@@ -154,10 +152,10 @@ namespace ProyectoEventos.Forms
         {
             if (botonActivo != null)
             {
-                botonActivo.BackColor = ColorBotonNormal;
+                Tema.MarcarBotonMenu(botonActivo, false);
             }
             botonActivo = boton;
-            botonActivo.BackColor = ColorBotonActivo;
+            Tema.MarcarBotonMenu(botonActivo, true);
         }
 
         private void btnInicio_Click(object sender, EventArgs e)

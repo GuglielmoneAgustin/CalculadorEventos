@@ -116,6 +116,14 @@ Datos propios del negocio, que se usan en los tickets y en la interfaz:
 - Un presupuesto vencido solo se aprueba si se confirma expresamente. Un presupuesto aprobado ya no vence.
 - Solo se cobra el presupuesto aprobado: una seña (no reembolsable) y luego el pago del resto.
 
+## Tema visual
+
+Hay dos temas con la misma forma de uso: `Tema1` (matcha y carob, el original) y `Tema2` (verde inglés con detalles en latón y títulos en Georgia). Todos los formularios usan `Tema`, y cuál de los dos es se elige en una sola línea de `Forms/Utils/TemaActivo.cs`:
+
+```csharp
+global using Tema = ProyectoEventos.Forms.Utils.Tema2;
+```
+
 ## Formato
 
 Montos y fechas con formato argentino (`$ 4.500,00` y `22/10/2026 20:00`), sin depender de la configuración regional de Windows. Los textos de las enumeraciones (categorías, restricciones y estados) se definen con `[Description]` y se muestran con tildes.

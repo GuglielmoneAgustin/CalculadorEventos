@@ -46,7 +46,7 @@ namespace ProyectoEventos.Forms
             pnlMenu.Controls.Add(btnLugares);
             pnlMenu.Controls.Add(btnInicio);
             pnlMenu.Controls.Add(lblTitulo);
-            pnlMenu.BackColor = Tema.Carob;
+            pnlMenu.BackColor = Tema.Menu;
             pnlMenu.Dock = DockStyle.Left;
             pnlMenu.Width = 230;
             pnlMenu.Name = "pnlMenu";
@@ -56,7 +56,7 @@ namespace ProyectoEventos.Forms
             // 
             lblTitulo.Dock = DockStyle.Top;
             lblTitulo.Font = new Font("Segoe UI", 13F, FontStyle.Bold);
-            lblTitulo.ForeColor = Tema.Almond;
+            lblTitulo.ForeColor = Tema.MenuTexto;
             lblTitulo.Height = 100;
             lblTitulo.Padding = new Padding(20, 0, 10, 0);
             lblTitulo.Text = "Sistema de Presupuestos para Eventos";
@@ -66,7 +66,7 @@ namespace ProyectoEventos.Forms
             // 
             // pnlEncabezado
             // 
-            pnlEncabezado.BackColor = Tema.Vanilla;
+            pnlEncabezado.BackColor = Tema.Encabezado;
             pnlEncabezado.Controls.Add(lblPantalla);
             pnlEncabezado.Dock = DockStyle.Top;
             pnlEncabezado.Height = 70;
@@ -94,14 +94,14 @@ namespace ProyectoEventos.Forms
             // 
             // btnInicio
             // 
-            btnInicio.BackColor = Tema.Carob;
+            btnInicio.BackColor = Tema.Menu;
             btnInicio.Cursor = Cursors.Hand;
             btnInicio.Dock = DockStyle.Top;
             btnInicio.FlatAppearance.BorderSize = 0;
-            btnInicio.FlatAppearance.MouseOverBackColor = Tema.CarobHover;
+            btnInicio.FlatAppearance.MouseOverBackColor = Tema.MenuHover;
             btnInicio.FlatStyle = FlatStyle.Flat;
             btnInicio.Font = new Font("Segoe UI", 11F);
-            btnInicio.ForeColor = Tema.Almond;
+            btnInicio.ForeColor = Tema.MenuTexto;
             btnInicio.Height = 52;
             btnInicio.Padding = new Padding(20, 0, 0, 0);
             btnInicio.Text = "Inicio";
@@ -113,14 +113,14 @@ namespace ProyectoEventos.Forms
             // 
             // btnLugares
             // 
-            btnLugares.BackColor = Tema.Carob;
+            btnLugares.BackColor = Tema.Menu;
             btnLugares.Cursor = Cursors.Hand;
             btnLugares.Dock = DockStyle.Top;
             btnLugares.FlatAppearance.BorderSize = 0;
-            btnLugares.FlatAppearance.MouseOverBackColor = Tema.CarobHover;
+            btnLugares.FlatAppearance.MouseOverBackColor = Tema.MenuHover;
             btnLugares.FlatStyle = FlatStyle.Flat;
             btnLugares.Font = new Font("Segoe UI", 11F);
-            btnLugares.ForeColor = Tema.Almond;
+            btnLugares.ForeColor = Tema.MenuTexto;
             btnLugares.Height = 52;
             btnLugares.Padding = new Padding(20, 0, 0, 0);
             btnLugares.Text = "Lugares";
@@ -132,14 +132,14 @@ namespace ProyectoEventos.Forms
             // 
             // btnClientes
             // 
-            btnClientes.BackColor = Tema.Carob;
+            btnClientes.BackColor = Tema.Menu;
             btnClientes.Cursor = Cursors.Hand;
             btnClientes.Dock = DockStyle.Top;
             btnClientes.FlatAppearance.BorderSize = 0;
-            btnClientes.FlatAppearance.MouseOverBackColor = Tema.CarobHover;
+            btnClientes.FlatAppearance.MouseOverBackColor = Tema.MenuHover;
             btnClientes.FlatStyle = FlatStyle.Flat;
             btnClientes.Font = new Font("Segoe UI", 11F);
-            btnClientes.ForeColor = Tema.Almond;
+            btnClientes.ForeColor = Tema.MenuTexto;
             btnClientes.Height = 52;
             btnClientes.Padding = new Padding(20, 0, 0, 0);
             btnClientes.Text = "Clientes";
@@ -151,14 +151,14 @@ namespace ProyectoEventos.Forms
             // 
             // btnServicios
             // 
-            btnServicios.BackColor = Tema.Carob;
+            btnServicios.BackColor = Tema.Menu;
             btnServicios.Cursor = Cursors.Hand;
             btnServicios.Dock = DockStyle.Top;
             btnServicios.FlatAppearance.BorderSize = 0;
-            btnServicios.FlatAppearance.MouseOverBackColor = Tema.CarobHover;
+            btnServicios.FlatAppearance.MouseOverBackColor = Tema.MenuHover;
             btnServicios.FlatStyle = FlatStyle.Flat;
             btnServicios.Font = new Font("Segoe UI", 11F);
-            btnServicios.ForeColor = Tema.Almond;
+            btnServicios.ForeColor = Tema.MenuTexto;
             btnServicios.Height = 52;
             btnServicios.Padding = new Padding(20, 0, 0, 0);
             btnServicios.Text = "Servicios";
@@ -170,14 +170,14 @@ namespace ProyectoEventos.Forms
             // 
             // btnProductos
             // 
-            btnProductos.BackColor = Tema.Carob;
+            btnProductos.BackColor = Tema.Menu;
             btnProductos.Cursor = Cursors.Hand;
             btnProductos.Dock = DockStyle.Top;
             btnProductos.FlatAppearance.BorderSize = 0;
-            btnProductos.FlatAppearance.MouseOverBackColor = Tema.CarobHover;
+            btnProductos.FlatAppearance.MouseOverBackColor = Tema.MenuHover;
             btnProductos.FlatStyle = FlatStyle.Flat;
             btnProductos.Font = new Font("Segoe UI", 11F);
-            btnProductos.ForeColor = Tema.Almond;
+            btnProductos.ForeColor = Tema.MenuTexto;
             btnProductos.Height = 52;
             btnProductos.Padding = new Padding(20, 0, 0, 0);
             btnProductos.Text = "Productos";
@@ -189,14 +189,14 @@ namespace ProyectoEventos.Forms
             // 
             // btnEventos
             // 
-            btnEventos.BackColor = Tema.Carob;
+            btnEventos.BackColor = Tema.Menu;
             btnEventos.Cursor = Cursors.Hand;
             btnEventos.Dock = DockStyle.Top;
             btnEventos.FlatAppearance.BorderSize = 0;
-            btnEventos.FlatAppearance.MouseOverBackColor = Tema.CarobHover;
+            btnEventos.FlatAppearance.MouseOverBackColor = Tema.MenuHover;
             btnEventos.FlatStyle = FlatStyle.Flat;
             btnEventos.Font = new Font("Segoe UI", 11F);
-            btnEventos.ForeColor = Tema.Almond;
+            btnEventos.ForeColor = Tema.MenuTexto;
             btnEventos.Height = 52;
             btnEventos.Padding = new Padding(20, 0, 0, 0);
             btnEventos.Text = "Eventos";
@@ -208,14 +208,14 @@ namespace ProyectoEventos.Forms
             // 
             // btnNegocio
             // 
-            btnNegocio.BackColor = Tema.Carob;
+            btnNegocio.BackColor = Tema.Menu;
             btnNegocio.Cursor = Cursors.Hand;
             btnNegocio.Dock = DockStyle.Bottom;
             btnNegocio.FlatAppearance.BorderSize = 0;
-            btnNegocio.FlatAppearance.MouseOverBackColor = Tema.CarobHover;
+            btnNegocio.FlatAppearance.MouseOverBackColor = Tema.MenuHover;
             btnNegocio.FlatStyle = FlatStyle.Flat;
             btnNegocio.Font = new Font("Segoe UI", 11F);
-            btnNegocio.ForeColor = Tema.Almond;
+            btnNegocio.ForeColor = Tema.MenuTexto;
             btnNegocio.Height = 52;
             btnNegocio.Padding = new Padding(20, 0, 0, 0);
             btnNegocio.Text = "Mi negocio";
@@ -227,14 +227,14 @@ namespace ProyectoEventos.Forms
             // 
             // btnSalir
             // 
-            btnSalir.BackColor = Tema.Carob;
+            btnSalir.BackColor = Tema.Menu;
             btnSalir.Cursor = Cursors.Hand;
             btnSalir.Dock = DockStyle.Bottom;
             btnSalir.FlatAppearance.BorderSize = 0;
-            btnSalir.FlatAppearance.MouseOverBackColor = Tema.CarobHover;
+            btnSalir.FlatAppearance.MouseOverBackColor = Tema.MenuHover;
             btnSalir.FlatStyle = FlatStyle.Flat;
             btnSalir.Font = new Font("Segoe UI", 11F);
-            btnSalir.ForeColor = Tema.Almond;
+            btnSalir.ForeColor = Tema.MenuTexto;
             btnSalir.Height = 52;
             btnSalir.Padding = new Padding(20, 0, 0, 0);
             btnSalir.Text = "Salir";

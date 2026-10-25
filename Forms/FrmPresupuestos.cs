@@ -224,7 +224,7 @@ namespace ProyectoEventos.Forms
                 if (dgvPresupuestos.Rows[e.RowIndex].DataBoundItem is PresupuestoResultadoDTO conDetalle && conDetalle.Vencido
                     && conDetalle.Estado == EstadoPresupuesto.EnEspera)
                 {
-                    Tema.PintarCelda(e, Tema.TerracotaSuave, Tema.TerracotaOscuro);
+                    Tema.PintarCelda(e, Tema.PeligroSuave, Tema.PeligroOscuro);
                 }
                 return;
             }
