@@ -1,7 +1,6 @@
-﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using ProyectoEventos.Common;
+using ProyectoEventos.Common.Enums;
 
 namespace ProyectoEventos.Forms.Utils
 {
@@ -39,35 +38,12 @@ namespace ProyectoEventos.Forms.Utils
         private static readonly Font FuenteInfo = new Font("Segoe UI", 10.5F, FontStyle.Bold);
         private static readonly Font FuenteTitulo = new Font("Segoe UI", 12F, FontStyle.Bold);
         private static readonly Font FuenteCampo = new Font("Segoe UI", 10.5F);
-        private static readonly Font FuenteEncabezado = new Font("Segoe UI", 16F, FontStyle.Bold);
         private static readonly Font FuenteResumen = new Font("Segoe UI", 18F, FontStyle.Bold);
 
         public static void Aplicar(Form form)
         {
             form.BackColor = Fondo;
             EstilarHijos(form);
-        }
-
-        public static void AgregarEncabezado(Form form)
-        {
-            Label titulo = new Label();
-            titulo.Dock = DockStyle.Fill;
-            titulo.Font = FuenteEncabezado;
-            titulo.ForeColor = Texto;
-            titulo.Padding = new Padding(30, 0, 0, 0);
-            titulo.Text = form.Text;
-            titulo.TextAlign = ContentAlignment.MiddleLeft;
-            titulo.Name = "lblTituloDialogo";
-
-            Panel encabezado = new Panel();
-            encabezado.BackColor = Vanilla;
-            encabezado.Dock = DockStyle.Top;
-            encabezado.Height = 70;
-            encabezado.Name = "pnlEncabezadoDialogo";
-            encabezado.Controls.Add(titulo);
-
-            form.Controls.Add(encabezado);
-            form.TextChanged += (s, e) => titulo.Text = form.Text;
         }
 
         private static void EstilarHijos(Control padre)
@@ -213,7 +189,8 @@ namespace ProyectoEventos.Forms.Utils
                 || nombre == "lblpendientes"
                 || nombre == "lblfechahoy"
                 || nombre == "lblcomponentes"
-                || nombre == "lblservicios")
+                || nombre == "lblservicios"
+                || nombre == "lblvistaprevia")
             {
                 etiqueta.Font = FuenteTitulo;
                 etiqueta.ForeColor = Texto;

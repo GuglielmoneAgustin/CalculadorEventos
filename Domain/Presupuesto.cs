@@ -1,6 +1,5 @@
-using System;
-using System.Collections.Generic;
 using ProyectoEventos.Common;
+using ProyectoEventos.Common.Enums;
 using ProyectoEventos.Common.Exceptions;
 
 namespace ProyectoEventos.Domain
@@ -250,7 +249,7 @@ namespace ProyectoEventos.Domain
             }
             if (monto >= CalcularTotal())
             {
-                throw new NegocioException("La seña debe ser menor al total del presupuesto ($ " + CalcularTotal().ToString("#,##0.00") +
+                throw new NegocioException("La seña debe ser menor al total del presupuesto (" + CalcularTotal().ToString(Formato.Moneda) +
                     "). Si el cliente paga todo, use Marcar como pagado.");
             }
             Sena = monto;
@@ -271,7 +270,7 @@ namespace ProyectoEventos.Domain
             }
             if (anterior.Sena >= CalcularTotal())
             {
-                throw new NegocioException("La seña del presupuesto aprobado ($ " + anterior.Sena.ToString("#,##0.00") +
+                throw new NegocioException("La seña del presupuesto aprobado (" + anterior.Sena.ToString(Formato.Moneda) +
                     ") no es menor al total de este presupuesto.");
             }
             Sena = anterior.Sena;

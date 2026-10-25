@@ -1,16 +1,16 @@
-using System;
-using System.Collections.Generic;
 using ProyectoEventos.Common;
+using ProyectoEventos.Common.Enums;
+using ProyectoEventos.Common.Exceptions;
 using ProyectoEventos.Domain;
 using ProyectoEventos.Dto;
 using ProyectoEventos.Repository;
-using ProyectoEventos.Common.Exceptions;
+using ProyectoEventos.Repository.Memoria;
 
 namespace ProyectoEventos.Service
 {
     public class EventoService
     {
-        private readonly IEventoRepository repositorio;
+        private readonly IRepository<Evento> repositorio;
         private readonly IRepository<Cliente> clienteRepositorio;
         private readonly IRepository<Lugar> lugarRepositorio;
         private readonly IRepository<Producto> productoRepositorio;
@@ -22,7 +22,7 @@ namespace ProyectoEventos.Service
         {
         }
 
-        public EventoService(IEventoRepository repositorio, IRepository<Cliente> clienteRepositorio, IRepository<Lugar> lugarRepositorio,
+        public EventoService(IRepository<Evento> repositorio, IRepository<Cliente> clienteRepositorio, IRepository<Lugar> lugarRepositorio,
             IRepository<Producto> productoRepositorio, IRepository<ServicioAdicional> servicioRepositorio)
         {
             this.repositorio = repositorio;
@@ -41,7 +41,7 @@ namespace ProyectoEventos.Service
 
             Cliente cliente = clienteRepositorio.ObtenerExistente(dto.IdCliente);
             Lugar lugar = lugarRepositorio.ObtenerExistente(dto.IdLugar);
-            if (repositorio.HayEventoEnLugarEnHorario(lugar.Id, dto.Fecha, dto.HorasDuracion, dto.Id))
+            if (HayEventoEnLugarEnHorario(lugar.Id, dto.Fecha, dto.HorasDuracion, dto.Id))
             {
                 throw new NegocioException("El lugar ya tiene un evento en ese horario.");
             }
@@ -63,22 +63,34 @@ namespace ProyectoEventos.Service
             repositorio.Eliminar(id);
         }
 
-        public EventoResultadoDTO ObtenerPorIdComoDto(int id)
+        public EventoResultadoDTO ObtenerPorId(int id)
         {
             return MapearAResultado(repositorio.ObtenerExistente(id));
         }
 
-        public List<EventoResultadoDTO> ObtenerTodosComoDto()
+        public List<EventoResultadoDTO> ObtenerTodos()
         {
             return repositorio.ObtenerTodos().Select(MapearAResultado).ToList();
         }
 
-        public List<EventoResultadoDTO> ObtenerProximosAprobadosComoDto()
+        public List<EventoResultadoDTO> ObtenerProximosAprobados()
         {
             DateTime ahora = DateTime.Now;
 
             return repositorio.ObtenerTodos()
                 .Where(evento => evento.EsProximoAprobado(ahora))
+                .OrderBy(evento => evento.Fecha)
+                .Select(MapearAResultado)
+                .ToList();
+        }
+
+        public List<EventoResultadoDTO> ObtenerSinAprobarProximos()
+        {
+            DateTime ahora = DateTime.Now;
+            DateTime limite = DateTime.Today.AddDays(Configuracion.DiasProximos + 1);
+
+            return repositorio.ObtenerTodos()
+                .Where(evento => evento.Fecha >= ahora && evento.Fecha < limite && !evento.TienePresupuestoAprobado())
                 .OrderBy(evento => evento.Fecha)
                 .Select(MapearAResultado)
                 .ToList();
@@ -108,49 +120,8 @@ namespace ProyectoEventos.Service
             return pendientes;
         }
 
-        private static string ArmarDetalle(Evento evento, TipoPendiente tipo)
-        {
-            switch (tipo)
-            {
-                case TipoPendiente.SinPresupuesto:
-                    return "Genere el presupuesto desde Eventos > Ver presupuestos.";
-                case TipoPendiente.Desactualizado:
-                    return string.Join(" ", evento.ObtenerMotivosDesactualizacion());
-                case TipoPendiente.FaltaCobrar:
-                    Presupuesto aprobado = evento.ObtenerPresupuestoAprobadoExistente();
-                    return "Falta cobrar $ " + aprobado.Saldo.ToString("#,##0.00") +
-                        (aprobado.Sena > 0 ? " (señado $ " + aprobado.Sena.ToString("#,##0.00") + ")." : " (sin seña).");
-                default:
-                    Presupuesto enEspera = evento.ObtenerPresupuestos().Last(p => p.Estado == EstadoPresupuesto.EnEspera);
-                    return "Presupuesto N° " + enEspera.Id + " enviado " + DescribirAntiguedad(enEspera.FechaGeneracion) + ".";
-            }
-        }
-
-        public List<EventoResultadoDTO> ObtenerSinAprobarProximosDias(int dias)
-        {
-            DateTime ahora = DateTime.Now;
-            DateTime limite = DateTime.Today.AddDays(dias + 1);
-
-            return repositorio.ObtenerTodos()
-                .Where(evento => evento.Fecha >= ahora && evento.Fecha < limite && !evento.TienePresupuestoAprobado())
-                .OrderBy(evento => evento.Fecha)
-                .Select(MapearAResultado)
-                .ToList();
-        }
-
-        private static string DescribirAntiguedad(DateTime fecha)
-        {
-            int dias = (DateTime.Today - fecha.Date).Days;
-            if (dias <= 0)
-            {
-                return "hoy";
-            }
-            return dias == 1 ? "ayer" : "hace " + dias + " días";
-        }
-
         public void AgregarPlatosAlMenu(int idEvento, int cantidadAdultos, int cantidadNinos, List<int> idsProductos)
         {
-            Evento evento = repositorio.ObtenerExistente(idEvento);
             if (idsProductos == null)
             {
                 throw new ArgumentException("Los productos del plato son obligatorios.");
@@ -162,25 +133,31 @@ namespace ProyectoEventos.Service
                 productos.Add(productoRepositorio.ObtenerExistente(idProducto));
             }
 
+            Evento evento = repositorio.ObtenerExistente(idEvento);
             evento.AgregarPlatosAlMenu(cantidadAdultos, cantidadNinos, productos);
+            repositorio.Actualizar(evento);
         }
 
         public void CambiarCantidadesItem(int idEvento, int idItem, int cantidadAdultos, int cantidadNinos)
         {
-            repositorio.ObtenerExistente(idEvento).CambiarCantidadesItem(idItem, cantidadAdultos, cantidadNinos);
+            Evento evento = repositorio.ObtenerExistente(idEvento);
+            evento.CambiarCantidadesItem(idItem, cantidadAdultos, cantidadNinos);
+            repositorio.Actualizar(evento);
         }
 
         public void QuitarItemDelMenu(int idEvento, int idItem)
         {
-            repositorio.ObtenerExistente(idEvento).QuitarItemDelMenu(idItem);
+            Evento evento = repositorio.ObtenerExistente(idEvento);
+            evento.QuitarItemDelMenu(idItem);
+            repositorio.Actualizar(evento);
         }
 
-        public List<ItemMenuResultadoDTO> ObtenerItemsMenuComoDto(int idEvento)
+        public List<ItemMenuResultadoDTO> ObtenerItemsMenu(int idEvento)
         {
             return repositorio.ObtenerExistente(idEvento).Menu.ObtenerItems().Select(item => new ItemMenuResultadoDTO
             {
                 Id = item.Id,
-                DescripcionComponentes = item.ObtenerDescripcion(),
+                Producto = item.ObtenerDescripcion(),
                 CantidadAdultos = item.CantidadAdultos,
                 CantidadNinos = item.CantidadNinos,
                 Subtotal = item.Subtotal()
@@ -199,7 +176,7 @@ namespace ProyectoEventos.Service
 
         public bool LugarDisponible(int idLugar, DateTime fecha, decimal horasDuracion, int idEventoAIgnorar)
         {
-            return !repositorio.HayEventoEnLugarEnHorario(idLugar, fecha, horasDuracion, idEventoAIgnorar);
+            return !HayEventoEnLugarEnHorario(idLugar, fecha, horasDuracion, idEventoAIgnorar);
         }
 
         public void AgregarServicioAlEvento(int idEvento, int idServicio)
@@ -207,6 +184,7 @@ namespace ProyectoEventos.Service
             Evento evento = repositorio.ObtenerExistente(idEvento);
             ServicioAdicional servicio = servicioRepositorio.ObtenerExistente(idServicio);
             evento.AgregarServicio(servicio);
+            repositorio.Actualizar(evento);
         }
 
         public void QuitarServicioDelEvento(int idEvento, int idServicio)
@@ -214,12 +192,19 @@ namespace ProyectoEventos.Service
             Evento evento = repositorio.ObtenerExistente(idEvento);
             ServicioAdicional servicio = servicioRepositorio.ObtenerExistente(idServicio);
             evento.QuitarServicio(servicio);
+            repositorio.Actualizar(evento);
         }
 
-        public List<ServicioAdicionalDTO> ObtenerServiciosEventoComoDto(int idEvento)
+        public List<ServicioAdicionalDTO> ObtenerServiciosEvento(int idEvento)
         {
             return repositorio.ObtenerExistente(idEvento).ObtenerServicios()
                 .Select(ServicioAdicionalService.MapearADto).ToList();
+        }
+
+        private bool HayEventoEnLugarEnHorario(int idLugar, DateTime fecha, decimal horasDuracion, int idEventoAIgnorar)
+        {
+            return repositorio.ObtenerTodos().Any(evento =>
+                evento.Id != idEventoAIgnorar && evento.TieneLugar(idLugar) && evento.SeSuperponeCon(fecha, horasDuracion));
         }
 
         private Evento CrearEvento(Cliente cliente, Lugar lugar, EventoDTO dto)
@@ -234,10 +219,39 @@ namespace ProyectoEventos.Service
         {
             Evento evento = repositorio.ObtenerExistente(idEvento);
             evento.ActualizarDatos(cliente, lugar, dto.Fecha, dto.HorasDuracion, dto.CantidadAdultos, dto.CantidadNinos);
+            repositorio.Actualizar(evento);
             return evento;
         }
 
-        private EventoResultadoDTO MapearAResultado(Evento evento)
+        private static string ArmarDetalle(Evento evento, TipoPendiente tipo)
+        {
+            switch (tipo)
+            {
+                case TipoPendiente.SinPresupuesto:
+                    return "Genere el presupuesto desde Eventos > Ver presupuestos.";
+                case TipoPendiente.Desactualizado:
+                    return string.Join(" ", evento.ObtenerMotivosDesactualizacion());
+                case TipoPendiente.FaltaCobrar:
+                    Presupuesto aprobado = evento.ObtenerPresupuestoAprobadoExistente();
+                    return "Falta cobrar " + aprobado.Saldo.ToString(Formato.Moneda) +
+                        (aprobado.Sena > 0 ? " (señado " + aprobado.Sena.ToString(Formato.Moneda) + ")." : " (sin seña).");
+                default:
+                    Presupuesto enEspera = evento.ObtenerPresupuestoEnEspera()!;
+                    return "Presupuesto N° " + enEspera.Id + " enviado " + DescribirAntiguedad(enEspera.FechaGeneracion) + ".";
+            }
+        }
+
+        private static string DescribirAntiguedad(DateTime fecha)
+        {
+            int dias = (DateTime.Today - fecha.Date).Days;
+            if (dias <= 0)
+            {
+                return "hoy";
+            }
+            return dias == 1 ? "ayer" : "hace " + dias + " días";
+        }
+
+        private static EventoResultadoDTO MapearAResultado(Evento evento)
         {
             EventoResultadoDTO dto = new EventoResultadoDTO();
             dto.Id = evento.Id;

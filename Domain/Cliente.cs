@@ -1,4 +1,3 @@
-﻿using System;
 using System.Text.RegularExpressions;
 using ProyectoEventos.Common.Exceptions;
 

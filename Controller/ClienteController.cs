@@ -1,4 +1,3 @@
-﻿using System.Collections.Generic;
 using ProyectoEventos.Dto;
 using ProyectoEventos.Service;
 

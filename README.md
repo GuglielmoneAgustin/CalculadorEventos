@@ -17,7 +17,7 @@ Al ejecutar en modo **Debug** se cargan automáticamente datos de ejemplo (clien
 
 ## Pantallas y funciones
 
-La ventana principal tiene un menú lateral (Inicio, Lugares, Clientes, Servicios, Productos, Eventos y Salir) y cada sección se abre dentro de la misma ventana.
+La ventana principal tiene un menú lateral (Inicio, Lugares, Clientes, Servicios, Productos, Eventos, Mi negocio y Salir) y cada sección se abre dentro de la misma ventana. Arriba del menú y en el título de la ventana se muestra el nombre del negocio.
 
 ### Inicio
 - **Alerta** (solo si hace falta) cuando hay eventos de los próximos 7 días que todavía no tienen presupuesto aprobado, con sus clientes.
@@ -55,6 +55,15 @@ Datos de cada uno:
 - Buscador por cliente, lugar, fecha, número o estado del presupuesto.
 - Acciones: **Nuevo evento**, **Editar datos**, **Editar menú**, **Ver presupuestos** y **Eliminar** (no se puede eliminar un evento con presupuesto aprobado).
 
+### Mi negocio
+Datos propios del negocio, que se usan en los tickets y en la interfaz:
+- **Nombre del local** (obligatorio), dirección, teléfono / WhatsApp, mail (con formato válido), CUIT (11 números, con o sin guiones) e Instagram: aparecen en el encabezado del ticket y del comprobante. Los que se dejan vacíos no se imprimen.
+- **Mensaje al pie del ticket:** reemplaza el "Gracias por elegirnos" fijo.
+- **Validez del presupuesto (días):** el ticket de un presupuesto en espera muestra "Válido hasta" (con 0 no se muestra).
+- **Seña sugerida (%):** al cobrar un presupuesto aprobado sin seña, el campo Seña ya viene calculado con ese porcentaje del total (se puede cambiar).
+- A la derecha hay una **vista previa del ticket** que se actualiza mientras se escribe.
+- Si no se cargaron datos, el negocio se llama "Mi negocio".
+
 ### Alta y edición de un evento (asistente en dos pasos)
 
 **Paso 1 – Datos del evento:** cliente, lugar, fecha y hora, duración (4 horas por defecto) y cantidad de adultos y niños.
@@ -66,7 +75,7 @@ Datos de cada uno:
 
 **Paso 2 – Menú y servicios:**
 - Productos agrupados por categoría, con el precio por adulto y por niño, y filtro **"Apto para"** por restricción alimentaria.
-- Se marcan uno o más productos y se agregan como platos con la cantidad de adultos y niños (por defecto, todos los invitados). Antes de agregar se ve el **subtotal estimado**.
+- Se marcan uno o más productos y se agregan como platos (cada producto es un plato) con la cantidad de adultos y niños (por defecto, todos los invitados). Antes de agregar se ve el **subtotal estimado**.
 - Un plato puede tener más porciones que invitados (para quienes repiten).
 - **Editar plato** carga sus cantidades en el formulario; **Guardar cambios** las aplica y **Cancelar edición** las descarta.
 - Servicios adicionales: se agregan y quitan del evento.
@@ -80,7 +89,7 @@ Datos de cada uno:
 - **Aprobar:** solo se aprueba un presupuesto vigente, que esté en espera o cancelado (por ejemplo, si el cliente se arrepintió). Si ya hay otro aprobado, se pregunta si se reemplaza.
 - **Cancelar:** pide confirmación y avisa especialmente si el presupuesto está aprobado.
 - **Actualizar presupuesto:** genera uno nuevo con los datos y precios actuales (o avisa que ya está al día).
-- **Ver ticket:** muestra en pantalla un ticket con todos los datos cotizados. Con **Guardar PDF** se elige dónde guardarlo y se genera el archivo usando la impresora "Microsoft Print to PDF" que trae Windows (si no está instalada, se avisa con un mensaje).
+- **Ver ticket:** muestra en pantalla un ticket con los datos del negocio y todos los datos cotizados. Con **Guardar PDF** se elige dónde guardarlo y se genera el archivo usando la impresora "Microsoft Print to PDF" que trae Windows (si no está instalada, se avisa con un mensaje).
 - **Cobro del presupuesto aprobado:** debajo de la grilla se ve el estado del pago (sin seña, señado o pagado, con cuánto falta cobrar) y no hace falta seleccionar nada:
   - **Registrar seña:** se carga el monto y se confirma. Debe ser mayor a cero y menor al total; se registra una sola seña.
   - **Marcar como pagado:** confirma que el cliente pagó lo que faltaba.
@@ -112,11 +121,12 @@ El código está organizado en capas:
 
 | Carpeta | Contenido |
 |---|---|
-| `Domain` | Entidades y reglas de negocio (`Evento`, `Presupuesto`, `Cliente`, `Lugar`, `Producto`, `ServicioAdicional`, `MenuEvento`, `ItemMenu`). |
-| `Repository` | Almacenamiento en memoria (`IRepository<T>`, `IEventoRepository` y sus implementaciones). |
+| `Domain` | Entidades y reglas de negocio (`Evento`, `Presupuesto`, `Cliente`, `Lugar`, `Producto`, `ServicioAdicional`, `MenuEvento`, `ItemMenu`, `Negocio`). Cada entidad valida sus datos en el constructor y en los setters de sus propiedades. |
+| `Repository` | Interfaz de acceso a datos `IRepository<T>`, común a todas las entidades. El servicio pide el próximo id con `ObtenerProximoId` y guarda los cambios con `Actualizar`. |
+| `Repository/Memoria` | Implementación en memoria de esa interfaz. Para pasar a una base de datos se agrega otra implementación sin tocar los servicios. |
 | `Service` | Casos de uso; reciben los repositorios por constructor. |
 | `Controller` | Punto de entrada que usan las pantallas. |
 | `Dto` | Datos que viajan entre las pantallas y los servicios. |
-| `Forms` | Pantallas de Windows Forms y utilidades de interfaz (`Forms/Utils`: tema visual, búsqueda, avisos, ticket). |
-| `Common` | Enumeraciones y excepciones de negocio. |
-| `DatosIniciales.cs` | Datos de ejemplo que se cargan en modo Debug. |
+| `Forms` | Pantallas de Windows Forms y utilidades de interfaz (`Forms/Utils`: tema visual, grillas, búsqueda, avisos, ticket). |
+| `Common` | Formato de montos y fechas, configuración (`Configuracion.DiasProximos`), enumeraciones (`Common/Enums`) y excepciones de negocio. |
+| `Datos` | Datos de ejemplo que se cargan en modo Debug. |

@@ -1,5 +1,6 @@
 using System.Drawing.Printing;
 using ProyectoEventos.Common;
+using ProyectoEventos.Common.Enums;
 using ProyectoEventos.Dto;
 
 namespace ProyectoEventos.Forms.Utils
@@ -9,14 +10,14 @@ namespace ProyectoEventos.Forms.Utils
         private const int Ancho = 42;
         private const string ImpresoraPdf = "Microsoft Print to PDF";
 
-        public static void Mostrar(IWin32Window padre, PresupuestoDetalleDTO detalle)
+        public static void Mostrar(IWin32Window padre, PresupuestoDetalleDTO detalle, NegocioDTO negocio)
         {
-            MostrarVentana(padre, Armar(detalle), "Ticket del presupuesto " + detalle.Id, "Presupuesto " + detalle.Id);
+            MostrarVentana(padre, Armar(detalle, negocio), "Ticket del presupuesto " + detalle.Id, "Presupuesto " + detalle.Id);
         }
 
-        public static void MostrarComprobante(IWin32Window padre, PresupuestoDetalleDTO detalle)
+        public static void MostrarComprobante(IWin32Window padre, PresupuestoDetalleDTO detalle, NegocioDTO negocio)
         {
-            MostrarVentana(padre, ArmarComprobante(detalle, DateTime.Now), "Comprobante de pago del presupuesto " + detalle.Id,
+            MostrarVentana(padre, ArmarComprobante(detalle, negocio, DateTime.Now), "Comprobante de pago del presupuesto " + detalle.Id,
                 "Comprobante presupuesto " + detalle.Id);
         }
 
@@ -125,24 +126,72 @@ namespace ProyectoEventos.Forms.Utils
         private static readonly string LineaDoble = new string('=', Ancho);
         private static readonly string LineaSimple = new string('-', Ancho);
 
-        private static List<string> Armar(PresupuestoDetalleDTO d)
+        private static List<string> Armar(PresupuestoDetalleDTO d, NegocioDTO negocio)
         {
             List<string> t = new List<string>();
-            ArmarEncabezado(t, d);
+            ArmarDatosNegocio(t, negocio);
+            ArmarEncabezado(t, d, negocio);
             ArmarLugar(t, d);
             ArmarMenu(t, d);
             ArmarServicios(t, d);
             ArmarTotal(t, d);
+            ArmarPie(t, negocio);
             return t;
         }
 
-        private static void ArmarEncabezado(List<string> t, PresupuestoDetalleDTO d)
+        public static List<string> ArmarVistaPrevia(NegocioDTO negocio)
+        {
+            List<string> t = new List<string>();
+            ArmarDatosNegocio(t, negocio);
+            t.Add(Centrar("PRESUPUESTO N° 1"));
+            t.Add(LineaDoble);
+            t.Add("Emitido: " + DateTime.Now.ToString(Formato.FechaHora));
+            if (negocio.DiasValidez > 0)
+            {
+                t.Add("Válido hasta: " + DateTime.Today.AddDays(negocio.DiasValidez).ToString(Formato.Fecha));
+            }
+            t.Add(LineaSimple);
+            t.Add(Centrar("(detalle del presupuesto)"));
+            t.Add(LineaDoble);
+            t.AddRange(Fila("TOTAL", 100000));
+            t.Add(LineaDoble);
+            ArmarPie(t, negocio);
+            return t;
+        }
+
+        private static void ArmarDatosNegocio(List<string> t, NegocioDTO negocio)
+        {
+            t.AddRange(CentrarEnLineas(negocio.Nombre.ToUpper()));
+            t.AddRange(CentrarEnLineas(negocio.Direccion));
+            if (negocio.Telefono.Trim().Length > 0)
+            {
+                t.AddRange(CentrarEnLineas("Tel: " + negocio.Telefono));
+            }
+            t.AddRange(CentrarEnLineas(negocio.Mail));
+            if (negocio.Cuit.Trim().Length > 0)
+            {
+                t.AddRange(CentrarEnLineas("CUIT: " + negocio.Cuit));
+            }
+            t.AddRange(CentrarEnLineas(negocio.Instagram));
+            t.Add(LineaDoble);
+        }
+
+        private static void ArmarPie(List<string> t, NegocioDTO negocio)
+        {
+            t.AddRange(CentrarEnLineas(negocio.MensajePie));
+        }
+
+        private static void ArmarEncabezado(List<string> t, PresupuestoDetalleDTO d, NegocioDTO negocio)
         {
             t.Add(Centrar("PRESUPUESTO N° " + d.Id));
             t.Add(Centrar("Evento N° " + d.IdEvento));
             t.Add(Centrar(d.Estado.Texto().ToUpper()));
             t.Add(LineaDoble);
             t.Add("Emitido: " + d.FechaGeneracion.ToString(Formato.FechaHora));
+            if (d.Estado == EstadoPresupuesto.EnEspera && negocio.DiasValidez > 0)
+            {
+                t.Add("Válido hasta: " + d.FechaGeneracion.AddDays(negocio.DiasValidez).ToString(Formato.Fecha));
+            }
             t.Add("Cliente: " + d.NombreCliente);
             t.Add("Lugar: " + d.NombreLugar);
             t.Add("Fecha: " + d.FechaEvento.ToString(Formato.FechaHora));
@@ -175,7 +224,7 @@ namespace ProyectoEventos.Forms.Utils
             }
             foreach (ItemMenuResultadoDTO item in d.Items)
             {
-                t.AddRange(Fila("  " + item.DescripcionComponentes, item.Subtotal));
+                t.AddRange(Fila("  " + item.Producto, item.Subtotal));
                 t.Add("    " + Personas(item.CantidadAdultos, item.CantidadNinos));
             }
             t.AddRange(Fila("Subtotal menú", d.SubtotalMenu));
@@ -205,12 +254,12 @@ namespace ProyectoEventos.Forms.Utils
                 ArmarCobrado(t, d);
             }
             t.Add(LineaDoble);
-            t.Add(Centrar("Gracias por elegirnos"));
         }
 
-        private static List<string> ArmarComprobante(PresupuestoDetalleDTO d, DateTime emision)
+        private static List<string> ArmarComprobante(PresupuestoDetalleDTO d, NegocioDTO negocio, DateTime emision)
         {
             List<string> t = new List<string>();
+            ArmarDatosNegocio(t, negocio);
             t.Add(Centrar("COMPROBANTE DE PAGO"));
             t.Add(Centrar("Presupuesto N° " + d.Id + " - Evento N° " + d.IdEvento));
             t.Add(LineaDoble);
@@ -237,7 +286,7 @@ namespace ProyectoEventos.Forms.Utils
                 t.Add(Centrar("La seña no es reembolsable."));
             }
             t.Add(Centrar("No válido como factura."));
-            t.Add(Centrar("Gracias por elegirnos"));
+            ArmarPie(t, negocio);
             return t;
         }
 
@@ -255,6 +304,29 @@ namespace ProyectoEventos.Forms.Utils
         private static string Centrar(string texto)
         {
             return texto.Length >= Ancho ? texto : new string(' ', (Ancho - texto.Length) / 2) + texto;
+        }
+
+        private static List<string> CentrarEnLineas(string texto)
+        {
+            List<string> lineas = new List<string>();
+            string actual = string.Empty;
+            foreach (string palabra in texto.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (actual.Length > 0 && actual.Length + 1 + palabra.Length > Ancho)
+                {
+                    lineas.Add(Centrar(actual));
+                    actual = palabra;
+                }
+                else
+                {
+                    actual = actual.Length == 0 ? palabra : actual + " " + palabra;
+                }
+            }
+            if (actual.Length > 0)
+            {
+                lineas.Add(Centrar(actual));
+            }
+            return lineas;
         }
 
         private static List<string> Fila(string texto, decimal monto)

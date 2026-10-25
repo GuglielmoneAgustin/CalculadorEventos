@@ -1,9 +1,7 @@
-using System;
-using System.Collections.Generic;
-using ProyectoEventos.Domain;
 using ProyectoEventos.Common.Exceptions;
+using ProyectoEventos.Domain;
 
-namespace ProyectoEventos.Repository
+namespace ProyectoEventos.Repository.Memoria
 {
     public abstract class RepositorioBase<T> : IRepository<T> where T : class, IEntidad
     {
@@ -28,19 +26,24 @@ namespace ProyectoEventos.Repository
             elementos.Add(elemento);
         }
 
+        public void Actualizar(T elemento)
+        {
+            int indice = elementos.FindIndex(existente => existente.Id == elemento.Id);
+            if (indice < 0)
+            {
+                throw new NoEncontradoException("El " + nombreEntidad + " seleccionado no existe.");
+            }
+            elementos[indice] = elemento;
+        }
+
         public IReadOnlyList<T> ObtenerTodos()
         {
             return elementos.AsReadOnly();
         }
 
-        public T? ObtenerPorId(int id)
-        {
-            return elementos.Find(elemento => elemento.Id == id);
-        }
-
         public T ObtenerExistente(int id)
         {
-            T? elemento = ObtenerPorId(id);
+            T? elemento = elementos.Find(e => e.Id == id);
             if (elemento == null)
             {
                 throw new NoEncontradoException("El " + nombreEntidad + " seleccionado no existe.");

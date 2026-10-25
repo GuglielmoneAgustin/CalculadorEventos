@@ -1,6 +1,6 @@
-namespace ProyectoEventos.Forms.Utils
+namespace ProyectoEventos.Common
 {
-    internal static class Formato
+    public static class Formato
     {
         public const string FechaHora = "dd/MM/yyyy HH:mm";
         public const string Fecha = "dd/MM/yyyy";

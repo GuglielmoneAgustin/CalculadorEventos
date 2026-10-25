@@ -1,4 +1,5 @@
-﻿using System;
+using ProyectoEventos.Common.Enums;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 using ProyectoEventos.Common;
@@ -13,6 +14,7 @@ namespace ProyectoEventos.Forms
     {
         private readonly PresupuestoController controlador;
         private readonly EventoController eventoControlador;
+        private readonly NegocioDTO negocio;
         private readonly int idEvento;
 
         public FrmPresupuestos(int idEvento)
@@ -21,6 +23,7 @@ namespace ProyectoEventos.Forms
             Tema.Aplicar(this);
             controlador = new PresupuestoController();
             eventoControlador = new EventoController();
+            negocio = new NegocioController().Obtener();
             dgvPresupuestos.MensajeSinFilas(() => "Este evento todavía no tiene presupuestos. Arme el menú y toque Finalizar, o toque Actualizar presupuesto.");
             this.idEvento = idEvento;
         }
@@ -76,7 +79,16 @@ namespace ProyectoEventos.Forms
                 ? "Cobro"
                 : "Cobro del presupuesto N° " + aprobado.Id + ": " + aprobado.EstadoPago?.Texto();
             lblDetallePago.Text = DetalleEstadoPago(aprobado);
-            numSena.Value = 0;
+            numSena.Value = SenaSugerida(aprobado);
+        }
+
+        private decimal SenaSugerida(PresupuestoResultadoDTO? aprobado)
+        {
+            if (aprobado == null || aprobado.EstadoPago != EstadoPago.SinSena)
+            {
+                return 0;
+            }
+            return Math.Round(aprobado.CostoTotal * negocio.PorcentajeSena / 100, 2);
         }
 
         private static string DetalleEstadoPago(PresupuestoResultadoDTO? aprobado)
@@ -177,7 +189,7 @@ namespace ProyectoEventos.Forms
 
         private void MostrarComprobante()
         {
-            TicketPresupuesto.MostrarComprobante(this, controlador.ObtenerDetalleAprobado(idEvento));
+            TicketPresupuesto.MostrarComprobante(this, controlador.ObtenerDetalleAprobado(idEvento), negocio);
         }
 
         private void DarFormatoColumnas()
@@ -306,7 +318,7 @@ namespace ProyectoEventos.Forms
 
             try
             {
-                TicketPresupuesto.Mostrar(this, controlador.ObtenerDetalle(idEvento, seleccionado.Id));
+                TicketPresupuesto.Mostrar(this, controlador.ObtenerDetalle(idEvento, seleccionado.Id), negocio);
             }
             catch (NegocioException ex)
             {

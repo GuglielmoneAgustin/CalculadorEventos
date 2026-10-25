@@ -1,5 +1,4 @@
-﻿using ProyectoEventos.Common;
-using System;
+using ProyectoEventos.Common.Enums;
 using ProyectoEventos.Common.Exceptions;
 
 namespace ProyectoEventos.Domain

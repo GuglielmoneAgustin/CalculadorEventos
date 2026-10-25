@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace ProyectoEventos.Common
+namespace ProyectoEventos.Common.Enums
 {
     public enum EstadoPago
     {

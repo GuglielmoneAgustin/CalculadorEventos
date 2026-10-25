@@ -1,34 +1,61 @@
-using System.Collections.Generic;
+using ProyectoEventos.Common.Exceptions;
 
 namespace ProyectoEventos.Domain
 {
     public class MenuEvento
     {
         private List<ItemMenu> items;
+        private int proximoIdItem;
 
         public MenuEvento()
         {
             items = new List<ItemMenu>();
+            proximoIdItem = 1;
         }
 
-        public void AgregarItem(ItemMenu itemMenu)
+        public void AgregarPlatos(int cantidadAdultos, int cantidadNinos, List<Producto> productos)
         {
-            items.Add(itemMenu);
+            if (productos == null || productos.Count == 0)
+            {
+                throw new NegocioException("Seleccione al menos un producto para el plato.");
+            }
+
+            List<ItemMenu> nuevos = new List<ItemMenu>();
+            int idItem = proximoIdItem;
+            foreach (Producto producto in productos)
+            {
+                nuevos.Add(new ItemMenu(idItem, producto, cantidadAdultos, cantidadNinos));
+                idItem++;
+            }
+
+            proximoIdItem = idItem;
+            items.AddRange(nuevos);
         }
 
-        public bool QuitarItem(int idItem)
+        public bool CambiarCantidades(int idItem, int cantidadAdultos, int cantidadNinos)
         {
-            return items.RemoveAll(item => item.Id == idItem) > 0;
+            ItemMenu item = ObtenerItemExistente(idItem);
+            if (item.CantidadAdultos == cantidadAdultos && item.CantidadNinos == cantidadNinos)
+            {
+                return false;
+            }
+            item.CambiarCantidades(cantidadAdultos, cantidadNinos);
+            return true;
         }
 
-        public ItemMenu? ObtenerItem(int idItem)
+        public void QuitarItem(int idItem)
         {
-            return items.Find(item => item.Id == idItem);
+            items.Remove(ObtenerItemExistente(idItem));
         }
 
         public IReadOnlyList<ItemMenu> ObtenerItems()
         {
             return items.AsReadOnly();
+        }
+
+        public bool EstaVacio()
+        {
+            return items.Count == 0;
         }
 
         public bool UsaProducto(int idProducto)
@@ -44,6 +71,16 @@ namespace ProyectoEventos.Domain
                 total += item.Subtotal();
             }
             return total;
+        }
+
+        private ItemMenu ObtenerItemExistente(int idItem)
+        {
+            ItemMenu? item = items.Find(item => item.Id == idItem);
+            if (item == null)
+            {
+                throw new NoEncontradoException("El item de menú no existe.");
+            }
+            return item;
         }
     }
 }

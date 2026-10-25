@@ -1,5 +1,4 @@
-﻿using ProyectoEventos.Common;
-using System;
+using ProyectoEventos.Common.Enums;
 
 namespace ProyectoEventos.Dto
 {

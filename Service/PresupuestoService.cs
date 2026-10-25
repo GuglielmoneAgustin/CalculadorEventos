@@ -1,22 +1,22 @@
-using System;
-using System.Collections.Generic;
 using ProyectoEventos.Common;
+using ProyectoEventos.Common.Enums;
 using ProyectoEventos.Domain;
 using ProyectoEventos.Dto;
 using ProyectoEventos.Repository;
+using ProyectoEventos.Repository.Memoria;
 
 namespace ProyectoEventos.Service
 {
     public class PresupuestoService
     {
-        private readonly IEventoRepository eventoRepositorio;
+        private readonly IRepository<Evento> eventoRepositorio;
 
         public PresupuestoService()
             : this(EventoRepository.ObtenerInstancia())
         {
         }
 
-        public PresupuestoService(IEventoRepository eventoRepositorio)
+        public PresupuestoService(IRepository<Evento> eventoRepositorio)
         {
             this.eventoRepositorio = eventoRepositorio;
         }
@@ -29,29 +29,41 @@ namespace ProyectoEventos.Service
                 return null;
             }
 
-            return MapearAResultado(evento.GenerarPresupuesto(DateTime.Now));
+            Presupuesto presupuesto = evento.GenerarPresupuesto(DateTime.Now);
+            eventoRepositorio.Actualizar(evento);
+            return MapearAResultado(presupuesto);
         }
 
         public PresupuestoResultadoDTO Aprobar(int idEvento, int idPresupuesto, bool reemplazarAprobado)
         {
             Evento evento = eventoRepositorio.ObtenerExistente(idEvento);
-            return MapearAResultado(evento.AprobarPresupuesto(idPresupuesto, reemplazarAprobado));
+            Presupuesto presupuesto = evento.AprobarPresupuesto(idPresupuesto, reemplazarAprobado);
+            eventoRepositorio.Actualizar(evento);
+            return MapearAResultado(presupuesto);
         }
 
         public PresupuestoResultadoDTO Cancelar(int idEvento, int idPresupuesto)
         {
             Evento evento = eventoRepositorio.ObtenerExistente(idEvento);
-            return MapearAResultado(evento.CancelarPresupuesto(idPresupuesto));
+            Presupuesto presupuesto = evento.CancelarPresupuesto(idPresupuesto);
+            eventoRepositorio.Actualizar(evento);
+            return MapearAResultado(presupuesto);
         }
 
         public PresupuestoResultadoDTO RegistrarSena(int idEvento, decimal monto)
         {
-            return MapearAResultado(eventoRepositorio.ObtenerExistente(idEvento).RegistrarSena(monto, DateTime.Now));
+            Evento evento = eventoRepositorio.ObtenerExistente(idEvento);
+            Presupuesto presupuesto = evento.RegistrarSena(monto, DateTime.Now);
+            eventoRepositorio.Actualizar(evento);
+            return MapearAResultado(presupuesto);
         }
 
         public PresupuestoResultadoDTO MarcarPagado(int idEvento)
         {
-            return MapearAResultado(eventoRepositorio.ObtenerExistente(idEvento).MarcarPagado(DateTime.Now));
+            Evento evento = eventoRepositorio.ObtenerExistente(idEvento);
+            Presupuesto presupuesto = evento.MarcarPagado(DateTime.Now);
+            eventoRepositorio.Actualizar(evento);
+            return MapearAResultado(presupuesto);
         }
 
         public PresupuestoResultadoDTO? ObtenerAprobado(int idEvento)
@@ -93,7 +105,7 @@ namespace ProyectoEventos.Service
             dto.CostoLugar = presupuesto.CostoLugar;
             dto.Items = presupuesto.ObtenerItemsMenu().Select(item => new ItemMenuResultadoDTO
             {
-                DescripcionComponentes = item.Descripcion,
+                Producto = item.Descripcion,
                 CantidadAdultos = item.CantidadAdultos,
                 CantidadNinos = item.CantidadNinos,
                 Subtotal = item.Subtotal
@@ -144,7 +156,7 @@ namespace ProyectoEventos.Service
             dto.Saldo = presupuesto.Saldo;
             dto.Vigente = presupuesto.EventoAsociado.EsVigente(presupuesto);
             dto.Detalle = presupuesto.Estado == EstadoPresupuesto.Cancelado && presupuesto.Sena > 0
-                ? "Seña de $ " + presupuesto.Sena.ToString("#,##0.00") + " no reembolsable."
+                ? "Seña de " + presupuesto.Sena.ToString(Formato.Moneda) + " no reembolsable."
                 : string.Join(" ", presupuesto.EventoAsociado.ObtenerMotivosDesactualizacion(presupuesto));
             return dto;
         }

@@ -1,4 +1,3 @@
-﻿using System;
 using ProyectoEventos.Common.Exceptions;
 
 namespace ProyectoEventos.Domain

@@ -1,15 +1,14 @@
-using System.Collections.Generic;
 using ProyectoEventos.Domain;
 
 namespace ProyectoEventos.Repository
 {
     public interface IRepository<T> where T : class, IEntidad
     {
+        int ObtenerProximoId();
         void Agregar(T elemento);
+        void Actualizar(T elemento);
         IReadOnlyList<T> ObtenerTodos();
-        T? ObtenerPorId(int id);
         T ObtenerExistente(int id);
         void Eliminar(int id);
-        int ObtenerProximoId();
     }
 }

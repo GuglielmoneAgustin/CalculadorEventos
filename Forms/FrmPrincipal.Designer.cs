@@ -29,6 +29,7 @@ namespace ProyectoEventos.Forms
             btnServicios = new Button();
             btnProductos = new Button();
             btnEventos = new Button();
+            btnNegocio = new Button();
             btnSalir = new Button();
             pnlMenu.SuspendLayout();
             pnlEncabezado.SuspendLayout();
@@ -36,6 +37,7 @@ namespace ProyectoEventos.Forms
             // 
             // pnlMenu
             // 
+            pnlMenu.Controls.Add(btnNegocio);
             pnlMenu.Controls.Add(btnSalir);
             pnlMenu.Controls.Add(btnEventos);
             pnlMenu.Controls.Add(btnProductos);
@@ -204,6 +206,25 @@ namespace ProyectoEventos.Forms
             btnEventos.TabIndex = 7;
             btnEventos.Click += btnEventos_Click;
             // 
+            // btnNegocio
+            // 
+            btnNegocio.BackColor = Tema.Carob;
+            btnNegocio.Cursor = Cursors.Hand;
+            btnNegocio.Dock = DockStyle.Bottom;
+            btnNegocio.FlatAppearance.BorderSize = 0;
+            btnNegocio.FlatAppearance.MouseOverBackColor = Tema.CarobHover;
+            btnNegocio.FlatStyle = FlatStyle.Flat;
+            btnNegocio.Font = new Font("Segoe UI", 11F);
+            btnNegocio.ForeColor = Tema.Almond;
+            btnNegocio.Height = 52;
+            btnNegocio.Padding = new Padding(20, 0, 0, 0);
+            btnNegocio.Text = "Mi negocio";
+            btnNegocio.TextAlign = ContentAlignment.MiddleLeft;
+            btnNegocio.UseVisualStyleBackColor = false;
+            btnNegocio.Name = "btnNegocio";
+            btnNegocio.TabIndex = 8;
+            btnNegocio.Click += btnNegocio_Click;
+            // 
             // btnSalir
             // 
             btnSalir.BackColor = Tema.Carob;
@@ -220,7 +241,7 @@ namespace ProyectoEventos.Forms
             btnSalir.TextAlign = ContentAlignment.MiddleLeft;
             btnSalir.UseVisualStyleBackColor = false;
             btnSalir.Name = "btnSalir";
-            btnSalir.TabIndex = 8;
+            btnSalir.TabIndex = 9;
             btnSalir.Click += btnSalir_Click;
             // 
             // FrmPrincipal
@@ -255,6 +276,7 @@ namespace ProyectoEventos.Forms
         private Button btnServicios;
         private Button btnProductos;
         private Button btnEventos;
+        private Button btnNegocio;
         private Button btnSalir;
     }
 }

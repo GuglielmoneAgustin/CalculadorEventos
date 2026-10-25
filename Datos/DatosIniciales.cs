@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using ProyectoEventos.Common.Enums;
 using ProyectoEventos.Controller;
-using ProyectoEventos.Common;
 using ProyectoEventos.Dto;
 
-namespace ProyectoEventos
+namespace ProyectoEventos.Datos
 {
     internal static class DatosIniciales
     {
@@ -23,6 +20,7 @@ namespace ProyectoEventos
             EventoController eventos = new EventoController();
             PresupuestoController presupuestos = new PresupuestoController();
 
+            CargarNegocio();
             CargarClientes(clientes);
             CargarLugares(lugares);
             CargarProductos(productos);
@@ -89,6 +87,22 @@ namespace ProyectoEventos
         private static decimal Porcentaje(decimal total, int porcentaje)
         {
             return Math.Round(total * porcentaje / 100 / 1000) * 1000;
+        }
+
+        private static void CargarNegocio()
+        {
+            new NegocioController().Guardar(new NegocioDTO
+            {
+                Nombre = "Salón Las Rosas",
+                Direccion = "Av. Libertador 1450, CABA",
+                Telefono = "11 4555-2020",
+                Mail = "hola@salonlasrosas.com",
+                Cuit = "30-71234567-8",
+                Instagram = "@salonlasrosas",
+                MensajePie = "Gracias por elegirnos. ¡Te esperamos!",
+                DiasValidez = 15,
+                PorcentajeSena = 30
+            });
         }
 
         private static void CargarClientes(ClienteController clientes)

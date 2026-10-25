@@ -1,23 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+using ProyectoEventos.Common.Exceptions;
 using ProyectoEventos.Domain;
 using ProyectoEventos.Dto;
 using ProyectoEventos.Repository;
-using ProyectoEventos.Common.Exceptions;
+using ProyectoEventos.Repository.Memoria;
 
 namespace ProyectoEventos.Service
 {
     public class LugarService
     {
         private readonly IRepository<Lugar> repositorio;
-        private readonly IEventoRepository eventoRepositorio;
+        private readonly IRepository<Evento> eventoRepositorio;
 
         public LugarService()
             : this(LugarRepository.ObtenerInstancia(), EventoRepository.ObtenerInstancia())
         {
         }
 
-        public LugarService(IRepository<Lugar> repositorio, IEventoRepository eventoRepositorio)
+        public LugarService(IRepository<Lugar> repositorio, IRepository<Evento> eventoRepositorio)
         {
             this.repositorio = repositorio;
             this.eventoRepositorio = eventoRepositorio;
@@ -66,7 +65,7 @@ namespace ProyectoEventos.Service
         {
             Lugar lugar = repositorio.ObtenerExistente(dto.Id);
             Lugar validado = new Lugar(lugar.Id, dto.Nombre, dto.CostoBase, dto.CostoPorHora, dto.Capacidad, dto.Ubicacion);
-            if (eventoRepositorio.TieneEventoQueNoEntraEn(validado))
+            if (eventoRepositorio.ObtenerTodos().Any(evento => evento.TieneLugar(validado.Id) && !validado.AdmiteInvitados(evento.TotalInvitados())))
             {
                 throw new NegocioException("No se puede reducir la capacidad: hay eventos en este lugar con más invitados.");
             }
@@ -76,11 +75,12 @@ namespace ProyectoEventos.Service
             lugar.CostoPorHora = validado.CostoPorHora;
             lugar.Capacidad = validado.Capacidad;
             lugar.Ubicacion = validado.Ubicacion;
+            repositorio.Actualizar(lugar);
         }
 
         public void Eliminar(int id)
         {
-            if (eventoRepositorio.TieneLugarAsociado(id))
+            if (eventoRepositorio.ObtenerTodos().Any(evento => evento.TieneLugar(id)))
             {
                 throw new NegocioException("No se puede eliminar el lugar porque está asociado a un evento.");
             }

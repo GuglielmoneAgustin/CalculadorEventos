@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using ProyectoEventos.Controller;
 using ProyectoEventos.Forms.Utils;
 
 namespace ProyectoEventos.Forms
@@ -24,7 +25,15 @@ namespace ProyectoEventos.Forms
 
         private void FrmPrincipal_Load(object sender, EventArgs e)
         {
+            MostrarNombreNegocio();
             AbrirEnPanel(() => new FrmInicio(), btnInicio);
+        }
+
+        public void MostrarNombreNegocio()
+        {
+            string nombre = new NegocioController().Obtener().Nombre;
+            lblTitulo.Text = nombre;
+            Text = nombre + " - Presupuestos para eventos";
         }
 
         private void AbrirEnPanel(Func<Form> crearPantalla, Button boton)
@@ -179,6 +188,11 @@ namespace ProyectoEventos.Forms
         private void btnEventos_Click(object sender, EventArgs e)
         {
             AbrirEnPanel(() => new FrmEventos(), btnEventos);
+        }
+
+        private void btnNegocio_Click(object sender, EventArgs e)
+        {
+            AbrirEnPanel(() => new FrmNegocio(), btnNegocio);
         }
 
         private void btnSalir_Click(object sender, EventArgs e)

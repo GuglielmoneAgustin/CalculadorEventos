@@ -1,23 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+using ProyectoEventos.Common.Exceptions;
 using ProyectoEventos.Domain;
 using ProyectoEventos.Dto;
 using ProyectoEventos.Repository;
-using ProyectoEventos.Common.Exceptions;
+using ProyectoEventos.Repository.Memoria;
 
 namespace ProyectoEventos.Service
 {
     public class ServicioAdicionalService
     {
         private readonly IRepository<ServicioAdicional> repositorio;
-        private readonly IEventoRepository eventoRepositorio;
+        private readonly IRepository<Evento> eventoRepositorio;
 
         public ServicioAdicionalService()
             : this(ServicioAdicionalRepository.ObtenerInstancia(), EventoRepository.ObtenerInstancia())
         {
         }
 
-        public ServicioAdicionalService(IRepository<ServicioAdicional> repositorio, IEventoRepository eventoRepositorio)
+        public ServicioAdicionalService(IRepository<ServicioAdicional> repositorio, IRepository<Evento> eventoRepositorio)
         {
             this.repositorio = repositorio;
             this.eventoRepositorio = eventoRepositorio;
@@ -70,11 +69,12 @@ namespace ProyectoEventos.Service
             servicio.Nombre = validado.Nombre;
             servicio.Descripcion = validado.Descripcion;
             servicio.Monto = validado.Monto;
+            repositorio.Actualizar(servicio);
         }
 
         public void Eliminar(int id)
         {
-            if (eventoRepositorio.TieneServicioAsociado(id))
+            if (eventoRepositorio.ObtenerTodos().Any(evento => evento.TieneServicio(id)))
             {
                 throw new NegocioException("No se puede eliminar el servicio porque está asociado a un evento.");
             }

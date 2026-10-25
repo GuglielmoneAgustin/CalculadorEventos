@@ -1,23 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
 using ProyectoEventos.Common.Exceptions;
 
 namespace ProyectoEventos.Domain
 {
     public class ItemMenu
     {
-        private List<Producto> componentes;
+        private Producto producto = null!;
         private int cantidadAdultos;
         private int cantidadNinos;
 
-        public ItemMenu(int id, int cantidadAdultos, int cantidadNinos)
+        public ItemMenu(int id, Producto producto, int cantidadAdultos, int cantidadNinos)
         {
             Id = id;
-            componentes = new List<Producto>();
+            Producto = producto;
             CambiarCantidades(cantidadAdultos, cantidadNinos);
         }
 
         public int Id { get; private set; }
+
+        public Producto Producto
+        {
+            get { return producto; }
+            private set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentException("El producto no puede ser nulo.");
+                }
+                producto = value;
+            }
+        }
 
         public int CantidadAdultos
         {
@@ -48,38 +59,19 @@ namespace ProyectoEventos.Domain
             this.cantidadNinos = cantidadNinos;
         }
 
-        public void AgregarComponente(Producto producto)
-        {
-            if (producto == null)
-            {
-                throw new ArgumentException("El producto no puede ser nulo.");
-            }
-            componentes.Add(producto);
-        }
-
         public string ObtenerDescripcion()
         {
-            List<string> nombres = new List<string>();
-            foreach (Producto producto in componentes)
-            {
-                nombres.Add(producto.Nombre);
-            }
-            return string.Join(" + ", nombres);
+            return producto.Nombre;
         }
 
         public bool UsaProducto(int idProducto)
         {
-            return componentes.Exists(p => p.Id == idProducto);
+            return producto.Id == idProducto;
         }
 
         public decimal Subtotal()
         {
-            decimal total = 0m;
-            foreach (Producto producto in componentes)
-            {
-                total = total + (producto.PrecioAdulto * cantidadAdultos) + (producto.PrecioNino * cantidadNinos);
-            }
-            return total;
+            return (producto.PrecioAdulto * cantidadAdultos) + (producto.PrecioNino * cantidadNinos);
         }
     }
 }

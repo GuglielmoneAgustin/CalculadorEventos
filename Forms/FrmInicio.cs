@@ -1,4 +1,5 @@
-﻿using System;
+using ProyectoEventos.Common.Enums;
+using System;
 using System.Windows.Forms;
 using ProyectoEventos.Common;
 using ProyectoEventos.Controller;
@@ -9,8 +10,6 @@ namespace ProyectoEventos.Forms
 {
     public partial class FrmInicio : Form
     {
-        private const int DiasUrgentes = 7;
-
         private readonly EventoController eventoControlador;
 
         public FrmInicio()
@@ -34,7 +33,7 @@ namespace ProyectoEventos.Forms
             lblResumenValorHoy.Text = Formato.DiaSemana(DateTime.Today);
             lblResumenDetalleHoy.Text = DateTime.Today.ToString("d 'de' MMMM");
             List<EventoResultadoDTO> proximos = eventoControlador.ObtenerProximosAprobados();
-            List<EventoResultadoDTO> sinAprobar = eventoControlador.ObtenerSinAprobarProximosDias(DiasUrgentes);
+            List<EventoResultadoDTO> sinAprobar = eventoControlador.ObtenerSinAprobarProximos();
             List<PendienteDTO> pendientes = eventoControlador.ObtenerPendientes();
             CargarAlerta(sinAprobar);
             CargarSemana(proximos, sinAprobar);
@@ -58,18 +57,18 @@ namespace ProyectoEventos.Forms
                 cuales += " y " + (urgentes.Count - 3) + " más";
             }
             lblAlerta.Text = (urgentes.Count == 1
-                ? "⚠  1 evento de los próximos " + DiasUrgentes + " días sigue sin aprobar: "
-                : "⚠  " + urgentes.Count + " eventos de los próximos " + DiasUrgentes + " días siguen sin aprobar: ") + cuales + ".";
+                ? "⚠  1 evento de los próximos " + Configuracion.DiasProximos + " días sigue sin aprobar: "
+                : "⚠  " + urgentes.Count + " eventos de los próximos " + Configuracion.DiasProximos + " días siguen sin aprobar: ") + cuales + ".";
             lblAlerta.Visible = true;
         }
 
         private void CargarSemana(List<EventoResultadoDTO> proximos, List<EventoResultadoDTO> sinAprobar)
         {
-            int aprobados = proximos.Count(e => Formato.DiasHasta(e.Fecha) <= DiasUrgentes);
+            int aprobados = proximos.Count(e => Formato.DiasHasta(e.Fecha) <= Configuracion.DiasProximos);
             int total = aprobados + sinAprobar.Count;
             lblResumenValorSemana.Text = total == 1 ? "1 evento" : total + " eventos";
             lblResumenDetalleSemana.Text = total == 0
-                ? "Nada en los próximos " + DiasUrgentes + " días."
+                ? "Nada en los próximos " + Configuracion.DiasProximos + " días."
                 : aprobados + (aprobados == 1 ? " aprobado" : " aprobados") + Environment.NewLine + sinAprobar.Count + " sin aprobar";
         }
 
@@ -156,7 +155,7 @@ namespace ProyectoEventos.Forms
         private void dgvProximosEventos_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
         {
             if (e.RowIndex >= 0 && dgvProximosEventos.Rows[e.RowIndex].DataBoundItem is FilaProximoEvento fila
-                && Formato.DiasHasta(fila.Fecha) <= DiasUrgentes)
+                && Formato.DiasHasta(fila.Fecha) <= Configuracion.DiasProximos)
             {
                 Tema.ResaltarFila(e, dgvProximosEventos.Columns[e.ColumnIndex].Name == "Falta");
             }

@@ -1,23 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+using ProyectoEventos.Common.Exceptions;
 using ProyectoEventos.Domain;
 using ProyectoEventos.Dto;
 using ProyectoEventos.Repository;
-using ProyectoEventos.Common.Exceptions;
+using ProyectoEventos.Repository.Memoria;
 
 namespace ProyectoEventos.Service
 {
     public class ProductoService
     {
         private readonly IRepository<Producto> repositorio;
-        private readonly IEventoRepository eventoRepositorio;
+        private readonly IRepository<Evento> eventoRepositorio;
 
         public ProductoService()
             : this(ProductoRepository.ObtenerInstancia(), EventoRepository.ObtenerInstancia())
         {
         }
 
-        public ProductoService(IRepository<Producto> repositorio, IEventoRepository eventoRepositorio)
+        public ProductoService(IRepository<Producto> repositorio, IRepository<Evento> eventoRepositorio)
         {
             this.repositorio = repositorio;
             this.eventoRepositorio = eventoRepositorio;
@@ -72,11 +71,12 @@ namespace ProyectoEventos.Service
             producto.PrecioNino = validado.PrecioNino;
             producto.Categoria = validado.Categoria;
             producto.Restriccion = validado.Restriccion;
+            repositorio.Actualizar(producto);
         }
 
         public void Eliminar(int id)
         {
-            if (eventoRepositorio.TieneProductoAsociado(id))
+            if (eventoRepositorio.ObtenerTodos().Any(evento => evento.UsaProducto(id)))
             {
                 throw new NegocioException("No se puede eliminar el producto porque forma parte del menú de un evento.");
             }

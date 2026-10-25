@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using ProyectoEventos.Dto;
 using ProyectoEventos.Service;
 
@@ -25,17 +24,17 @@ namespace ProyectoEventos.Controller
 
         public EventoResultadoDTO ObtenerPorId(int id)
         {
-            return servicio.ObtenerPorIdComoDto(id);
+            return servicio.ObtenerPorId(id);
         }
 
         public List<EventoResultadoDTO> ObtenerTodos()
         {
-            return servicio.ObtenerTodosComoDto();
+            return servicio.ObtenerTodos();
         }
 
         public List<EventoResultadoDTO> ObtenerProximosAprobados()
         {
-            return servicio.ObtenerProximosAprobadosComoDto();
+            return servicio.ObtenerProximosAprobados();
         }
 
         public List<PendienteDTO> ObtenerPendientes()
@@ -43,9 +42,9 @@ namespace ProyectoEventos.Controller
             return servicio.ObtenerPendientes();
         }
 
-        public List<EventoResultadoDTO> ObtenerSinAprobarProximosDias(int dias)
+        public List<EventoResultadoDTO> ObtenerSinAprobarProximos()
         {
-            return servicio.ObtenerSinAprobarProximosDias(dias);
+            return servicio.ObtenerSinAprobarProximos();
         }
 
         public void AgregarPlatosAlMenu(int idEvento, int cantidadAdultos, int cantidadNinos, List<int> idsProductos)
@@ -65,7 +64,7 @@ namespace ProyectoEventos.Controller
 
         public List<ItemMenuResultadoDTO> ObtenerItemsMenu(int idEvento)
         {
-            return servicio.ObtenerItemsMenuComoDto(idEvento);
+            return servicio.ObtenerItemsMenu(idEvento);
         }
 
         public decimal ObtenerTotalMenu(int idEvento)
@@ -95,7 +94,7 @@ namespace ProyectoEventos.Controller
 
         public List<ServicioAdicionalDTO> ObtenerServiciosEvento(int idEvento)
         {
-            return servicio.ObtenerServiciosEventoComoDto(idEvento);
+            return servicio.ObtenerServiciosEvento(idEvento);
         }
     }
 }

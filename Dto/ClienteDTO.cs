@@ -1,4 +1,4 @@
-﻿namespace ProyectoEventos.Dto
+namespace ProyectoEventos.Dto
 {
     public class ClienteDTO
     {

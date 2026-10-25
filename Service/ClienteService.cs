@@ -1,23 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+using ProyectoEventos.Common.Exceptions;
 using ProyectoEventos.Domain;
 using ProyectoEventos.Dto;
 using ProyectoEventos.Repository;
-using ProyectoEventos.Common.Exceptions;
+using ProyectoEventos.Repository.Memoria;
 
 namespace ProyectoEventos.Service
 {
     public class ClienteService
     {
         private readonly IRepository<Cliente> repositorio;
-        private readonly IEventoRepository eventoRepositorio;
+        private readonly IRepository<Evento> eventoRepositorio;
 
         public ClienteService()
             : this(ClienteRepository.ObtenerInstancia(), EventoRepository.ObtenerInstancia())
         {
         }
 
-        public ClienteService(IRepository<Cliente> repositorio, IEventoRepository eventoRepositorio)
+        public ClienteService(IRepository<Cliente> repositorio, IRepository<Evento> eventoRepositorio)
         {
             this.repositorio = repositorio;
             this.eventoRepositorio = eventoRepositorio;
@@ -71,11 +70,12 @@ namespace ProyectoEventos.Service
             cliente.Dni = validado.Dni;
             cliente.Mail = validado.Mail;
             cliente.Telefono = validado.Telefono;
+            repositorio.Actualizar(cliente);
         }
 
         public void Eliminar(int id)
         {
-            if (eventoRepositorio.TieneClienteAsociado(id))
+            if (eventoRepositorio.ObtenerTodos().Any(evento => evento.TieneCliente(id)))
             {
                 throw new NegocioException("No se puede eliminar el cliente porque está asociado a un evento.");
             }
@@ -98,7 +98,7 @@ namespace ProyectoEventos.Service
             dto.Mail = cliente.Mail;
             dto.Telefono = cliente.Telefono;
             dto.Descripcion = cliente.ObtenerDescripcion();
-            dto.CantidadEventos = eventoRepositorio.ContarEventosDeCliente(cliente.Id);
+            dto.CantidadEventos = eventoRepositorio.ObtenerTodos().Count(evento => evento.TieneCliente(cliente.Id));
             return dto;
         }
     }

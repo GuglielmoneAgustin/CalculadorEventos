@@ -1,6 +1,6 @@
 using System.ComponentModel;
 using System.Reflection;
-using ProyectoEventos.Common;
+using ProyectoEventos.Common.Enums;
 
 namespace ProyectoEventos.Forms.Utils
 {

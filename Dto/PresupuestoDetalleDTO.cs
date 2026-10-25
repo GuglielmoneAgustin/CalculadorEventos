@@ -1,6 +1,4 @@
-using System;
-using System.Collections.Generic;
-using ProyectoEventos.Common;
+using ProyectoEventos.Common.Enums;
 
 namespace ProyectoEventos.Dto
 {

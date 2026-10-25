@@ -1,4 +1,5 @@
-﻿using System;
+using ProyectoEventos.Common.Enums;
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using ProyectoEventos.Common;
@@ -235,8 +236,8 @@ namespace ProyectoEventos.Forms
             dgvItemsMenu.Columna("Subtotal").DefaultCellStyle.Format = Formato.Moneda;
 
             dgvItemsMenu.Columna("Id").Visible = false;
-            dgvItemsMenu.Columna("DescripcionComponentes").HeaderText = "Productos";
-            dgvItemsMenu.Columna("DescripcionComponentes").FillWeight = 160;
+            dgvItemsMenu.Columna("Producto").HeaderText = "Producto";
+            dgvItemsMenu.Columna("Producto").FillWeight = 160;
             dgvItemsMenu.Columna("Subtotal").FillWeight = 130;
             dgvItemsMenu.Columna("CantidadAdultos").HeaderText = "Adultos";
             dgvItemsMenu.Columna("CantidadNinos").HeaderText = "Niños";
@@ -316,7 +317,7 @@ namespace ProyectoEventos.Forms
             numCantAdultosItem.Value = item.CantidadAdultos;
             numCantNinosItem.Value = item.CantidadNinos;
 
-            lblComponentes.Text = "Editando: " + item.DescripcionComponentes;
+            lblComponentes.Text = "Editando: " + item.Producto;
             btnAgregarItem.Text = "Guardar cambios";
             btnCancelarEdicion.Visible = true;
             ActualizarSubtotalPlato();

@@ -1,15 +1,12 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using ProyectoEventos.Common;
+using ProyectoEventos.Common.Enums;
 using ProyectoEventos.Common.Exceptions;
 
 namespace ProyectoEventos.Domain
 {
     public class Evento : IEntidad
     {
-        public const int DiasParaCobrar = 7;
-
         private DateTime fecha;
         private decimal horasDuracion;
         private int cantidadAdultos;
@@ -19,7 +16,6 @@ namespace ProyectoEventos.Domain
         private readonly MenuEvento menu;
         private readonly List<ServicioAdicional> servicios;
         private readonly List<Presupuesto> presupuestos;
-        private int proximoIdItemMenu;
         private int proximoIdPresupuesto;
         private bool huboCambiosDesdeUltimoPresupuesto;
 
@@ -29,7 +25,6 @@ namespace ProyectoEventos.Domain
             menu = new MenuEvento();
             servicios = new List<ServicioAdicional>();
             presupuestos = new List<Presupuesto>();
-            proximoIdItemMenu = 1;
             proximoIdPresupuesto = 1;
             ActualizarDatos(cliente, lugar, fecha, horasDuracion, cantidadAdultos, cantidadNinos);
         }
@@ -170,7 +165,7 @@ namespace ProyectoEventos.Domain
             {
                 return EstadoPresupuesto.Aprobado;
             }
-            if (presupuestos.Exists(presupuesto => presupuesto.Estado == EstadoPresupuesto.EnEspera))
+            if (ObtenerPresupuestoEnEspera() != null)
             {
                 return EstadoPresupuesto.EnEspera;
             }
@@ -190,7 +185,7 @@ namespace ProyectoEventos.Domain
             }
             if (estado == EstadoPresupuesto.Aprobado)
             {
-                return ObtenerEstadoPago() != EstadoPago.Pagado && Fecha.Date <= ahora.Date.AddDays(DiasParaCobrar)
+                return ObtenerEstadoPago() != EstadoPago.Pagado && Fecha.Date <= ahora.Date.AddDays(Configuracion.DiasProximos)
                     ? TipoPendiente.FaltaCobrar
                     : null;
             }
@@ -208,51 +203,21 @@ namespace ProyectoEventos.Domain
 
         public void AgregarPlatosAlMenu(int cantidadAdultos, int cantidadNinos, List<Producto> productos)
         {
-            if (productos == null || productos.Count == 0)
-            {
-                throw new NegocioException("Seleccione al menos un producto para el plato.");
-            }
-
-            List<ItemMenu> nuevos = new List<ItemMenu>();
-            int idItem = proximoIdItemMenu;
-            foreach (Producto producto in productos)
-            {
-                ItemMenu item = new ItemMenu(idItem, cantidadAdultos, cantidadNinos);
-                item.AgregarComponente(producto);
-                nuevos.Add(item);
-                idItem++;
-            }
-
-            proximoIdItemMenu = idItem;
-            foreach (ItemMenu item in nuevos)
-            {
-                Menu.AgregarItem(item);
-            }
+            Menu.AgregarPlatos(cantidadAdultos, cantidadNinos, productos);
             MarcarCambioPendienteDePresupuesto();
         }
 
         public void CambiarCantidadesItem(int idItem, int cantidadAdultos, int cantidadNinos)
         {
-            ItemMenu? item = Menu.ObtenerItem(idItem);
-            if (item == null)
+            if (Menu.CambiarCantidades(idItem, cantidadAdultos, cantidadNinos))
             {
-                throw new NoEncontradoException("El item de menú no existe.");
+                MarcarCambioPendienteDePresupuesto();
             }
-            if (item.CantidadAdultos == cantidadAdultos && item.CantidadNinos == cantidadNinos)
-            {
-                return;
-            }
-
-            item.CambiarCantidades(cantidadAdultos, cantidadNinos);
-            MarcarCambioPendienteDePresupuesto();
         }
 
         public void QuitarItemDelMenu(int idItem)
         {
-            if (!Menu.QuitarItem(idItem))
-            {
-                throw new NoEncontradoException("El item de menú no existe.");
-            }
+            Menu.QuitarItem(idItem);
             MarcarCambioPendienteDePresupuesto();
         }
 
@@ -286,7 +251,7 @@ namespace ProyectoEventos.Domain
 
         public Presupuesto GenerarPresupuesto(DateTime fechaGeneracion)
         {
-            if (Menu.ObtenerItems().Count == 0)
+            if (Menu.EstaVacio())
             {
                 throw new NegocioException("Debe agregar al menos un item al menú antes de generar un presupuesto.");
             }
@@ -432,6 +397,11 @@ namespace ProyectoEventos.Domain
                 total += servicio.Monto;
             }
             return total;
+        }
+
+        public Presupuesto? ObtenerPresupuestoEnEspera()
+        {
+            return presupuestos.FindLast(presupuesto => presupuesto.Estado == EstadoPresupuesto.EnEspera);
         }
 
         public Presupuesto? ObtenerPresupuestoDeReferencia()

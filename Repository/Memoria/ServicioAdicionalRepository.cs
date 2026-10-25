@@ -1,6 +1,6 @@
 using ProyectoEventos.Domain;
 
-namespace ProyectoEventos.Repository
+namespace ProyectoEventos.Repository.Memoria
 {
     public class ServicioAdicionalRepository : RepositorioBase<ServicioAdicional>
     {
