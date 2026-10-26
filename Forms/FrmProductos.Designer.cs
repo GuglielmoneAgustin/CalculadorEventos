@@ -32,8 +32,8 @@ namespace ProyectoEventos.Forms
             numPrecioNino = new NumericUpDown();
             lblEnumCategoria = new Label();
             cmbEnumCategoria = new ComboBox();
-            lblEnumRestriccion = new Label();
-            cmbEnumRestriccion = new ComboBox();
+            lblRestriccion = new Label();
+            cmbRestriccion = new ComboBox();
             btnGuardar = new Button();
             btnEditar = new Button();
             btnEliminar = new Button();
@@ -42,6 +42,13 @@ namespace ProyectoEventos.Forms
             txtBuscar = new TextBox();
             lblBuscar = new Label();
             btnVolver = new Button();
+            tlpRestricciones = new TableLayoutPanel();
+            lblRestricciones = new Label();
+            lblAyudaRestricciones = new Label();
+            txtNuevaRestriccion = new TextBox();
+            btnAgregarRestriccion = new Button();
+            btnQuitarRestriccion = new Button();
+            cmbRestriccionesLista = new ComboBox();
             ((System.ComponentModel.ISupportInitialize)numPrecioAdulto).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numPrecioNino).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dgvProductos).BeginInit();
@@ -49,6 +56,7 @@ namespace ProyectoEventos.Forms
             tlpFormulario.SuspendLayout();
             tlpBotones.SuspendLayout();
             tlpGrilla.SuspendLayout();
+            tlpRestricciones.SuspendLayout();
             SuspendLayout();
             // 
             // tlpRaiz
@@ -83,13 +91,15 @@ namespace ProyectoEventos.Forms
             tlpFormulario.Controls.Add(numPrecioAdulto, 0, 4);
             tlpFormulario.Controls.Add(numPrecioNino, 1, 4);
             tlpFormulario.Controls.Add(lblEnumCategoria, 0, 5);
-            tlpFormulario.Controls.Add(lblEnumRestriccion, 1, 5);
+            tlpFormulario.Controls.Add(lblRestriccion, 1, 5);
             tlpFormulario.Controls.Add(cmbEnumCategoria, 0, 6);
-            tlpFormulario.Controls.Add(cmbEnumRestriccion, 1, 6);
+            tlpFormulario.Controls.Add(cmbRestriccion, 1, 6);
             tlpFormulario.Controls.Add(tlpBotones, 0, 7);
             tlpFormulario.SetColumnSpan(tlpBotones, 2);
             tlpFormulario.Controls.Add(lblAviso, 0, 8);
             tlpFormulario.SetColumnSpan(lblAviso, 2);
+            tlpFormulario.Controls.Add(tlpRestricciones, 0, 9);
+            tlpFormulario.SetColumnSpan(tlpRestricciones, 2);
             tlpFormulario.Dock = DockStyle.Fill;
             tlpFormulario.Margin = new Padding(0, 0, 40, 0);
             tlpFormulario.Name = "tlpFormulario";
@@ -252,21 +262,21 @@ namespace ProyectoEventos.Forms
             cmbEnumCategoria.Name = "cmbEnumCategoria";
             cmbEnumCategoria.TabIndex = 7;
             // 
-            // lblEnumRestriccion
+            // lblRestriccion
             // 
-            lblEnumRestriccion.AutoSize = true;
-            lblEnumRestriccion.Margin = new Padding(3, 8, 3, 3);
-            lblEnumRestriccion.Text = "Restricción:";
-            lblEnumRestriccion.Name = "lblEnumRestriccion";
-            lblEnumRestriccion.TabIndex = 8;
+            lblRestriccion.AutoSize = true;
+            lblRestriccion.Margin = new Padding(3, 8, 3, 3);
+            lblRestriccion.Text = "Restricción:";
+            lblRestriccion.Name = "lblRestriccion";
+            lblRestriccion.TabIndex = 8;
             // 
-            // cmbEnumRestriccion
+            // cmbRestriccion
             // 
-            cmbEnumRestriccion.Dock = DockStyle.Fill;
-            cmbEnumRestriccion.FormattingEnabled = true;
-            cmbEnumRestriccion.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbEnumRestriccion.Name = "cmbEnumRestriccion";
-            cmbEnumRestriccion.TabIndex = 9;
+            cmbRestriccion.Dock = DockStyle.Fill;
+            cmbRestriccion.FormattingEnabled = true;
+            cmbRestriccion.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbRestriccion.Name = "cmbRestriccion";
+            cmbRestriccion.TabIndex = 9;
             // 
             // btnGuardar
             // 
@@ -331,7 +341,84 @@ namespace ProyectoEventos.Forms
             btnVolver.Name = "btnVolver";
             btnVolver.TabIndex = 15;
             btnVolver.Click += btnVolver_Click;
-            // 
+            //
+            // tlpRestricciones
+            //
+            tlpRestricciones.AutoSize = true;
+            tlpRestricciones.ColumnCount = 2;
+            tlpRestricciones.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tlpRestricciones.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            tlpRestricciones.Controls.Add(lblRestricciones, 0, 0);
+            tlpRestricciones.SetColumnSpan(lblRestricciones, 2);
+            tlpRestricciones.Controls.Add(lblAyudaRestricciones, 0, 1);
+            tlpRestricciones.SetColumnSpan(lblAyudaRestricciones, 2);
+            tlpRestricciones.Controls.Add(txtNuevaRestriccion, 0, 2);
+            tlpRestricciones.Controls.Add(btnAgregarRestriccion, 1, 2);
+            tlpRestricciones.Controls.Add(cmbRestriccionesLista, 0, 3);
+            tlpRestricciones.Controls.Add(btnQuitarRestriccion, 1, 3);
+            tlpRestricciones.Dock = DockStyle.Top;
+            tlpRestricciones.Margin = new Padding(0, 24, 0, 0);
+            tlpRestricciones.Name = "tlpRestricciones";
+            tlpRestricciones.RowCount = 4;
+            tlpRestricciones.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            tlpRestricciones.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            tlpRestricciones.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            tlpRestricciones.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            tlpRestricciones.Tag = Utils.Formulario.NoEsDelFormulario;
+            //
+            // lblRestricciones
+            //
+            lblRestricciones.AutoSize = true;
+            lblRestricciones.Margin = new Padding(3, 0, 3, 4);
+            lblRestricciones.Name = "lblRestricciones";
+            lblRestricciones.Text = "Restricciones alimenticias";
+            //
+            // lblAyudaRestricciones
+            //
+            lblAyudaRestricciones.AutoSize = true;
+            lblAyudaRestricciones.Margin = new Padding(3, 0, 3, 8);
+            lblAyudaRestricciones.MaximumSize = new Size(460, 0);
+            lblAyudaRestricciones.Name = "lblAyudaRestricciones";
+            lblAyudaRestricciones.Text = "Las que agregue aparecen en el combo Restricción del producto.";
+            //
+            // txtNuevaRestriccion
+            //
+            txtNuevaRestriccion.Dock = DockStyle.Fill;
+            txtNuevaRestriccion.Margin = new Padding(3, 3, 8, 8);
+            txtNuevaRestriccion.MaxLength = 40;
+            txtNuevaRestriccion.Name = "txtNuevaRestriccion";
+            txtNuevaRestriccion.PlaceholderText = "Nueva restricción (por ej. Vegano)";
+            txtNuevaRestriccion.TabIndex = 40;
+            //
+            // btnAgregarRestriccion
+            //
+            btnAgregarRestriccion.Dock = DockStyle.Fill;
+            btnAgregarRestriccion.Margin = new Padding(0, 0, 3, 8);
+            btnAgregarRestriccion.Name = "btnAgregarRestriccion";
+            btnAgregarRestriccion.TabIndex = 41;
+            btnAgregarRestriccion.Text = "Agregar";
+            btnAgregarRestriccion.UseVisualStyleBackColor = true;
+            btnAgregarRestriccion.Click += btnAgregarRestriccion_Click;
+            //
+            // btnQuitarRestriccion
+            //
+            btnQuitarRestriccion.Dock = DockStyle.Fill;
+            btnQuitarRestriccion.Margin = new Padding(0, 0, 3, 0);
+            btnQuitarRestriccion.Name = "btnQuitarRestriccion";
+            btnQuitarRestriccion.TabIndex = 43;
+            btnQuitarRestriccion.Text = "Quitar";
+            btnQuitarRestriccion.UseVisualStyleBackColor = true;
+            btnQuitarRestriccion.Click += btnQuitarRestriccion_Click;
+            //
+            // cmbRestriccionesLista
+            //
+            cmbRestriccionesLista.Dock = DockStyle.Fill;
+            cmbRestriccionesLista.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbRestriccionesLista.FormattingEnabled = true;
+            cmbRestriccionesLista.Margin = new Padding(3, 3, 8, 0);
+            cmbRestriccionesLista.Name = "cmbRestriccionesLista";
+            cmbRestriccionesLista.TabIndex = 42;
+            //
             // FrmProductos
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -347,6 +434,8 @@ namespace ProyectoEventos.Forms
             ((System.ComponentModel.ISupportInitialize)numPrecioAdulto).EndInit();
             ((System.ComponentModel.ISupportInitialize)numPrecioNino).EndInit();
             ((System.ComponentModel.ISupportInitialize)dgvProductos).EndInit();
+            tlpRestricciones.ResumeLayout(false);
+            tlpRestricciones.PerformLayout();
             tlpGrilla.ResumeLayout(false);
             tlpGrilla.PerformLayout();
             tlpBotones.ResumeLayout(false);
@@ -376,8 +465,8 @@ namespace ProyectoEventos.Forms
         private NumericUpDown numPrecioNino;
         private Label lblEnumCategoria;
         private ComboBox cmbEnumCategoria;
-        private Label lblEnumRestriccion;
-        private ComboBox cmbEnumRestriccion;
+        private Label lblRestriccion;
+        private ComboBox cmbRestriccion;
         private Button btnGuardar;
         private Button btnEditar;
         private Button btnEliminar;
@@ -386,5 +475,12 @@ namespace ProyectoEventos.Forms
         private TextBox txtBuscar;
         private Label lblBuscar;
         private Button btnVolver;
+        private TableLayoutPanel tlpRestricciones;
+        private Label lblRestricciones;
+        private Label lblAyudaRestricciones;
+        private TextBox txtNuevaRestriccion;
+        private Button btnAgregarRestriccion;
+        private Button btnQuitarRestriccion;
+        private ComboBox cmbRestriccionesLista;
     }
 }

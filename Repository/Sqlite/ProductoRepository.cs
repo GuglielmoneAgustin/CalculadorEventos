@@ -7,7 +7,9 @@ namespace ProyectoEventos.Repository.Sqlite
 {
     public class ProductoRepository : IRepository<Producto>
     {
-        private const string Columnas = "Id, Nombre, PrecioAdulto, PrecioNino, Categoria, Restriccion";
+        // Al leer se trae también el nombre de la restricción (LEFT JOIN: un producto puede no tener restricción).
+        private const string Consulta = "SELECT p.Id, p.Nombre, p.PrecioAdulto, p.PrecioNino, p.Categoria, p.IdRestriccion, r.Nombre " +
+            "FROM Productos p LEFT JOIN Restricciones r ON r.Id = p.IdRestriccion";
 
         private readonly BaseDatosSqlite baseDatos;
 
@@ -25,7 +27,8 @@ namespace ProyectoEventos.Repository.Sqlite
         {
             using SqliteConnection conexion = baseDatos.AbrirConexion();
             using SqliteCommand comando = conexion.CreateCommand();
-            comando.CommandText = "INSERT INTO Productos (" + Columnas + ") VALUES ($id, $nombre, $precioAdulto, $precioNino, $categoria, $restriccion)";
+            comando.CommandText = "INSERT INTO Productos (Id, Nombre, PrecioAdulto, PrecioNino, Categoria, IdRestriccion) " +
+                "VALUES ($id, $nombre, $precioAdulto, $precioNino, $categoria, $idRestriccion)";
             CargarParametros(comando, producto);
             comando.ExecuteNonQuery();
         }
@@ -35,7 +38,7 @@ namespace ProyectoEventos.Repository.Sqlite
             using SqliteConnection conexion = baseDatos.AbrirConexion();
             using SqliteCommand comando = conexion.CreateCommand();
             comando.CommandText = "UPDATE Productos SET Nombre = $nombre, PrecioAdulto = $precioAdulto, PrecioNino = $precioNino, " +
-                "Categoria = $categoria, Restriccion = $restriccion WHERE Id = $id";
+                "Categoria = $categoria, IdRestriccion = $idRestriccion WHERE Id = $id";
             CargarParametros(comando, producto);
             if (comando.ExecuteNonQuery() == 0)
             {
@@ -47,7 +50,7 @@ namespace ProyectoEventos.Repository.Sqlite
         {
             using SqliteConnection conexion = baseDatos.AbrirConexion();
             using SqliteCommand comando = conexion.CreateCommand();
-            comando.CommandText = "SELECT " + Columnas + " FROM Productos ORDER BY Id";
+            comando.CommandText = Consulta + " ORDER BY p.Id";
 
             List<Producto> productos = new List<Producto>();
             using SqliteDataReader lector = comando.ExecuteReader();
@@ -62,7 +65,7 @@ namespace ProyectoEventos.Repository.Sqlite
         {
             using SqliteConnection conexion = baseDatos.AbrirConexion();
             using SqliteCommand comando = conexion.CreateCommand();
-            comando.CommandText = "SELECT " + Columnas + " FROM Productos WHERE Id = $id";
+            comando.CommandText = Consulta + " WHERE p.Id = $id";
             comando.Parameters.AddWithValue("$id", id);
 
             using SqliteDataReader lector = comando.ExecuteReader();
@@ -92,7 +95,7 @@ namespace ProyectoEventos.Repository.Sqlite
             comando.Parameters.AddWithValue("$precioAdulto", producto.PrecioAdulto);
             comando.Parameters.AddWithValue("$precioNino", producto.PrecioNino);
             comando.Parameters.AddWithValue("$categoria", (int)producto.Categoria);
-            comando.Parameters.AddWithValue("$restriccion", (int)producto.Restriccion);
+            comando.Parameters.AddWithValue("$idRestriccion", producto.Restriccion == null ? DBNull.Value : producto.Restriccion.Id);
         }
 
         private static Producto Leer(SqliteDataReader lector)
@@ -103,7 +106,7 @@ namespace ProyectoEventos.Repository.Sqlite
                 lector.GetDecimal(2),
                 lector.GetDecimal(3),
                 (CategoriasProductos)lector.GetInt32(4),
-                (RestriccionesAlimenticias)lector.GetInt32(5));
+                lector.IsDBNull(5) ? null : new Restriccion(lector.GetInt32(5), lector.GetString(6)));
         }
     }
 }

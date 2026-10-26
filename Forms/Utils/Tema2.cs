@@ -259,7 +259,8 @@ namespace ProyectoEventos.Forms.Utils
                 || nombre == "lblfechahoy"
                 || nombre == "lblcomponentes"
                 || nombre == "lblservicios"
-                || nombre == "lblvistaprevia")
+                || nombre == "lblvistaprevia"
+                || nombre == "lblrestricciones")
             {
                 etiqueta.Font = FuenteTitulo;
                 etiqueta.ForeColor = VerdeIngles;
@@ -341,6 +342,7 @@ namespace ProyectoEventos.Forms.Utils
                 case "btnSiguiente":
                 case "btnAgregarItem":
                 case "btnAgregarServicio":
+                case "btnAgregarRestriccion":
                 case "btnRegistrarPago":
                 case "btnMarcarPagado":
                     boton.BackColor = Primario;
@@ -352,6 +354,7 @@ namespace ProyectoEventos.Forms.Utils
                 case "btnEliminar":
                 case "btnQuitarItem":
                 case "btnQuitarServicio":
+                case "btnQuitarRestriccion":
                 case "btnCancelar":
                     boton.BackColor = Peligro;
                     boton.ForeColor = Color.White;

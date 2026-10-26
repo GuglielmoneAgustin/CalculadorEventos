@@ -2,6 +2,9 @@ namespace ProyectoEventos.Forms.Utils
 {
     internal static class Formulario
     {
+        // Un panel con este Tag queda afuera de la detección de cambios (no es parte de lo que se guarda).
+        public const string NoEsDelFormulario = "NoEsDelFormulario";
+
         public static string Valores(Control contenedor)
         {
             List<string> valores = new List<string>();
@@ -13,6 +16,10 @@ namespace ProyectoEventos.Forms.Utils
         {
             foreach (Control control in contenedor.Controls)
             {
+                if (NoEsDelFormulario.Equals(control.Tag))
+                {
+                    continue;
+                }
                 switch (control)
                 {
                     case TextBox texto:

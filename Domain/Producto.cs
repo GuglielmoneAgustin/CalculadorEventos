@@ -12,7 +12,7 @@ namespace ProyectoEventos.Domain
         private decimal precioNino;
         private CategoriasProductos categoria;
 
-        public Producto(int id, string nombre, decimal precioAdulto, decimal precioNino, CategoriasProductos categoria, RestriccionesAlimenticias restriccion)
+        public Producto(int id, string nombre, decimal precioAdulto, decimal precioNino, CategoriasProductos categoria, Restriccion? restriccion)
         {
             Id = id;
             Nombre = nombre;
@@ -73,6 +73,7 @@ namespace ProyectoEventos.Domain
             set { categoria = value; }
         }
 
-        public RestriccionesAlimenticias Restriccion { get; set; }
+        // Nula cuando el producto no tiene ninguna restricción (apto para todos).
+        public Restriccion? Restriccion { get; set; }
     }
 }

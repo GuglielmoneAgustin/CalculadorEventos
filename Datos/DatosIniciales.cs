@@ -25,6 +25,7 @@ namespace ProyectoEventos.Datos
             CargarNegocio();
             CargarClientes(clientes);
             CargarLugares(lugares);
+            CargarRestricciones();
             CargarProductos(productos);
             CargarServicios(servicios);
 
@@ -174,32 +175,34 @@ namespace ProyectoEventos.Datos
 
         private static void CargarProductos(ProductoController productos)
         {
-            Producto(productos, "Mini hamburguesa", 4500m, 3200m, CategoriasProductos.Principal, RestriccionesAlimenticias.Estandar);
-            Producto(productos, "Milanesa napolitana", 6200m, 4300m, CategoriasProductos.Principal, RestriccionesAlimenticias.Estandar);
-            Producto(productos, "Pollo grillé", 5800m, 4000m, CategoriasProductos.Principal, RestriccionesAlimenticias.Estandar);
-            Producto(productos, "Bife de chorizo", 9500m, 6500m, CategoriasProductos.Principal, RestriccionesAlimenticias.Estandar);
-            Producto(productos, "Salmón al horno", 8900m, 6000m, CategoriasProductos.Principal, RestriccionesAlimenticias.Estandar);
-            Producto(productos, "Risotto de hongos", 6500m, 4800m, CategoriasProductos.Principal, RestriccionesAlimenticias.Vegetariano);
-            Producto(productos, "Ravioles de ricota", 5400m, 3900m, CategoriasProductos.Principal, RestriccionesAlimenticias.Vegetariano);
-            Producto(productos, "Pechuga al vapor sin sal", 5200m, 3700m, CategoriasProductos.Principal, RestriccionesAlimenticias.Hipertenso);
+            Producto(productos, "Mini hamburguesa", 4500m, 3200m, CategoriasProductos.Principal, null);
+            Producto(productos, "Milanesa napolitana", 6200m, 4300m, CategoriasProductos.Principal, null);
+            Producto(productos, "Pollo grillé", 5800m, 4000m, CategoriasProductos.Principal, null);
+            Producto(productos, "Bife de chorizo", 9500m, 6500m, CategoriasProductos.Principal, null);
+            Producto(productos, "Salmón al horno", 8900m, 6000m, CategoriasProductos.Principal, null);
+            Producto(productos, "Risotto de hongos", 6500m, 4800m, CategoriasProductos.Principal, "Vegetariano");
+            Producto(productos, "Ravioles de ricota", 5400m, 3900m, CategoriasProductos.Principal, "Vegetariano");
+            Producto(productos, "Pechuga al vapor sin sal", 5200m, 3700m, CategoriasProductos.Principal, "Hipertenso");
+            Producto(productos, "Hamburguesa de lentejas", 5600m, 4000m, CategoriasProductos.Principal, "Vegano");
 
-            Producto(productos, "Papas rústicas", 2200m, 1700m, CategoriasProductos.Guarnicion, RestriccionesAlimenticias.Vegetariano);
-            Producto(productos, "Ensalada mixta", 1900m, 1400m, CategoriasProductos.Guarnicion, RestriccionesAlimenticias.Vegetariano);
-            Producto(productos, "Puré de calabaza", 2000m, 1500m, CategoriasProductos.Guarnicion, RestriccionesAlimenticias.Vegetariano);
-            Producto(productos, "Ensalada de quinoa", 2600m, 1900m, CategoriasProductos.Guarnicion, RestriccionesAlimenticias.Diabetico);
+            Producto(productos, "Papas rústicas", 2200m, 1700m, CategoriasProductos.Guarnicion, "Vegetariano");
+            Producto(productos, "Ensalada mixta", 1900m, 1400m, CategoriasProductos.Guarnicion, "Vegetariano");
+            Producto(productos, "Puré de calabaza", 2000m, 1500m, CategoriasProductos.Guarnicion, "Vegetariano");
+            Producto(productos, "Ensalada de quinoa", 2600m, 1900m, CategoriasProductos.Guarnicion, "Diabético");
 
-            Producto(productos, "Limonada", 1500m, 1200m, CategoriasProductos.Bebida, RestriccionesAlimenticias.Estandar);
-            Producto(productos, "Gaseosas", 1300m, 1100m, CategoriasProductos.Bebida, RestriccionesAlimenticias.Estandar);
-            Producto(productos, "Agua mineral", 900m, 800m, CategoriasProductos.Bebida, RestriccionesAlimenticias.Estandar);
-            Producto(productos, "Jugo natural", 1600m, 1300m, CategoriasProductos.Bebida, RestriccionesAlimenticias.Estandar);
-            Producto(productos, "Té helado", 1400m, 1100m, CategoriasProductos.Bebida, RestriccionesAlimenticias.Estandar);
+            Producto(productos, "Limonada", 1500m, 1200m, CategoriasProductos.Bebida, null);
+            Producto(productos, "Gaseosas", 1300m, 1100m, CategoriasProductos.Bebida, null);
+            Producto(productos, "Agua mineral", 900m, 800m, CategoriasProductos.Bebida, null);
+            Producto(productos, "Jugo natural", 1600m, 1300m, CategoriasProductos.Bebida, null);
+            Producto(productos, "Té helado", 1400m, 1100m, CategoriasProductos.Bebida, null);
 
-            Producto(productos, "Brownie sin TACC", 2800m, 2200m, CategoriasProductos.Postre, RestriccionesAlimenticias.Celiaco);
-            Producto(productos, "Mousse de chocolate", 2600m, 2000m, CategoriasProductos.Postre, RestriccionesAlimenticias.Estandar);
-            Producto(productos, "Flan con dulce de leche", 2400m, 1800m, CategoriasProductos.Postre, RestriccionesAlimenticias.Estandar);
-            Producto(productos, "Ensalada de frutas frescas", 2100m, 1700m, CategoriasProductos.Postre, RestriccionesAlimenticias.Diabetico);
-            Producto(productos, "Helado artesanal", 2900m, 2300m, CategoriasProductos.Postre, RestriccionesAlimenticias.Estandar);
-            Producto(productos, "Torta de cumpleaños", 3200m, 2600m, CategoriasProductos.Postre, RestriccionesAlimenticias.Estandar);
+            Producto(productos, "Brownie sin TACC", 2800m, 2200m, CategoriasProductos.Postre, "Celíaco");
+            Producto(productos, "Mousse de chocolate", 2600m, 2000m, CategoriasProductos.Postre, null);
+            Producto(productos, "Flan con dulce de leche", 2400m, 1800m, CategoriasProductos.Postre, null);
+            Producto(productos, "Ensalada de frutas frescas", 2100m, 1700m, CategoriasProductos.Postre, "Diabético");
+            Producto(productos, "Helado artesanal", 2900m, 2300m, CategoriasProductos.Postre, null);
+            Producto(productos, "Helado de agua de frutos rojos", 2500m, 2000m, CategoriasProductos.Postre, "Sin lactosa");
+            Producto(productos, "Torta de cumpleaños", 3200m, 2600m, CategoriasProductos.Postre, null);
         }
 
         private static void CargarServicios(ServicioAdicionalController servicios)
@@ -212,8 +215,20 @@ namespace ProyectoEventos.Datos
             servicios.Guardar(new ServicioAdicionalDTO { Nombre = "Mozos adicionales", Descripcion = "Personal de servicio extra para mesas", Monto = 48000m });
         }
 
+        private static void CargarRestricciones()
+        {
+            RestriccionController restricciones = new RestriccionController();
+            restricciones.Agregar("Celíaco");
+            restricciones.Agregar("Vegetariano");
+            restricciones.Agregar("Vegano");
+            restricciones.Agregar("Diabético");
+            restricciones.Agregar("Hipertenso");
+            restricciones.Agregar("Sin lactosa");
+        }
+
+        // restriccion es el nombre de una restricción ya cargada, o null si el producto no tiene.
         private static void Producto(ProductoController productos, string nombre, decimal precioAdulto, decimal precioNino,
-            CategoriasProductos categoria, RestriccionesAlimenticias restriccion)
+            CategoriasProductos categoria, string? restriccion)
         {
             productos.Guardar(new ProductoDTO
             {
@@ -221,7 +236,9 @@ namespace ProyectoEventos.Datos
                 PrecioAdulto = precioAdulto,
                 PrecioNino = precioNino,
                 Categoria = categoria,
-                Restriccion = restriccion
+                IdRestriccion = restriccion == null
+                    ? null
+                    : new RestriccionController().ObtenerTodas().Single(r => r.Nombre == restriccion).Id
             });
         }
 

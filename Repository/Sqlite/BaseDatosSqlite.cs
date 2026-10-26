@@ -49,13 +49,18 @@ namespace ProyectoEventos.Repository.Sqlite
                     Ubicacion    TEXT NOT NULL
                 );
 
+                CREATE TABLE IF NOT EXISTS Restricciones (
+                    Id     INTEGER PRIMARY KEY,
+                    Nombre TEXT NOT NULL UNIQUE
+                );
+
                 CREATE TABLE IF NOT EXISTS Productos (
-                    Id           INTEGER PRIMARY KEY,
-                    Nombre       TEXT NOT NULL,
-                    PrecioAdulto TEXT NOT NULL,
-                    PrecioNino   TEXT NOT NULL,
-                    Categoria    INTEGER NOT NULL,
-                    Restriccion  INTEGER NOT NULL
+                    Id            INTEGER PRIMARY KEY,
+                    Nombre        TEXT NOT NULL,
+                    PrecioAdulto  TEXT NOT NULL,
+                    PrecioNino    TEXT NOT NULL,
+                    Categoria     INTEGER NOT NULL,
+                    IdRestriccion INTEGER REFERENCES Restricciones (Id)
                 );
 
                 CREATE TABLE IF NOT EXISTS ServiciosAdicionales (

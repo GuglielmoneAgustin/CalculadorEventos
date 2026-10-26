@@ -9,16 +9,19 @@ namespace ProyectoEventos.Service
     {
         private readonly IRepository<Producto> repositorio;
         private readonly IRepository<Evento> eventoRepositorio;
+        private readonly IRepository<Restriccion> restriccionRepositorio;
 
         public ProductoService()
-            : this(Repositorios.Productos, Repositorios.Eventos)
+            : this(Repositorios.Productos, Repositorios.Eventos, Repositorios.Restricciones)
         {
         }
 
-        public ProductoService(IRepository<Producto> repositorio, IRepository<Evento> eventoRepositorio)
+        public ProductoService(IRepository<Producto> repositorio, IRepository<Evento> eventoRepositorio,
+            IRepository<Restriccion> restriccionRepositorio)
         {
             this.repositorio = repositorio;
             this.eventoRepositorio = eventoRepositorio;
+            this.restriccionRepositorio = restriccionRepositorio;
         }
 
         public void Guardar(ProductoDTO dto)
@@ -46,7 +49,7 @@ namespace ProyectoEventos.Service
         private void Crear(ProductoDTO dto)
         {
             int nuevoId = repositorio.ObtenerProximoId();
-            Producto nuevoProducto = new Producto(nuevoId, dto.Nombre, dto.PrecioAdulto, dto.PrecioNino, dto.Categoria, dto.Restriccion);
+            Producto nuevoProducto = new Producto(nuevoId, dto.Nombre, dto.PrecioAdulto, dto.PrecioNino, dto.Categoria, ObtenerRestriccion(dto.IdRestriccion));
             repositorio.Agregar(nuevoProducto);
         }
 
@@ -63,7 +66,7 @@ namespace ProyectoEventos.Service
         private void Editar(ProductoDTO dto)
         {
             Producto producto = repositorio.ObtenerExistente(dto.Id);
-            Producto validado = new Producto(producto.Id, dto.Nombre, dto.PrecioAdulto, dto.PrecioNino, dto.Categoria, dto.Restriccion);
+            Producto validado = new Producto(producto.Id, dto.Nombre, dto.PrecioAdulto, dto.PrecioNino, dto.Categoria, ObtenerRestriccion(dto.IdRestriccion));
 
             producto.Nombre = validado.Nombre;
             producto.PrecioAdulto = validado.PrecioAdulto;
@@ -89,6 +92,16 @@ namespace ProyectoEventos.Service
                 producto.Id != idAIgnorar && producto.Nombre.Equals(normalizado, StringComparison.OrdinalIgnoreCase));
         }
 
+        // Sin id elegido, el producto queda sin restricción.
+        private Restriccion? ObtenerRestriccion(int? idRestriccion)
+        {
+            if (idRestriccion == null)
+            {
+                return null;
+            }
+            return restriccionRepositorio.ObtenerExistente(idRestriccion.Value);
+        }
+
         private ProductoDTO MapearADto(Producto producto)
         {
             ProductoDTO dto = new ProductoDTO();
@@ -97,7 +110,8 @@ namespace ProyectoEventos.Service
             dto.PrecioAdulto = producto.PrecioAdulto;
             dto.PrecioNino = producto.PrecioNino;
             dto.Categoria = producto.Categoria;
-            dto.Restriccion = producto.Restriccion;
+            dto.IdRestriccion = producto.Restriccion?.Id;
+            dto.Restriccion = producto.Restriccion == null ? ProductoDTO.SinRestriccion : producto.Restriccion.Nombre;
             return dto;
         }
     }

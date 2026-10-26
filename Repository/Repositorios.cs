@@ -13,6 +13,7 @@ namespace ProyectoEventos.Repository
 
         public static readonly IRepository<Cliente> Clientes = new ClienteRepository(baseDatos);
         public static readonly IRepository<Lugar> Lugares = new LugarRepository(baseDatos);
+        public static readonly IRepository<Restriccion> Restricciones = new RestriccionRepository(baseDatos);
         public static readonly IRepository<Producto> Productos = new ProductoRepository(baseDatos);
         public static readonly IRepository<ServicioAdicional> Servicios = new ServicioAdicionalRepository(baseDatos);
         public static readonly IRepository<Negocio> Negocios = new NegocioRepository(baseDatos);

@@ -12,6 +12,7 @@ namespace ProyectoEventos.Forms
     public partial class FrmProductos : Form
     {
         private readonly ProductoController controlador;
+        private readonly RestriccionController restriccionControlador = new RestriccionController();
         private List<ProductoDTO> productos = new List<ProductoDTO>();
         private int idSeleccionado;
         private string valoresGuardados = string.Empty;
@@ -55,11 +56,81 @@ namespace ProyectoEventos.Forms
             cmbEnumCategoria.DataSource = Enum.GetValues(typeof(CategoriasProductos));
         }
 
+        // Combo del producto: la primera opción (id 0) es "Sin restricción" y después las cargadas por el usuario.
+        // Combo de la tarjeta de restricciones: solo las cargadas, para elegir cuál quitar.
         private void CargarComboRestriccion()
         {
-            cmbEnumRestriccion.FormattingEnabled = true;
-            cmbEnumRestriccion.Format += FormatearEnum;
-            cmbEnumRestriccion.DataSource = Enum.GetValues(typeof(RestriccionesAlimenticias));
+            List<RestriccionDTO> restricciones = restriccionControlador.ObtenerTodas();
+
+            List<RestriccionDTO> opciones = new List<RestriccionDTO>();
+            RestriccionDTO ninguna = new RestriccionDTO();
+            ninguna.Nombre = ProductoDTO.SinRestriccion;
+            opciones.Add(ninguna);
+            opciones.AddRange(restricciones);
+
+            cmbRestriccion.DataSource = null;
+            cmbRestriccion.DisplayMember = "Nombre";
+            cmbRestriccion.DataSource = opciones;
+
+            cmbRestriccionesLista.DataSource = null;
+            cmbRestriccionesLista.DisplayMember = "Nombre";
+            cmbRestriccionesLista.DataSource = restricciones;
+        }
+
+        private void SeleccionarRestriccion(int idRestriccion)
+        {
+            for (int i = 0; i < cmbRestriccion.Items.Count; i++)
+            {
+                if (((RestriccionDTO)cmbRestriccion.Items[i]!).Id == idRestriccion)
+                {
+                    cmbRestriccion.SelectedIndex = i;
+                    return;
+                }
+            }
+            cmbRestriccion.SelectedIndex = 0;
+        }
+
+        private void btnAgregarRestriccion_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                RestriccionDTO nueva = restriccionControlador.Agregar(txtNuevaRestriccion.Text);
+                int idElegida = ((RestriccionDTO)cmbRestriccion.SelectedItem!).Id;
+                CargarComboRestriccion();
+                SeleccionarRestriccion(idElegida);
+                txtNuevaRestriccion.Text = string.Empty;
+                Aviso.Mostrar(lblAviso, "Restricción " + nueva.Nombre + " agregada.");
+            }
+            catch (NegocioException ex)
+            {
+                Mensajes.Advertencia(ex.Message);
+            }
+        }
+
+        private void btnQuitarRestriccion_Click(object? sender, EventArgs e)
+        {
+            if (cmbRestriccionesLista.SelectedItem is not RestriccionDTO elegida)
+            {
+                Mensajes.Advertencia("No hay restricciones cargadas para quitar.");
+                return;
+            }
+            if (!Mensajes.Confirmar("¿Quitar la restricción " + elegida.Nombre + "?"))
+            {
+                return;
+            }
+
+            try
+            {
+                restriccionControlador.Eliminar(elegida.Id);
+                int idElegida = ((RestriccionDTO)cmbRestriccion.SelectedItem!).Id;
+                CargarComboRestriccion();
+                SeleccionarRestriccion(idElegida);
+                Aviso.Mostrar(lblAviso, "Restricción " + elegida.Nombre + " quitada.");
+            }
+            catch (NegocioException ex)
+            {
+                Mensajes.Advertencia(ex.Message);
+            }
         }
 
         private void FormatearEnum(object? sender, ListControlConvertEventArgs e)
@@ -75,7 +146,7 @@ namespace ProyectoEventos.Forms
             }
 
             string columna = dgvProductos.Columns[e.ColumnIndex].Name;
-            if (columna == "Categoria" || columna == "Restriccion")
+            if (columna == "Categoria")
             {
                 e.Value = TextoEnum.Texto(e.Value);
                 e.FormattingApplied = true;
@@ -96,7 +167,7 @@ namespace ProyectoEventos.Forms
         private void MostrarGrilla()
         {
             dgvProductos.DataSource = null;
-            dgvProductos.DataSource = Busqueda.Filtrar(productos, txtBuscar.Text, p => new[] { p.Nombre, p.Categoria.Texto(), p.Restriccion.Texto() });
+            dgvProductos.DataSource = Busqueda.Filtrar(productos, txtBuscar.Text, p => new[] { p.Nombre, p.Categoria.Texto(), p.Restriccion });
             ConfigurarColumnas();
             dgvProductos.QuitarSeleccion();
         }
@@ -104,6 +175,7 @@ namespace ProyectoEventos.Forms
         private void ConfigurarColumnas()
         {
             dgvProductos.Columna("Id").Visible = false;
+            dgvProductos.Columna("IdRestriccion").Visible = false;
             dgvProductos.Columna("PrecioAdulto").HeaderText = "Precio adulto";
             dgvProductos.Columna("PrecioNino").HeaderText = "Precio niño";
             dgvProductos.Columna("Categoria").HeaderText = "Categoría";
@@ -205,7 +277,8 @@ namespace ProyectoEventos.Forms
             dto.PrecioAdulto = numPrecioAdulto.Value;
             dto.PrecioNino = numPrecioNino.Value;
             dto.Categoria = (CategoriasProductos)cmbEnumCategoria.SelectedItem!;
-            dto.Restriccion = (RestriccionesAlimenticias)cmbEnumRestriccion.SelectedItem!;
+            int idRestriccion = ((RestriccionDTO)cmbRestriccion.SelectedItem!).Id;
+            dto.IdRestriccion = idRestriccion == 0 ? null : idRestriccion;
             return dto;
         }
 
@@ -215,7 +288,7 @@ namespace ProyectoEventos.Forms
             numPrecioAdulto.Value = dto.PrecioAdulto;
             numPrecioNino.Value = dto.PrecioNino;
             cmbEnumCategoria.SelectedItem = dto.Categoria;
-            cmbEnumRestriccion.SelectedItem = dto.Restriccion;
+            SeleccionarRestriccion(dto.IdRestriccion ?? 0);
         }
 
         private void MostrarModoEdicion(string nombre)
@@ -234,7 +307,7 @@ namespace ProyectoEventos.Forms
             numPrecioAdulto.Value = 0;
             numPrecioNino.Value = 0;
             cmbEnumCategoria.SelectedIndex = 0;
-            cmbEnumRestriccion.SelectedIndex = 0;
+            cmbRestriccion.SelectedIndex = 0;
 
             lblModo.Text = "Nuevo producto";
             btnGuardar.Text = "Guardar";

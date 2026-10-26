@@ -4,6 +4,8 @@ namespace ProyectoEventos.Dto
 {
     public class ProductoDTO
     {
+        public const string SinRestriccion = "Sin restricción";
+
         public int Id { get; set; }
 
         public string Nombre { get; set; } = string.Empty;
@@ -14,6 +16,9 @@ namespace ProyectoEventos.Dto
 
         public CategoriasProductos Categoria { get; set; }
 
-        public RestriccionesAlimenticias Restriccion { get; set; }
+        // Nulo cuando el producto no tiene restricción.
+        public int? IdRestriccion { get; set; }
+
+        public string Restriccion { get; set; } = string.Empty;
     }
 }

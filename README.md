@@ -27,6 +27,7 @@ Los datos se guardan en una base **SQLite** (archivo `eventos.db`, junto al ejec
 | Tabla | Contenido |
 |---|---|
 | `Clientes`, `Lugares`, `Productos`, `ServiciosAdicionales`, `Negocio` | Una fila por registro. |
+| `Restricciones` | Restricciones alimenticias que carga el usuario; cada producto puede tener una (`Productos.IdRestriccion`, vacío si no tiene). |
 | `Eventos` | Datos del evento y su estado interno (próximos números de plato y de presupuesto, y si cambió desde el último presupuesto). |
 | `ItemsMenu`, `EventoServicios` | Platos y servicios de cada evento. |
 | `Presupuestos` | Foto de lo cotizado y estado. |
@@ -66,7 +67,8 @@ Las cuatro pantallas funcionan igual (alta, edición y baja):
 Datos de cada uno:
 - **Clientes:** nombre (hasta 80 caracteres), DNI (único, hasta 15), mail (con formato válido, hasta 100) y teléfono (hasta 30). La grilla muestra cuántos eventos tiene cada cliente.
 - **Lugares:** nombre (único, hasta 60 caracteres), costo base, costo por hora (puede ser 0 si el lugar cobra un precio fijo), capacidad y ubicación (hasta 100 caracteres). El costo del lugar en un evento es `costo base + costo por hora × horas de duración`. No se puede bajar la capacidad por debajo de los invitados de un evento ya cargado en ese lugar.
-- **Productos:** nombre (único, hasta 60 caracteres), precio por adulto, precio por niño, categoría (Principal, Guarnición, Bebida, Postre) y restricción alimentaria (Estándar, Celíaco, Vegetariano, Diabético, Hipertenso).
+- **Productos:** nombre (único, hasta 60 caracteres), precio por adulto, precio por niño, categoría (Principal, Guarnición, Bebida, Postre) y restricción alimentaria (opcional: "Sin restricción" o una de las que cargó el usuario).
+- **Restricciones alimenticias:** se administran en la misma pantalla de Productos, abajo del formulario. Se escribe el nombre y se toca **Agregar** (no se repiten nombres, hasta 40 caracteres); aparece en el combo Restricción. **Quitar** borra la que esté elegida en ese combo, salvo que algún producto la use. Los datos de ejemplo traen Celíaco, Vegetariano, Vegano, Diabético, Hipertenso y Sin lactosa.
 - **Servicios adicionales:** nombre (único, hasta 60 caracteres), descripción (hasta 200) y monto.
 
 ### Eventos
@@ -142,7 +144,7 @@ global using Tema = ProyectoEventos.Forms.Utils.Tema2;
 
 ## Formato
 
-Montos y fechas con formato argentino (`$ 4.500,00` y `22/10/2026 20:00`), sin depender de la configuración regional de Windows. Los textos de las enumeraciones (categorías, restricciones y estados) se definen con `[Description]` y se muestran con tildes.
+Montos y fechas con formato argentino (`$ 4.500,00` y `22/10/2026 20:00`), sin depender de la configuración regional de Windows. Los textos de las enumeraciones (categorías y estados) se definen con `[Description]` y se muestran con tildes.
 
 ## Estructura del proyecto
 

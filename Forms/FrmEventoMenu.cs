@@ -108,10 +108,10 @@ namespace ProyectoEventos.Forms
             lvProductos.Columns.Add("Producto");
             lvProductos.Columns.Add("Adulto / niño", 125, HorizontalAlignment.Right);
 
-            cmbFiltroRestriccion.Format += (sender, e) => e.Value = e.ListItem as string ?? TextoEnum.Texto(e.ListItem);
+            cmbFiltroRestriccion.DisplayMember = "Nombre";
             cmbFiltroRestriccion.Items.Clear();
             cmbFiltroRestriccion.Items.Add(TodosLosProductos);
-            foreach (RestriccionesAlimenticias restriccion in Enum.GetValues<RestriccionesAlimenticias>())
+            foreach (RestriccionDTO restriccion in new RestriccionController().ObtenerTodas())
             {
                 cmbFiltroRestriccion.Items.Add(restriccion);
             }
@@ -125,7 +125,7 @@ namespace ProyectoEventos.Forms
 
         private void LlenarListaProductos()
         {
-            RestriccionesAlimenticias? filtro = cmbFiltroRestriccion.SelectedItem as RestriccionesAlimenticias?;
+            RestriccionDTO? filtro = cmbFiltroRestriccion.SelectedItem as RestriccionDTO;
 
             llenandoLista = true;
             lvProductos.BeginUpdate();
@@ -134,7 +134,7 @@ namespace ProyectoEventos.Forms
             foreach (CategoriasProductos categoria in Enum.GetValues<CategoriasProductos>())
             {
                 List<ProductoDTO> productos = productosDisponibles
-                    .Where(p => p.Categoria == categoria && (filtro == null || p.Restriccion == filtro))
+                    .Where(p => p.Categoria == categoria && (filtro == null || p.IdRestriccion == filtro.Id))
                     .OrderBy(p => p.Nombre)
                     .ToList();
                 if (productos.Count == 0)
@@ -158,9 +158,9 @@ namespace ProyectoEventos.Forms
 
         private ListViewItem CrearItemProducto(ProductoDTO producto, ListViewGroup grupo)
         {
-            string nombre = producto.Restriccion == RestriccionesAlimenticias.Estandar
+            string nombre = producto.IdRestriccion == null
                 ? producto.Nombre
-                : producto.Nombre + " · " + producto.Restriccion.Texto();
+                : producto.Nombre + " · " + producto.Restriccion;
             string precios = producto.PrecioAdulto.ToString(FormatoPrecioCorto) + " / " + producto.PrecioNino.ToString("#,##0");
 
             ListViewItem item = new ListViewItem(new[] { nombre, precios }, grupo);
