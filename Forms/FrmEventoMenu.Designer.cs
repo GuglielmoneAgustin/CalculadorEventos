@@ -399,7 +399,7 @@ namespace ProyectoEventos.Forms
             // 
             // btnVolver
             // 
-            btnVolver.Margin = new Padding(10, 0, 0, 0);
+            btnVolver.Margin = new Padding(0, 0, 12, 0);
             btnVolver.Name = "btnVolver";
             btnVolver.Size = new Size(160, 38);
             btnVolver.TabIndex = 16;
