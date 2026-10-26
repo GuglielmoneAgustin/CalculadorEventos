@@ -156,6 +156,7 @@ namespace ProyectoEventos.Forms
             //
             txtBoxTelefono.Dock = DockStyle.Fill;
             txtBoxTelefono.Name = "txtBoxTelefono";
+            txtBoxTelefono.PlaceholderText = "11 4555-2020";
             txtBoxTelefono.TabIndex = 3;
             txtBoxTelefono.TextChanged += Campo_Changed;
             //
@@ -170,6 +171,7 @@ namespace ProyectoEventos.Forms
             //
             txtBoxMail.Dock = DockStyle.Fill;
             txtBoxMail.Name = "txtBoxMail";
+            txtBoxMail.PlaceholderText = "hola@minegocio.com";
             txtBoxMail.TabIndex = 4;
             txtBoxMail.TextChanged += Campo_Changed;
             //

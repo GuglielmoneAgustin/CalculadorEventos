@@ -204,6 +204,7 @@ namespace ProyectoEventos.Forms
             // 
             txtBoxDni.Dock = DockStyle.Fill;
             txtBoxDni.Name = "txtBoxDni";
+            txtBoxDni.PlaceholderText = "30123456";
             txtBoxDni.TabIndex = 3;
             // 
             // lblMail
@@ -218,6 +219,7 @@ namespace ProyectoEventos.Forms
             // 
             txtBoxMail.Dock = DockStyle.Fill;
             txtBoxMail.Name = "txtBoxMail";
+            txtBoxMail.PlaceholderText = "nombre@ejemplo.com";
             txtBoxMail.TabIndex = 5;
             // 
             // lblTelefono
@@ -232,6 +234,7 @@ namespace ProyectoEventos.Forms
             // 
             txtBoxTelefono.Dock = DockStyle.Fill;
             txtBoxTelefono.Name = "txtBoxTelefono";
+            txtBoxTelefono.PlaceholderText = "11 5555-0101";
             txtBoxTelefono.TabIndex = 7;
             // 
             // btnGuardar
