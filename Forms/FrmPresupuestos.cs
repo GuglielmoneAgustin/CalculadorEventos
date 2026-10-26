@@ -62,6 +62,8 @@ namespace ProyectoEventos.Forms
             dgvPresupuestos.Columna("FechaSena").Visible = false;
             dgvPresupuestos.Columna("FechaPago").Visible = false;
             dgvPresupuestos.Columna("Saldo").Visible = false;
+            dgvPresupuestos.Columna("PrecioCongelado").Visible = false;
+            dgvPresupuestos.Columna("SenaParaCongelarPrecio").Visible = false;
 
             DarFormatoColumnas();
 
@@ -96,9 +98,12 @@ namespace ProyectoEventos.Forms
                     return total + "  ·  Pagado el " + aprobado.FechaPago?.ToString(Formato.Fecha);
                 case EstadoPago.Senado:
                     return total + "  ·  Seña " + aprobado.Sena.ToString(Formato.Moneda) + " (" + aprobado.FechaSena?.ToString(Formato.Fecha) + ")" +
-                        "  ·  Falta cobrar " + aprobado.Saldo.ToString(Formato.Moneda);
+                        "  ·  Falta cobrar " + aprobado.Saldo.ToString(Formato.Moneda) +
+                        (aprobado.PrecioCongelado ? "  ·  Precio congelado" : "  ·  Precio sin congelar (seña menor al " +
+                            Configuracion.PorcentajeSenaParaCongelarPrecio + " %)");
                 default:
-                    return total + "  ·  Falta cobrar " + aprobado.Saldo.ToString(Formato.Moneda);
+                    return total + "  ·  Falta cobrar " + aprobado.Saldo.ToString(Formato.Moneda) +
+                        "  ·  Seña mínima para congelar el precio: " + aprobado.SenaParaCongelarPrecio.ToString(Formato.Moneda);
             }
         }
 

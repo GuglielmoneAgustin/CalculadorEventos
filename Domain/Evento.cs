@@ -390,7 +390,7 @@ namespace ProyectoEventos.Domain
         {
             return presupuesto == ObtenerUltimoPresupuesto()
                 && !huboCambiosDesdeUltimoPresupuesto
-                && presupuesto.CoincidenPreciosCon(this);
+                && (presupuesto.TienePrecioCongelado || presupuesto.CoincidenPreciosCon(this));
         }
 
         public decimal CalcularSubtotalServicios()

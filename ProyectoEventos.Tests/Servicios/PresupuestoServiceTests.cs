@@ -57,6 +57,26 @@ namespace ProyectoEventos.Tests.Servicios
         }
 
         [Fact]
+        public void ConLaSenaDel30PorCientoUnCambioDePrecioNoPideOtroPresupuesto()
+        {
+            PresupuestoResultadoDTO aprobado = GenerarYAprobar();
+            Assert.False(aprobado.PrecioCongelado);
+            Assert.Equal(720, aprobado.SenaParaCongelarPrecio);
+            Assert.Equal("Precio sin congelar: falta una seña de $ 720,00.", aprobado.Detalle);
+
+            escenario.PresupuestoServicio.RegistrarSena(idEvento, 720);
+            ProductoDTO milanesa = escenario.ProductoServicio.ObtenerTodos().Single();
+            milanesa.PrecioAdulto = 150;
+            escenario.ProductoServicio.Guardar(milanesa);
+
+            PresupuestoResultadoDTO congelado = escenario.PresupuestoServicio.ObtenerAprobado(idEvento)!;
+            Assert.True(congelado.PrecioCongelado);
+            Assert.True(congelado.Vigente);
+            Assert.Equal("Precio congelado.", congelado.Detalle);
+            Assert.Null(escenario.PresupuestoServicio.Generar(idEvento));
+        }
+
+        [Fact]
         public void RegistrarLaSenaDejaElSaldo()
         {
             GenerarYAprobar();

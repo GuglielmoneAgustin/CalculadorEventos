@@ -128,5 +128,68 @@ namespace ProyectoEventos.Tests.Dominio
             Assert.Equal(0, primero.Sena);
             Assert.Equal(2200, segundo.Saldo);
         }
+
+        [Fact]
+        public void AprobadoConSenaMenorAl30PorCientoSeDesactualizaConLosPrecios()
+        {
+            Presupuesto aprobado = GenerarYAprobar();
+            evento.RegistrarSena(719, DateTime.Now);
+
+            milanesa.PrecioAdulto = 200;
+
+            Assert.Equal(720, aprobado.CalcularSenaParaCongelarPrecio());
+            Assert.False(aprobado.TienePrecioCongelado);
+            Assert.False(evento.EsVigente(aprobado));
+            Assert.True(evento.RequierePresupuestoNuevo);
+        }
+
+        [Fact]
+        public void ConSenaDel30PorCientoElPrecioQuedaCongelado()
+        {
+            Presupuesto aprobado = GenerarYAprobar();
+            evento.RegistrarSena(720, DateTime.Now);
+
+            milanesa.PrecioAdulto = 200;
+            lugar.CostoBase = 5000;
+
+            Assert.True(aprobado.TienePrecioCongelado);
+            Assert.True(evento.EsVigente(aprobado));
+            Assert.False(evento.RequierePresupuestoNuevo);
+            Assert.Equal(2400, aprobado.CalcularTotal());
+        }
+
+        [Fact]
+        public void PagadoTambienCongelaElPrecio()
+        {
+            Presupuesto aprobado = GenerarYAprobar();
+            evento.MarcarPagado(DateTime.Now);
+
+            milanesa.PrecioAdulto = 200;
+
+            Assert.True(aprobado.TienePrecioCongelado);
+            Assert.True(evento.EsVigente(aprobado));
+        }
+
+        [Fact]
+        public void ConPrecioCongeladoUnCambioDelEventoPideUnoNuevoConLosPreciosActuales()
+        {
+            Presupuesto aprobado = GenerarYAprobar();
+            evento.RegistrarSena(720, DateTime.Now);
+            milanesa.PrecioAdulto = 200;
+
+            evento.AgregarServicio(new ServicioAdicional(1, "DJ", "", 500));
+
+            Assert.False(evento.EsVigente(aprobado));
+            Assert.True(evento.RequierePresupuestoNuevo);
+            Assert.Equal(1400 + 2000 + 500, evento.GenerarPresupuesto(DateTime.Now).CalcularTotal());
+        }
+
+        [Fact]
+        public void EnEsperaNoSeCongelaAunqueNoTengaSena()
+        {
+            Presupuesto presupuesto = evento.GenerarPresupuesto(DateTime.Now);
+
+            Assert.False(presupuesto.TienePrecioCongelado);
+        }
     }
 }

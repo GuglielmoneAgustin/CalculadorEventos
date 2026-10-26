@@ -109,6 +109,20 @@ namespace ProyectoEventos.Domain
             }
         }
 
+        // Aprobado y con seña suficiente (o pagado): los cambios de precios ya no lo desactualizan.
+        public bool TienePrecioCongelado
+        {
+            get
+            {
+                return Estado == EstadoPresupuesto.Aprobado && (EstaPagado || Sena >= CalcularSenaParaCongelarPrecio());
+            }
+        }
+
+        public decimal CalcularSenaParaCongelarPrecio()
+        {
+            return Math.Round(CalcularTotal() * Configuracion.PorcentajeSenaParaCongelarPrecio / 100, 2);
+        }
+
         public IReadOnlyList<DetalleMenuPresupuestado> ObtenerItemsMenu()
         {
             return itemsMenu.AsReadOnly();

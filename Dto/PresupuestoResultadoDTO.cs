@@ -28,5 +28,7 @@ namespace ProyectoEventos.Dto
         public DateTime? FechaSena { get; set; }
         public DateTime? FechaPago { get; set; }
         public decimal Saldo { get; set; }
+        public bool PrecioCongelado { get; set; }
+        public decimal SenaParaCongelarPrecio { get; set; }
     }
 }

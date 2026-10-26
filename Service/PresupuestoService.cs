@@ -153,6 +153,8 @@ namespace ProyectoEventos.Service
             dto.FechaSena = presupuesto.FechaSena;
             dto.FechaPago = presupuesto.FechaPago;
             dto.Saldo = presupuesto.Saldo;
+            dto.PrecioCongelado = presupuesto.TienePrecioCongelado;
+            dto.SenaParaCongelarPrecio = presupuesto.CalcularSenaParaCongelarPrecio();
             dto.Vigente = presupuesto.EventoAsociado.EsVigente(presupuesto);
             dto.Detalle = ArmarDetalle(presupuesto, dto.Vigente);
             return dto;
@@ -167,6 +169,12 @@ namespace ProyectoEventos.Service
             if (!vigente)
             {
                 return string.Join(" ", presupuesto.EventoAsociado.ObtenerMotivosDesactualizacion(presupuesto));
+            }
+            if (presupuesto.Estado == EstadoPresupuesto.Aprobado)
+            {
+                return presupuesto.TienePrecioCongelado
+                    ? "Precio congelado."
+                    : "Precio sin congelar: falta una seña de " + presupuesto.CalcularSenaParaCongelarPrecio().ToString(Formato.Moneda) + ".";
             }
             return string.Empty;
         }
