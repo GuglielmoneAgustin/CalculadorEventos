@@ -6,7 +6,6 @@ namespace ProyectoEventos.Common.Enums
     {
         [Description("Sin presupuesto")] SinPresupuesto,
         Desactualizado,
-        Vencido,
         [Description("Esperando respuesta")] EsperandoRespuesta,
         [Description("Falta cobrar")] FaltaCobrar
     }

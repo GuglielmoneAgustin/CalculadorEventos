@@ -2,7 +2,6 @@ using ProyectoEventos.Common.Exceptions;
 using ProyectoEventos.Domain;
 using ProyectoEventos.Dto;
 using ProyectoEventos.Repository;
-using ProyectoEventos.Repository.Memoria;
 
 namespace ProyectoEventos.Service
 {
@@ -12,7 +11,7 @@ namespace ProyectoEventos.Service
         private readonly IRepository<Evento> eventoRepositorio;
 
         public ServicioAdicionalService()
-            : this(ServicioAdicionalRepository.ObtenerInstancia(), EventoRepository.ObtenerInstancia())
+            : this(Repositorios.Servicios, Repositorios.Eventos)
         {
         }
 

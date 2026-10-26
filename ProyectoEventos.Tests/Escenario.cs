@@ -1,28 +1,31 @@
+using Microsoft.Data.Sqlite;
 using ProyectoEventos.Common.Enums;
 using ProyectoEventos.Domain;
 using ProyectoEventos.Dto;
-using ProyectoEventos.Repository.Memoria;
+using ProyectoEventos.Repository;
+using ProyectoEventos.Repository.Sqlite;
 using ProyectoEventos.Service;
 
 namespace ProyectoEventos.Tests
 {
     // Repositorio en memoria propio de cada prueba (los de la app son únicos y compartidos).
-    internal class RepositorioPrueba<T> : RepositorioBase<T> where T : class, IEntidad
+    internal class RepositorioPrueba<T> : Repository.Memoria.RepositorioBase<T> where T : class, IEntidad
     {
         public RepositorioPrueba() : base("elemento")
         {
         }
     }
 
-    // Arma los servicios con repositorios vacíos y ofrece atajos para cargar datos.
-    internal class Escenario
+    // Arma los servicios con repositorios vacíos (en memoria o en un archivo SQLite temporal)
+    // y ofrece atajos para cargar datos.
+    public class Escenario : IDisposable
     {
-        public readonly RepositorioPrueba<Cliente> Clientes = new RepositorioPrueba<Cliente>();
-        public readonly RepositorioPrueba<Lugar> Lugares = new RepositorioPrueba<Lugar>();
-        public readonly RepositorioPrueba<Producto> Productos = new RepositorioPrueba<Producto>();
-        public readonly RepositorioPrueba<ServicioAdicional> Servicios = new RepositorioPrueba<ServicioAdicional>();
-        public readonly RepositorioPrueba<Evento> Eventos = new RepositorioPrueba<Evento>();
-        public readonly RepositorioPrueba<Negocio> Negocios = new RepositorioPrueba<Negocio>();
+        public readonly IRepository<Cliente> Clientes;
+        public readonly IRepository<Lugar> Lugares;
+        public readonly IRepository<Producto> Productos;
+        public readonly IRepository<ServicioAdicional> Servicios;
+        public readonly IRepository<Evento> Eventos;
+        public readonly IRepository<Negocio> Negocios;
 
         public readonly ClienteService ClienteServicio;
         public readonly LugarService LugarServicio;
@@ -32,15 +35,48 @@ namespace ProyectoEventos.Tests
         public readonly NegocioService NegocioServicio;
         public readonly PresupuestoService PresupuestoServicio;
 
-        public Escenario()
+        private readonly string? rutaBaseDatos;
+
+        public Escenario(bool usarSqlite = false)
         {
+            if (usarSqlite)
+            {
+                rutaBaseDatos = Path.Combine(Path.GetTempPath(), "eventos-prueba-" + Guid.NewGuid() + ".db");
+                BaseDatosSqlite baseDatos = new BaseDatosSqlite(rutaBaseDatos);
+                baseDatos.CrearTablasSiNoExisten();
+                Clientes = new ClienteRepository(baseDatos);
+                Lugares = new LugarRepository(baseDatos);
+                Productos = new ProductoRepository(baseDatos);
+                Servicios = new ServicioAdicionalRepository(baseDatos);
+                Negocios = new NegocioRepository(baseDatos);
+                Eventos = new EventoRepository(baseDatos, Clientes, Lugares, Productos, Servicios);
+            }
+            else
+            {
+                Clientes = new RepositorioPrueba<Cliente>();
+                Lugares = new RepositorioPrueba<Lugar>();
+                Productos = new RepositorioPrueba<Producto>();
+                Servicios = new RepositorioPrueba<ServicioAdicional>();
+                Negocios = new RepositorioPrueba<Negocio>();
+                Eventos = new RepositorioPrueba<Evento>();
+            }
+
             ClienteServicio = new ClienteService(Clientes, Eventos);
             LugarServicio = new LugarService(Lugares, Eventos);
             ProductoServicio = new ProductoService(Productos, Eventos);
             ServicioAdicionalServicio = new ServicioAdicionalService(Servicios, Eventos);
             EventoServicio = new EventoService(Eventos, Clientes, Lugares, Productos, Servicios);
             NegocioServicio = new NegocioService(Negocios);
-            PresupuestoServicio = new PresupuestoService(Eventos, NegocioServicio);
+            PresupuestoServicio = new PresupuestoService(Eventos);
+        }
+
+        public void Dispose()
+        {
+            if (rutaBaseDatos != null)
+            {
+                SqliteConnection.ClearAllPools();
+                File.Delete(rutaBaseDatos);
+            }
         }
 
         public int CrearCliente(string nombre = "Ana Pérez", string dni = "30111222")
@@ -107,11 +143,6 @@ namespace ProyectoEventos.Tests
             int idEvento = CrearEvento(idCliente, idLugar, DateTime.Today.AddDays(diasHastaElEvento).AddHours(20));
             EventoServicio.AgregarPlatosAlMenu(idEvento, 10, 0, new List<int> { idProducto });
             return idEvento;
-        }
-
-        public Evento Evento(int idEvento)
-        {
-            return Eventos.ObtenerExistente(idEvento);
         }
     }
 }

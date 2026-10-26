@@ -146,10 +146,6 @@ namespace ProyectoEventos.Forms.Utils
             t.Add(Centrar("PRESUPUESTO"));
             t.Add(LineaDoble);
             t.Add("Emitido: " + DateTime.Now.ToString(Formato.FechaHora));
-            if (negocio.DiasValidez > 0)
-            {
-                t.Add("Válido hasta: " + DateTime.Today.AddDays(negocio.DiasValidez).ToString(Formato.Fecha));
-            }
             t.Add(LineaSimple);
             t.Add(Centrar("(detalle del presupuesto)"));
             t.Add(LineaDoble);
@@ -187,10 +183,6 @@ namespace ProyectoEventos.Forms.Utils
             t.Add(Centrar(d.Estado.Texto().ToUpper()));
             t.Add(LineaDoble);
             t.Add("Emitido: " + d.FechaGeneracion.ToString(Formato.FechaHora));
-            if (d.Estado == EstadoPresupuesto.EnEspera && d.FechaVencimiento != null)
-            {
-                t.Add("Válido hasta: " + d.FechaVencimiento.Value.ToString(Formato.Fecha));
-            }
             t.Add("Cliente: " + d.NombreCliente);
             t.Add("Lugar: " + d.NombreLugar);
             t.Add("Fecha: " + d.FechaEvento.ToString(Formato.FechaHora));

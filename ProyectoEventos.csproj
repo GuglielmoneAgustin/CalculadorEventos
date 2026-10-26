@@ -14,5 +14,8 @@
     <EmbeddedResource Remove="ProyectoEventos.Tests/**" />
     <None Remove="ProyectoEventos.Tests/**" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.14" />
+  </ItemGroup>
 
 </Project>

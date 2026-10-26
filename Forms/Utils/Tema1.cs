@@ -448,7 +448,6 @@ namespace ProyectoEventos.Forms.Utils
             switch (tipo)
             {
                 case TipoPendiente.SinPresupuesto:
-                case TipoPendiente.Vencido:
                     PintarCelda(e, TerracotaSuave, TerracotaOscuro);
                     break;
                 case TipoPendiente.Desactualizado:

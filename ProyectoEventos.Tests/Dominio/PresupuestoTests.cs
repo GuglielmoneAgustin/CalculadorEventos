@@ -21,14 +21,14 @@ namespace ProyectoEventos.Tests.Dominio
 
         private Presupuesto GenerarYAprobar()
         {
-            Presupuesto presupuesto = evento.GenerarPresupuesto(DateTime.Now, 15);
-            return evento.AprobarPresupuesto(presupuesto.Id, false, false, DateTime.Today);
+            Presupuesto presupuesto = evento.GenerarPresupuesto(DateTime.Now);
+            return evento.AprobarPresupuesto(presupuesto.Id, false);
         }
 
         [Fact]
         public void CalculaElTotalCotizado()
         {
-            Presupuesto presupuesto = evento.GenerarPresupuesto(DateTime.Now, 15);
+            Presupuesto presupuesto = evento.GenerarPresupuesto(DateTime.Now);
 
             Assert.Equal(1400, presupuesto.CostoLugar);
             Assert.Equal(1000, presupuesto.CalcularSubtotalMenu());
@@ -39,7 +39,7 @@ namespace ProyectoEventos.Tests.Dominio
         [Fact]
         public void EsUnaFotoQueNoCambiaConLosPrecios()
         {
-            Presupuesto presupuesto = evento.GenerarPresupuesto(DateTime.Now, 15);
+            Presupuesto presupuesto = evento.GenerarPresupuesto(DateTime.Now);
 
             milanesa.PrecioAdulto = 200;
 
@@ -52,9 +52,9 @@ namespace ProyectoEventos.Tests.Dominio
         [Fact]
         public void ElAnteriorQuedaDesactualizadoPorUnoMasNuevo()
         {
-            Presupuesto primero = evento.GenerarPresupuesto(DateTime.Now, 15);
+            Presupuesto primero = evento.GenerarPresupuesto(DateTime.Now);
             evento.AgregarServicio(new ServicioAdicional(1, "DJ", "", 500));
-            Presupuesto segundo = evento.GenerarPresupuesto(DateTime.Now, 15);
+            Presupuesto segundo = evento.GenerarPresupuesto(DateTime.Now);
 
             Assert.Equal(2900, segundo.CalcularTotal());
             Assert.True(evento.EsVigente(segundo));
@@ -66,11 +66,11 @@ namespace ProyectoEventos.Tests.Dominio
         {
             Presupuesto primero = GenerarYAprobar();
             evento.AgregarServicio(new ServicioAdicional(1, "DJ", "", 500));
-            Presupuesto segundo = evento.GenerarPresupuesto(DateTime.Now, 15);
+            Presupuesto segundo = evento.GenerarPresupuesto(DateTime.Now);
 
-            Assert.Throws<NegocioException>(() => evento.AprobarPresupuesto(segundo.Id, false, false, DateTime.Today));
+            Assert.Throws<NegocioException>(() => evento.AprobarPresupuesto(segundo.Id, false));
 
-            evento.AprobarPresupuesto(segundo.Id, true, false, DateTime.Today);
+            evento.AprobarPresupuesto(segundo.Id, true);
             Assert.Equal(EstadoPresupuesto.Cancelado, primero.Estado);
             Assert.Equal(EstadoPresupuesto.Aprobado, segundo.Estado);
         }
@@ -92,7 +92,7 @@ namespace ProyectoEventos.Tests.Dominio
         [Fact]
         public void SoloSeCobraUnPresupuestoAprobado()
         {
-            evento.GenerarPresupuesto(DateTime.Now, 15);
+            evento.GenerarPresupuesto(DateTime.Now);
 
             Assert.Throws<NegocioException>(() => evento.RegistrarSena(100, DateTime.Now));
             Assert.Throws<NegocioException>(() => evento.MarcarPagado(DateTime.Now));
@@ -110,8 +110,8 @@ namespace ProyectoEventos.Tests.Dominio
             Assert.Throws<NegocioException>(() => evento.CancelarPresupuesto(aprobado.Id));
 
             evento.AgregarServicio(new ServicioAdicional(1, "DJ", "", 500));
-            Presupuesto nuevo = evento.GenerarPresupuesto(DateTime.Now, 15);
-            Assert.Throws<NegocioException>(() => evento.AprobarPresupuesto(nuevo.Id, true, false, DateTime.Today));
+            Presupuesto nuevo = evento.GenerarPresupuesto(DateTime.Now);
+            Assert.Throws<NegocioException>(() => evento.AprobarPresupuesto(nuevo.Id, true));
         }
 
         [Fact]
@@ -120,55 +120,13 @@ namespace ProyectoEventos.Tests.Dominio
             Presupuesto primero = GenerarYAprobar();
             evento.RegistrarSena(700, DateTime.Now);
             evento.AgregarServicio(new ServicioAdicional(1, "DJ", "", 500));
-            Presupuesto segundo = evento.GenerarPresupuesto(DateTime.Now, 15);
+            Presupuesto segundo = evento.GenerarPresupuesto(DateTime.Now);
 
-            evento.AprobarPresupuesto(segundo.Id, true, false, DateTime.Today);
+            evento.AprobarPresupuesto(segundo.Id, true);
 
             Assert.Equal(700, segundo.Sena);
             Assert.Equal(0, primero.Sena);
             Assert.Equal(2200, segundo.Saldo);
-        }
-
-        [Fact]
-        public void GuardaSuVencimientoAlGenerarse()
-        {
-            Presupuesto presupuesto = evento.GenerarPresupuesto(DateTime.Today.AddHours(10), 15);
-
-            Assert.Equal(DateTime.Today.AddDays(15), presupuesto.FechaVencimiento);
-            Assert.Equal(15, presupuesto.DiasParaVencer(DateTime.Today));
-            Assert.False(presupuesto.EstaVencido(DateTime.Today.AddDays(15)));
-            Assert.True(presupuesto.EstaVencido(DateTime.Today.AddDays(16)));
-        }
-
-        [Fact]
-        public void SinValidezNoVence()
-        {
-            Presupuesto presupuesto = evento.GenerarPresupuesto(DateTime.Today.AddDays(-400), 0);
-
-            Assert.Null(presupuesto.FechaVencimiento);
-            Assert.Null(presupuesto.DiasParaVencer(DateTime.Today));
-            Assert.False(presupuesto.EstaVencido(DateTime.Today));
-        }
-
-        [Fact]
-        public void LaValidezNoPuedeSerNegativa()
-        {
-            Assert.Throws<NegocioException>(() => evento.GenerarPresupuesto(DateTime.Now, -1));
-        }
-
-        [Fact]
-        public void UnVencidoSoloSeApruebaConfirmando()
-        {
-            Presupuesto presupuesto = evento.GenerarPresupuesto(DateTime.Today.AddDays(-20), 15);
-
-            Assert.Equal(TipoPendiente.Vencido, evento.ObtenerTipoPendiente(DateTime.Now));
-            NegocioException error = Assert.Throws<NegocioException>(() =>
-                evento.AprobarPresupuesto(presupuesto.Id, false, false, DateTime.Today));
-            Assert.Contains("venció el", error.Message);
-
-            evento.AprobarPresupuesto(presupuesto.Id, false, true, DateTime.Today);
-            Assert.Equal(EstadoPresupuesto.Aprobado, presupuesto.Estado);
-            Assert.False(presupuesto.EstaVencido(DateTime.Today));
         }
     }
 }

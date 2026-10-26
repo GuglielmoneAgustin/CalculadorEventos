@@ -4,11 +4,21 @@ using ProyectoEventos.Dto;
 
 namespace ProyectoEventos.Tests.Servicios
 {
-    public class EventoServiceTests
+    public abstract class EventoServiceTests : IDisposable
     {
         private static readonly DateTime Fecha = DateTime.Today.AddDays(20).AddHours(20);
 
-        private readonly Escenario escenario = new Escenario();
+        protected readonly Escenario escenario;
+
+        protected EventoServiceTests(bool usarSqlite)
+        {
+            escenario = new Escenario(usarSqlite);
+        }
+
+        public void Dispose()
+        {
+            escenario.Dispose();
+        }
 
         [Fact]
         public void NoPermiteDosEventosEnElMismoLugarYHorario()
@@ -48,7 +58,7 @@ namespace ProyectoEventos.Tests.Servicios
         {
             int idEvento = escenario.CrearEventoConMenu();
             PresupuestoResultadoDTO presupuesto = escenario.PresupuestoServicio.Generar(idEvento)!;
-            escenario.PresupuestoServicio.Aprobar(idEvento, presupuesto.Id, false, false);
+            escenario.PresupuestoServicio.Aprobar(idEvento, presupuesto.Id, false);
 
             Assert.Throws<NegocioException>(() => escenario.EventoServicio.Eliminar(idEvento));
 
@@ -76,7 +86,7 @@ namespace ProyectoEventos.Tests.Servicios
             escenario.PresupuestoServicio.Generar(idEsperando);
             int idCobrar = CrearEventoConMenuEn("C", "3", DateTime.Today.AddDays(3).AddHours(20));
             PresupuestoResultadoDTO presupuesto = escenario.PresupuestoServicio.Generar(idCobrar)!;
-            escenario.PresupuestoServicio.Aprobar(idCobrar, presupuesto.Id, false, false);
+            escenario.PresupuestoServicio.Aprobar(idCobrar, presupuesto.Id, false);
 
             List<PendienteDTO> pendientes = escenario.EventoServicio.ObtenerPendientes();
 
@@ -84,24 +94,10 @@ namespace ProyectoEventos.Tests.Servicios
             PendienteDTO esperando = pendientes.Single(p => p.IdEvento == idEsperando);
             Assert.Equal(TipoPendiente.EsperandoRespuesta, esperando.Tipo);
             Assert.Contains("enviado hoy", esperando.Detalle);
-            Assert.Contains("Vence el", esperando.Detalle);
             Assert.Equal(TipoPendiente.FaltaCobrar, pendientes.Single(p => p.IdEvento == idCobrar).Tipo);
 
             escenario.PresupuestoServicio.MarcarPagado(idCobrar);
             Assert.DoesNotContain(escenario.EventoServicio.ObtenerPendientes(), p => p.IdEvento == idCobrar);
-        }
-
-        [Fact]
-        public void UnPresupuestoViejoApareceComoVencido()
-        {
-            int idEvento = escenario.CrearEventoConMenu();
-            escenario.Evento(idEvento).GenerarPresupuesto(DateTime.Today.AddDays(-20), 15);
-
-            PendienteDTO pendiente = escenario.EventoServicio.ObtenerPendientes().Single();
-
-            Assert.Equal(TipoPendiente.Vencido, pendiente.Tipo);
-            Assert.Contains("hace 20 días", pendiente.Detalle);
-            Assert.Contains("Vencido el " + DateTime.Today.AddDays(-5).ToString("dd/MM/yyyy"), pendiente.Detalle);
         }
 
         private int CrearEventoConMenuEn(string nombreLugar, string dni, DateTime fecha)
@@ -109,6 +105,20 @@ namespace ProyectoEventos.Tests.Servicios
             int idEvento = escenario.CrearEvento(escenario.CrearCliente("Cliente " + dni, dni), escenario.CrearLugar(nombreLugar), fecha);
             escenario.EventoServicio.AgregarPlatosAlMenu(idEvento, 10, 0, new List<int> { escenario.CrearProducto("Plato " + dni) });
             return idEvento;
+        }
+    }
+
+    public class EventoServiceTestsEnMemoria : EventoServiceTests
+    {
+        public EventoServiceTestsEnMemoria() : base(false)
+        {
+        }
+    }
+
+    public class EventoServiceTestsEnSqlite : EventoServiceTests
+    {
+        public EventoServiceTestsEnSqlite() : base(true)
+        {
         }
     }
 }

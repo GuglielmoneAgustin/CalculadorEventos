@@ -3,9 +3,19 @@ using ProyectoEventos.Dto;
 
 namespace ProyectoEventos.Tests.Servicios
 {
-    public class NegocioServiceTests
+    public abstract class NegocioServiceTests : IDisposable
     {
-        private readonly Escenario escenario = new Escenario();
+        protected readonly Escenario escenario;
+
+        protected NegocioServiceTests(bool usarSqlite)
+        {
+            escenario = new Escenario(usarSqlite);
+        }
+
+        public void Dispose()
+        {
+            escenario.Dispose();
+        }
 
         [Fact]
         public void SinDatosCargadosArrancaConValoresPorDefecto()
@@ -13,8 +23,6 @@ namespace ProyectoEventos.Tests.Servicios
             NegocioDTO negocio = escenario.NegocioServicio.Obtener();
 
             Assert.Equal("Mi negocio", negocio.Nombre);
-            Assert.Equal(15, negocio.DiasValidez);
-            Assert.Equal(30, negocio.PorcentajeSena);
             Assert.Single(escenario.Negocios.ObtenerTodos());
         }
 
@@ -40,6 +48,20 @@ namespace ProyectoEventos.Tests.Servicios
 
             Assert.Throws<NegocioException>(() => escenario.NegocioServicio.Guardar(negocio));
             Assert.Equal("Mi negocio", escenario.NegocioServicio.Obtener().Nombre);
+        }
+    }
+
+    public class NegocioServiceTestsEnMemoria : NegocioServiceTests
+    {
+        public NegocioServiceTestsEnMemoria() : base(false)
+        {
+        }
+    }
+
+    public class NegocioServiceTestsEnSqlite : NegocioServiceTests
+    {
+        public NegocioServiceTestsEnSqlite() : base(true)
+        {
         }
     }
 }

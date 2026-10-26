@@ -197,7 +197,7 @@ namespace ProyectoEventos.Domain
             {
                 return TipoPendiente.Desactualizado;
             }
-            return ObtenerPresupuestoEnEspera()!.EstaVencido(ahora) ? TipoPendiente.Vencido : TipoPendiente.EsperandoRespuesta;
+            return TipoPendiente.EsperandoRespuesta;
         }
 
         public bool EsProximoAprobado(DateTime ahora)
@@ -241,7 +241,7 @@ namespace ProyectoEventos.Domain
 
         public void QuitarServicio(ServicioAdicional servicio)
         {
-            if (!servicios.Remove(servicio))
+            if (servicio == null || servicios.RemoveAll(s => s.Id == servicio.Id) == 0)
             {
                 throw new NoEncontradoException("El servicio no está asociado al evento.");
             }
@@ -253,29 +253,23 @@ namespace ProyectoEventos.Domain
             return servicios.AsReadOnly();
         }
 
-        public Presupuesto GenerarPresupuesto(DateTime fechaGeneracion, int diasValidez)
+        public Presupuesto GenerarPresupuesto(DateTime fechaGeneracion)
         {
             if (Menu.EstaVacio())
             {
                 throw new NegocioException("Debe agregar al menos un item al menú antes de generar un presupuesto.");
             }
 
-            Presupuesto presupuesto = new Presupuesto(proximoIdPresupuesto, this, fechaGeneracion, diasValidez);
+            Presupuesto presupuesto = new Presupuesto(proximoIdPresupuesto, this, fechaGeneracion);
             proximoIdPresupuesto++;
             presupuestos.Add(presupuesto);
             huboCambiosDesdeUltimoPresupuesto = false;
             return presupuesto;
         }
 
-        public Presupuesto AprobarPresupuesto(int idPresupuesto, bool reemplazarAprobado, bool aprobarVencido, DateTime hoy)
+        public Presupuesto AprobarPresupuesto(int idPresupuesto, bool reemplazarAprobado)
         {
             Presupuesto presupuesto = ValidarAprobacion(idPresupuesto);
-
-            if (presupuesto.EstaVencido(hoy) && !aprobarVencido)
-            {
-                throw new NegocioException("El presupuesto N° " + presupuesto.Id + " venció el " +
-                    presupuesto.FechaVencimiento!.Value.ToString(Formato.Fecha) + ". Confirme si desea aprobarlo igual.");
-            }
 
             Presupuesto? otroAprobado = ObtenerPresupuestoAprobado();
             if (otroAprobado != null && !reemplazarAprobado)
@@ -417,6 +411,35 @@ namespace ProyectoEventos.Domain
         public Presupuesto? ObtenerPresupuestoDeReferencia()
         {
             return ObtenerPresupuestoAprobado() ?? ObtenerUltimoPresupuesto();
+        }
+
+        // Estado interno que se guarda en la base de datos junto con el evento.
+        internal int ProximoIdPresupuesto
+        {
+            get { return proximoIdPresupuesto; }
+        }
+
+        internal bool HuboCambiosDesdeUltimoPresupuesto
+        {
+            get { return huboCambiosDesdeUltimoPresupuesto; }
+        }
+
+        // Solo para reconstruir el evento al leerlo de la base de datos: no valida ni marca cambios.
+        internal void CargarServicio(ServicioAdicional servicio)
+        {
+            servicios.Add(servicio);
+        }
+
+        internal void CargarPresupuesto(Presupuesto presupuesto)
+        {
+            presupuestos.Add(presupuesto);
+        }
+
+        internal void CargarEstado(int proximoIdPresupuesto, int proximoIdItem, bool huboCambiosDesdeUltimoPresupuesto)
+        {
+            this.proximoIdPresupuesto = proximoIdPresupuesto;
+            this.huboCambiosDesdeUltimoPresupuesto = huboCambiosDesdeUltimoPresupuesto;
+            menu.CargarProximoIdItem(proximoIdItem);
         }
 
         private Presupuesto? ObtenerUltimoPresupuesto()

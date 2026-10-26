@@ -73,6 +73,22 @@ namespace ProyectoEventos.Domain
             return total;
         }
 
+        internal int ProximoIdItem
+        {
+            get { return proximoIdItem; }
+        }
+
+        // Solo para reconstruir el menú al leerlo de la base de datos.
+        internal void CargarItem(ItemMenu item)
+        {
+            items.Add(item);
+        }
+
+        internal void CargarProximoIdItem(int proximoIdItem)
+        {
+            this.proximoIdItem = proximoIdItem;
+        }
+
         private ItemMenu ObtenerItemExistente(int idItem)
         {
             ItemMenu? item = items.Find(item => item.Id == idItem);

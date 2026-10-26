@@ -498,7 +498,6 @@ namespace ProyectoEventos.Forms.Utils
             switch (tipo)
             {
                 case TipoPendiente.SinPresupuesto:
-                case TipoPendiente.Vencido:
                     PintarCelda(e, PeligroSuave, PeligroOscuro);
                     break;
                 case TipoPendiente.Desactualizado:

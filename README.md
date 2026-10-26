@@ -11,13 +11,31 @@ Aplicación de escritorio (Windows Forms, .NET 10) para armar y presupuestar eve
 dotnet run
 ```
 
-Al ejecutar en modo **Debug** se cargan automáticamente datos de ejemplo (clientes, lugares, productos, servicios y eventos con presupuestos en distintos estados) para poder probar todas las pantallas.
+Al ejecutar en modo **Debug** con la base vacía se cargan automáticamente datos de ejemplo (clientes, lugares, productos, servicios y eventos con presupuestos en distintos estados) para poder probar todas las pantallas.
 
-> Los datos se guardan en memoria: al cerrar la aplicación se pierden.
+## Base de datos
+
+Los datos se guardan en una base **SQLite** (archivo `eventos.db`, junto al ejecutable; en desarrollo queda en `bin/Debug/net10.0-windows/`). Se usa ADO.NET con `Microsoft.Data.Sqlite` y el SQL está escrito a mano en cada repositorio.
+
+- Las tablas se crean solas la primera vez que se usa la base.
+- Para empezar de cero, alcanza con cerrar la app y borrar `eventos.db`. En modo Debug se vuelven a cargar los datos de ejemplo.
+- El archivo se puede abrir con cualquier visor de SQLite (por ejemplo, DB Browser for SQLite).
+- Los montos se guardan como texto para no perder centavos (SQLite no tiene tipo decimal), y las fechas en formato `yyyy-MM-dd HH:mm:ss`.
+- Cada evento se guarda completo en una transacción: sus datos, el menú, los servicios y los presupuestos con su foto. Al borrar un evento se borra todo lo que contiene.
+- Los ids no se reutilizan aunque se borre el último registro (tabla `Secuencias`).
+
+| Tabla | Contenido |
+|---|---|
+| `Clientes`, `Lugares`, `Productos`, `ServiciosAdicionales`, `Negocio` | Una fila por registro. |
+| `Eventos` | Datos del evento y su estado interno (próximos números de plato y de presupuesto, y si cambió desde el último presupuesto). |
+| `ItemsMenu`, `EventoServicios` | Platos y servicios de cada evento. |
+| `Presupuestos` | Foto de lo cotizado, estado, seña y pago. |
+| `PresupuestoItems`, `PresupuestoServicios` | Platos y servicios tal como se cotizaron. |
+| `Secuencias` | Último id usado de cada tabla. |
 
 ## Pruebas automáticas
 
-El proyecto `ProyectoEventos.Tests` (xUnit) prueba las reglas de negocio y los servicios: validaciones de las entidades, eventos, menú, presupuestos (vigencia, aprobación, cobro y vencimiento), pendientes y datos del negocio. Cada prueba usa sus propios repositorios en memoria, así no dependen entre sí ni de los datos de ejemplo.
+El proyecto `ProyectoEventos.Tests` (xUnit) prueba las reglas de negocio y los servicios: validaciones de las entidades, eventos, menú, presupuestos (vigencia, aprobación y cobro), pendientes y datos del negocio. Cada prueba usa sus propios repositorios, así no dependen entre sí ni de los datos de ejemplo. Las pruebas de los servicios corren dos veces: en memoria y contra un archivo SQLite temporal, y hay pruebas propias de la base (que todo vuelva igual al leerlo, montos exactos, borrado en cascada).
 
 Se corren desde Visual Studio (**Prueba → Explorador de pruebas → Ejecutar todas**) o desde la carpeta del proyecto:
 
@@ -34,14 +52,13 @@ La ventana principal tiene un menú lateral (Inicio, Lugares, Clientes, Servicio
 - **Alerta** (solo si hace falta) cuando hay eventos de los próximos 7 días que todavía no tienen presupuesto aprobado, con sus clientes.
 - Tarjeta destacada con el **próximo evento**: cuánto falta, día y hora, cliente, lugar, invitados y horario.
 - **Esta semana:** cuántos eventos hay en los próximos 7 días, cuántos están aprobados y cuántos no.
-- **Para atender:** cuántos pendientes hay y de qué tipo (sin presupuesto, desactualizado, vencido, esperando respuesta, falta cobrar).
+- **Para atender:** cuántos pendientes hay y de qué tipo (sin presupuesto, desactualizado, esperando respuesta, falta cobrar).
 - **Hoy:** el día de la semana y la fecha.
 - **Próximos eventos aprobados:** cuánto falta ("Hoy", "Mañana", "En 5 días"), cliente, lugar, fecha, horario de inicio a fin, invitados y total aprobado. Los de los próximos 7 días se resaltan.
 - **Para atender:** eventos próximos que necesitan algo, con un detalle de qué pasó:
   - **Sin presupuesto:** el evento se cargó pero no tiene presupuesto.
   - **Desactualizado:** el presupuesto en espera ya no vale (por ejemplo, "Cambió el precio de Bife de chorizo.").
-  - **Esperando respuesta:** el presupuesto está vigente y se envió hace cierta cantidad de días; si el negocio tiene validez configurada, indica cuándo vence.
-  - **Vencido:** el presupuesto en espera superó los días de validez del negocio ("Vencido el 09/11/2026."). Conviene llamar al cliente o actualizarlo.
+  - **Esperando respuesta:** el presupuesto está vigente y se envió hace cierta cantidad de días.
   - **Falta cobrar:** el evento es dentro de los próximos 7 días, tiene presupuesto aprobado y todavía no está pagado (indica cuánto falta y si tiene seña).
 - Un botón **Ver presupuesto** sirve para las dos grillas: abre los presupuestos del evento elegido en cualquiera de ellas (al seleccionar en una grilla se deselecciona la otra). Al volver, Inicio se actualiza.
 
@@ -72,8 +89,6 @@ Datos propios del negocio, que se usan en los tickets y en la interfaz:
 - La pantalla abre en **modo lectura** para no cambiar nada sin querer. No queda ningún campo seleccionado al entrar ni al tocar Editar. **Editar** habilita los campos; **Guardar** aplica los cambios y **Cancelar** los descarta (si hay cambios, pregunta antes).
 - **Nombre del local** (obligatorio, hasta 60 caracteres), dirección, teléfono / WhatsApp (números, espacios, +, - y paréntesis), mail (con formato válido), CUIT (11 números, con o sin guiones) e Instagram (sin espacios): aparecen en el encabezado del ticket y del comprobante. Los que se dejan vacíos no se imprimen.
 - **Mensaje al pie del ticket:** reemplaza el "Gracias por elegirnos" fijo.
-- **Validez del presupuesto (días):** el ticket de un presupuesto en espera muestra "Válido hasta", y Presupuestos e Inicio avisan cuándo vence o si ya venció (entre 0 y 365; con 0 no vence).
-- **Seña sugerida (%):** al cobrar un presupuesto aprobado sin seña, el campo Seña ya viene calculado con ese porcentaje del total (se puede cambiar). Debe ser menor a 100 %, porque el 100 % es el pago completo.
 - A la derecha hay una **vista previa del ticket** que se actualiza mientras se escribe.
 - Si no se cargaron datos, el negocio se llama "Mi negocio".
 
@@ -99,8 +114,7 @@ Datos propios del negocio, que se usan en los tickets y en la interfaz:
 - Grilla con número, fecha de generación, fecha del evento e invitados cotizados, costo total, estado, **pago** y **detalle**.
 - Cada presupuesto es una foto de lo cotizado: si después cambia el evento, ya no se modifica.
 - **Vigencia:** un presupuesto está vigente si es el último generado y no cambiaron ni el evento ni los precios (costo base o por hora del lugar, productos o servicios). Si no, se marca "(desactualizado)" y la columna Detalle explica el motivo, por ejemplo "Cambió el precio de Bife de chorizo." o "Cambiaron los servicios adicionales.".
-- **Vencimiento:** cada presupuesto guarda su fecha de vencimiento al generarse, según la validez configurada en Mi negocio en ese momento. Si después se cambia la validez, los presupuestos ya emitidos conservan la suya (la misma que figura en el ticket del cliente). La columna Detalle muestra "Vence el 09/11/2026 (en 15 días)." o, si ya pasó, "Vencido el …" resaltado.
-- **Aprobar:** solo se aprueba un presupuesto vigente, que esté en espera o cancelado (por ejemplo, si el cliente se arrepintió). Si ya hay otro aprobado, se pregunta si se reemplaza. Si está vencido, se pregunta si se aprueba igual.
+- **Aprobar:** solo se aprueba un presupuesto vigente, que esté en espera o cancelado (por ejemplo, si el cliente se arrepintió). Si ya hay otro aprobado, se pregunta si se reemplaza.
 - **Cancelar:** pide confirmación y avisa especialmente si el presupuesto está aprobado.
 - **Actualizar presupuesto:** genera uno nuevo con los datos y precios actuales (o avisa que ya está al día).
 - **Ver ticket:** muestra en pantalla un ticket con los datos del negocio y todos los datos cotizados. Con **Guardar PDF** se elige dónde guardarlo y se genera el archivo usando la impresora "Microsoft Print to PDF" que trae Windows (si no está instalada, se avisa con un mensaje).
@@ -123,7 +137,6 @@ Datos propios del negocio, que se usan en los tickets y en la interfaz:
 - Los precios de productos y los montos de servicios deben ser mayores a cero; las cantidades no pueden ser negativas y cada plato debe tener al menos un adulto o un niño.
 - No se pueden eliminar clientes, lugares, productos o servicios que estén en uso en algún evento.
 - Solo puede haber un presupuesto aprobado por evento.
-- Un presupuesto vencido solo se aprueba si se confirma expresamente. Un presupuesto aprobado ya no vence.
 - Solo se cobra el presupuesto aprobado: una seña (no reembolsable) y luego el pago del resto.
 
 ## Tema visual
@@ -146,7 +159,8 @@ El código está organizado en capas:
 |---|---|
 | `Domain` | Entidades y reglas de negocio (`Evento`, `Presupuesto`, `Cliente`, `Lugar`, `Producto`, `ServicioAdicional`, `MenuEvento`, `ItemMenu`, `Negocio`). Cada entidad valida sus datos en el constructor y en los setters de sus propiedades. |
 | `Repository` | Interfaz de acceso a datos `IRepository<T>`, común a todas las entidades. El servicio pide el próximo id con `ObtenerProximoId` y guarda los cambios con `Actualizar`. |
-| `Repository/Memoria` | Implementación en memoria de esa interfaz. Para pasar a una base de datos se agrega otra implementación sin tocar los servicios. |
+| `Repository/Sqlite` | Implementación con SQLite (la que usa la app): conexión y creación de tablas (`BaseDatosSqlite`) y un repositorio por entidad con su SQL. |
+| `Repository/Memoria` | Implementación en memoria (la usan las pruebas). Los servicios toman los repositorios de `Repository/Repositorios.cs`, así que cambiar de una a otra no toca los servicios. |
 | `Service` | Casos de uso; reciben los repositorios por constructor. |
 | `Controller` | Punto de entrada que usan las pantallas. |
 | `Dto` | Datos que viajan entre las pantallas y los servicios. |

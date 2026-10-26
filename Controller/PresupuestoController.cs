@@ -17,9 +17,9 @@ namespace ProyectoEventos.Controller
             return servicio.Generar(idEvento);
         }
 
-        public PresupuestoResultadoDTO Aprobar(int idEvento, int idPresupuesto, bool reemplazarAprobado, bool aprobarVencido)
+        public PresupuestoResultadoDTO Aprobar(int idEvento, int idPresupuesto, bool reemplazarAprobado)
         {
-            return servicio.Aprobar(idEvento, idPresupuesto, reemplazarAprobado, aprobarVencido);
+            return servicio.Aprobar(idEvento, idPresupuesto, reemplazarAprobado);
         }
 
         public PresupuestoResultadoDTO Cancelar(int idEvento, int idPresupuesto)

@@ -3,9 +3,19 @@ using ProyectoEventos.Dto;
 
 namespace ProyectoEventos.Tests.Servicios
 {
-    public class AbmServiceTests
+    public abstract class AbmServiceTests : IDisposable
     {
-        private readonly Escenario escenario = new Escenario();
+        protected readonly Escenario escenario;
+
+        protected AbmServiceTests(bool usarSqlite)
+        {
+            escenario = new Escenario(usarSqlite);
+        }
+
+        public void Dispose()
+        {
+            escenario.Dispose();
+        }
 
         [Fact]
         public void ClienteNoRepiteDni()
@@ -102,6 +112,20 @@ namespace ProyectoEventos.Tests.Servicios
 
             Assert.Throws<NegocioException>(() => escenario.CrearProducto("Flan"));
             Assert.Throws<NegocioException>(() => escenario.CrearServicio("DJ"));
+        }
+    }
+
+    public class AbmServiceTestsEnMemoria : AbmServiceTests
+    {
+        public AbmServiceTestsEnMemoria() : base(false)
+        {
+        }
+    }
+
+    public class AbmServiceTestsEnSqlite : AbmServiceTests
+    {
+        public AbmServiceTestsEnSqlite() : base(true)
+        {
         }
     }
 }

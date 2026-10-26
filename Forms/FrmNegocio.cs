@@ -44,7 +44,7 @@ namespace ProyectoEventos.Forms
             CargarFormulario(controlador.Obtener());
         }
 
-        // El modo lectura se aplica con el formulario ya en pantalla: antes, las flechas ocultas de los numéricos dejan un recuadro blanco.
+        // El modo lectura se aplica con el formulario ya en pantalla, así ningún campo queda con el foco.
         private void FrmNegocio_Shown(object? sender, EventArgs e)
         {
             MostrarModoEdicion(false);
@@ -109,18 +109,6 @@ namespace ProyectoEventos.Forms
                     texto.BorderStyle = editando ? BorderStyle.FixedSingle : BorderStyle.None;
                     texto.Select(0, 0);
                 }
-                else if (control is NumericUpDown numero)
-                {
-                    numero.ReadOnly = !editando;
-                    numero.TabStop = editando;
-                    numero.Increment = editando ? 1 : 0;
-                    numero.BackColor = editando ? Tema.Campo : Tema.Tarjeta;
-                    numero.BorderStyle = editando ? BorderStyle.FixedSingle : BorderStyle.None;
-                    // Controls[0] son las flechas y Controls[1] el cuadro de texto interno, que en lectura ocupa todo el ancho.
-                    numero.Controls[0].Visible = editando;
-                    numero.Controls[1].Dock = editando ? DockStyle.None : DockStyle.Fill;
-                    numero.PerformLayout();
-                }
             }
 
             lblModo.Text = editando ? "Editando datos del negocio" : "Datos del negocio";
@@ -140,8 +128,6 @@ namespace ProyectoEventos.Forms
             dto.Cuit = txtBoxCuit.Text;
             dto.Instagram = txtBoxInstagram.Text;
             dto.MensajePie = txtBoxMensajePie.Text;
-            dto.DiasValidez = Convert.ToInt32(numDiasValidez.Value);
-            dto.PorcentajeSena = numPorcentajeSena.Value;
             return dto;
         }
 
@@ -154,8 +140,6 @@ namespace ProyectoEventos.Forms
             txtBoxCuit.Text = dto.Cuit;
             txtBoxInstagram.Text = dto.Instagram;
             txtBoxMensajePie.Text = dto.MensajePie;
-            numDiasValidez.Value = dto.DiasValidez;
-            numPorcentajeSena.Value = dto.PorcentajeSena;
             valoresGuardados = Formulario.Valores(tlpFormulario);
         }
 

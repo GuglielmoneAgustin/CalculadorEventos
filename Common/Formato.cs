@@ -31,19 +31,6 @@ namespace ProyectoEventos.Common
             return dias == 1 ? "Mañana" : "En " + dias + " días";
         }
 
-        public static string Vencimiento(DateTime vencimiento, int diasParaVencer)
-        {
-            if (diasParaVencer < 0)
-            {
-                return "Vencido el " + vencimiento.ToString(Fecha) + ".";
-            }
-            if (diasParaVencer == 0)
-            {
-                return "Vence hoy.";
-            }
-            return "Vence el " + vencimiento.ToString(Fecha) + (diasParaVencer == 1 ? " (mañana)." : " (en " + diasParaVencer + " días).");
-        }
-
         public static int DiasHasta(DateTime fecha)
         {
             return (fecha.Date - DateTime.Today).Days;

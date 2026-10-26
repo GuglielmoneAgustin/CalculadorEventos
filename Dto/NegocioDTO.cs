@@ -15,9 +15,5 @@ namespace ProyectoEventos.Dto
         public string Instagram { get; set; } = string.Empty;
 
         public string MensajePie { get; set; } = string.Empty;
-
-        public int DiasValidez { get; set; }
-
-        public decimal PorcentajeSena { get; set; }
     }
 }

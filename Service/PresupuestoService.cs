@@ -3,24 +3,21 @@ using ProyectoEventos.Common.Enums;
 using ProyectoEventos.Domain;
 using ProyectoEventos.Dto;
 using ProyectoEventos.Repository;
-using ProyectoEventos.Repository.Memoria;
 
 namespace ProyectoEventos.Service
 {
     public class PresupuestoService
     {
         private readonly IRepository<Evento> eventoRepositorio;
-        private readonly NegocioService negocioServicio;
 
         public PresupuestoService()
-            : this(EventoRepository.ObtenerInstancia(), new NegocioService())
+            : this(Repositorios.Eventos)
         {
         }
 
-        public PresupuestoService(IRepository<Evento> eventoRepositorio, NegocioService negocioServicio)
+        public PresupuestoService(IRepository<Evento> eventoRepositorio)
         {
             this.eventoRepositorio = eventoRepositorio;
-            this.negocioServicio = negocioServicio;
         }
 
         public PresupuestoResultadoDTO? Generar(int idEvento)
@@ -31,15 +28,15 @@ namespace ProyectoEventos.Service
                 return null;
             }
 
-            Presupuesto presupuesto = evento.GenerarPresupuesto(DateTime.Now, negocioServicio.ObtenerDiasValidez());
+            Presupuesto presupuesto = evento.GenerarPresupuesto(DateTime.Now);
             eventoRepositorio.Actualizar(evento);
             return MapearAResultado(presupuesto);
         }
 
-        public PresupuestoResultadoDTO Aprobar(int idEvento, int idPresupuesto, bool reemplazarAprobado, bool aprobarVencido)
+        public PresupuestoResultadoDTO Aprobar(int idEvento, int idPresupuesto, bool reemplazarAprobado)
         {
             Evento evento = eventoRepositorio.ObtenerExistente(idEvento);
-            Presupuesto presupuesto = evento.AprobarPresupuesto(idPresupuesto, reemplazarAprobado, aprobarVencido, DateTime.Today);
+            Presupuesto presupuesto = evento.AprobarPresupuesto(idPresupuesto, reemplazarAprobado);
             eventoRepositorio.Actualizar(evento);
             return MapearAResultado(presupuesto);
         }
@@ -96,7 +93,6 @@ namespace ProyectoEventos.Service
             dto.IdEvento = presupuesto.EventoAsociado.Id;
             dto.Estado = presupuesto.Estado;
             dto.FechaGeneracion = presupuesto.FechaGeneracion;
-            dto.FechaVencimiento = presupuesto.FechaVencimiento;
             dto.NombreCliente = presupuesto.NombreCliente;
             dto.NombreLugar = presupuesto.NombreLugar;
             dto.FechaEvento = presupuesto.FechaEvento;
@@ -158,11 +154,6 @@ namespace ProyectoEventos.Service
             dto.FechaPago = presupuesto.FechaPago;
             dto.Saldo = presupuesto.Saldo;
             dto.Vigente = presupuesto.EventoAsociado.EsVigente(presupuesto);
-            dto.FechaVencimiento = presupuesto.FechaVencimiento;
-            dto.Vencido = presupuesto.EstaVencido(DateTime.Today);
-            dto.SenaSugerida = presupuesto.EstadoPago == EstadoPago.SinSena && presupuesto.Estado == EstadoPresupuesto.Aprobado
-                ? negocioServicio.CalcularSenaSugerida(presupuesto.CalcularTotal())
-                : 0;
             dto.Detalle = ArmarDetalle(presupuesto, dto.Vigente);
             return dto;
         }
@@ -176,10 +167,6 @@ namespace ProyectoEventos.Service
             if (!vigente)
             {
                 return string.Join(" ", presupuesto.EventoAsociado.ObtenerMotivosDesactualizacion(presupuesto));
-            }
-            if (presupuesto.Estado == EstadoPresupuesto.EnEspera && presupuesto.FechaVencimiento != null)
-            {
-                return Formato.Vencimiento(presupuesto.FechaVencimiento.Value, presupuesto.DiasParaVencer(DateTime.Today)!.Value);
             }
             return string.Empty;
         }

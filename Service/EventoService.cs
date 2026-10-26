@@ -4,7 +4,6 @@ using ProyectoEventos.Common.Exceptions;
 using ProyectoEventos.Domain;
 using ProyectoEventos.Dto;
 using ProyectoEventos.Repository;
-using ProyectoEventos.Repository.Memoria;
 
 namespace ProyectoEventos.Service
 {
@@ -17,8 +16,8 @@ namespace ProyectoEventos.Service
         private readonly IRepository<ServicioAdicional> servicioRepositorio;
 
         public EventoService()
-            : this(EventoRepository.ObtenerInstancia(), ClienteRepository.ObtenerInstancia(), LugarRepository.ObtenerInstancia(),
-                ProductoRepository.ObtenerInstancia(), ServicioAdicionalRepository.ObtenerInstancia())
+            : this(Repositorios.Eventos, Repositorios.Clientes, Repositorios.Lugares,
+                Repositorios.Productos, Repositorios.Servicios)
         {
         }
 
@@ -112,7 +111,7 @@ namespace ProyectoEventos.Service
                         NombreCliente = evento.Cliente.Nombre,
                         FechaEvento = evento.Fecha,
                         Tipo = tipo.Value,
-                        Detalle = ArmarDetalle(evento, tipo.Value, ahora)
+                        Detalle = ArmarDetalle(evento, tipo.Value)
                     });
                 }
             }
@@ -223,7 +222,7 @@ namespace ProyectoEventos.Service
             return evento;
         }
 
-        private static string ArmarDetalle(Evento evento, TipoPendiente tipo, DateTime ahora)
+        private static string ArmarDetalle(Evento evento, TipoPendiente tipo)
         {
             switch (tipo)
             {
@@ -237,12 +236,7 @@ namespace ProyectoEventos.Service
                         (aprobado.Sena > 0 ? " (señado " + aprobado.Sena.ToString(Formato.Moneda) + ")." : " (sin seña).");
                 default:
                     Presupuesto enEspera = evento.ObtenerPresupuestoEnEspera()!;
-                    string detalle = "Presupuesto N° " + enEspera.Id + " enviado " + DescribirAntiguedad(enEspera.FechaGeneracion) + ".";
-                    if (enEspera.FechaVencimiento == null)
-                    {
-                        return detalle;
-                    }
-                    return detalle + " " + Formato.Vencimiento(enEspera.FechaVencimiento.Value, enEspera.DiasParaVencer(ahora)!.Value);
+                    return "Presupuesto N° " + enEspera.Id + " enviado " + DescribirAntiguedad(enEspera.FechaGeneracion) + ".";
             }
         }
 

@@ -34,11 +34,6 @@ namespace ProyectoEventos.Forms
             txtBoxInstagram = new TextBox();
             lblMensajePie = new Label();
             txtBoxMensajePie = new TextBox();
-            lblDiasValidez = new Label();
-            numDiasValidez = new NumericUpDown();
-            lblPorcentajeSena = new Label();
-            numPorcentajeSena = new NumericUpDown();
-            lblAyuda = new Label();
             tlpBotones = new TableLayoutPanel();
             btnEditar = new Button();
             btnGuardar = new Button();
@@ -47,8 +42,6 @@ namespace ProyectoEventos.Forms
             tlpTarjetaVistaPrevia = new TableLayoutPanel();
             lblVistaPrevia = new Label();
             txtVistaPrevia = new TextBox();
-            ((System.ComponentModel.ISupportInitialize)numDiasValidez).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)numPorcentajeSena).BeginInit();
             tlpRaiz.SuspendLayout();
             tlpFormulario.SuspendLayout();
             tlpBotones.SuspendLayout();
@@ -87,13 +80,8 @@ namespace ProyectoEventos.Forms
             tlpFormulario.Controls.Add(txtBoxInstagram, 1, 8);
             tlpFormulario.Controls.Add(lblMensajePie, 0, 9);
             tlpFormulario.Controls.Add(txtBoxMensajePie, 0, 10);
-            tlpFormulario.Controls.Add(lblDiasValidez, 0, 11);
-            tlpFormulario.Controls.Add(lblPorcentajeSena, 1, 11);
-            tlpFormulario.Controls.Add(numDiasValidez, 0, 12);
-            tlpFormulario.Controls.Add(numPorcentajeSena, 1, 12);
-            tlpFormulario.Controls.Add(lblAyuda, 0, 13);
-            tlpFormulario.Controls.Add(tlpBotones, 0, 14);
-            tlpFormulario.Controls.Add(lblAviso, 0, 15);
+            tlpFormulario.Controls.Add(tlpBotones, 0, 11);
+            tlpFormulario.Controls.Add(lblAviso, 0, 12);
             tlpFormulario.SetColumnSpan(lblModo, 2);
             tlpFormulario.SetColumnSpan(lblNombre, 2);
             tlpFormulario.SetColumnSpan(txtBoxNombre, 2);
@@ -101,15 +89,11 @@ namespace ProyectoEventos.Forms
             tlpFormulario.SetColumnSpan(txtBoxDireccion, 2);
             tlpFormulario.SetColumnSpan(lblMensajePie, 2);
             tlpFormulario.SetColumnSpan(txtBoxMensajePie, 2);
-            tlpFormulario.SetColumnSpan(lblAyuda, 2);
             tlpFormulario.SetColumnSpan(tlpBotones, 2);
             tlpFormulario.SetColumnSpan(lblAviso, 2);
             tlpFormulario.Dock = DockStyle.Fill;
             tlpFormulario.Name = "tlpFormulario";
-            tlpFormulario.RowCount = 17;
-            tlpFormulario.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            tlpFormulario.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            tlpFormulario.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            tlpFormulario.RowCount = 14;
             tlpFormulario.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpFormulario.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tlpFormulario.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -233,47 +217,6 @@ namespace ProyectoEventos.Forms
             txtBoxMensajePie.TabIndex = 7;
             txtBoxMensajePie.TextChanged += Campo_Changed;
             //
-            // lblDiasValidez
-            //
-            lblDiasValidez.AutoSize = true;
-            lblDiasValidez.Margin = new Padding(3, 8, 3, 3);
-            lblDiasValidez.Name = "lblDiasValidez";
-            lblDiasValidez.Text = "Validez del presupuesto (días):";
-            //
-            // numDiasValidez
-            //
-            numDiasValidez.Dock = DockStyle.Fill;
-            numDiasValidez.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
-            numDiasValidez.Minimum = new decimal(new int[] { 1000000, 0, 0, -2147483648 });
-            numDiasValidez.Name = "numDiasValidez";
-            numDiasValidez.TabIndex = 8;
-            numDiasValidez.ValueChanged += Campo_Changed;
-            //
-            // lblPorcentajeSena
-            //
-            lblPorcentajeSena.AutoSize = true;
-            lblPorcentajeSena.Margin = new Padding(3, 8, 3, 3);
-            lblPorcentajeSena.Name = "lblPorcentajeSena";
-            lblPorcentajeSena.Text = "Seña sugerida (%):";
-            //
-            // numPorcentajeSena
-            //
-            numPorcentajeSena.Dock = DockStyle.Fill;
-            numPorcentajeSena.DecimalPlaces = 2;
-            numPorcentajeSena.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
-            numPorcentajeSena.Minimum = new decimal(new int[] { 1000000, 0, 0, -2147483648 });
-            numPorcentajeSena.Name = "numPorcentajeSena";
-            numPorcentajeSena.TabIndex = 9;
-            numPorcentajeSena.ValueChanged += Campo_Changed;
-            //
-            // lblAyuda
-            //
-            lblAyuda.AutoSize = true;
-            lblAyuda.Margin = new Padding(3, 8, 3, 3);
-            lblAyuda.MaximumSize = new Size(560, 0);
-            lblAyuda.Name = "lblAyuda";
-            lblAyuda.Text = "Con validez 0 el ticket no muestra hasta cuándo vale el presupuesto. La seña sugerida completa el campo Seña al cobrar un presupuesto aprobado.";
-            //
             // tlpBotones
             //
             tlpBotones.AutoSize = true;
@@ -365,8 +308,6 @@ namespace ProyectoEventos.Forms
             Load += FrmNegocio_Load;
             Shown += FrmNegocio_Shown;
             FormClosing += FrmNegocio_FormClosing;
-            ((System.ComponentModel.ISupportInitialize)numDiasValidez).EndInit();
-            ((System.ComponentModel.ISupportInitialize)numPorcentajeSena).EndInit();
             tlpTarjetaVistaPrevia.ResumeLayout(false);
             tlpTarjetaVistaPrevia.PerformLayout();
             tlpBotones.ResumeLayout(false);
@@ -395,11 +336,6 @@ namespace ProyectoEventos.Forms
         private TextBox txtBoxInstagram;
         private Label lblMensajePie;
         private TextBox txtBoxMensajePie;
-        private Label lblDiasValidez;
-        private NumericUpDown numDiasValidez;
-        private Label lblPorcentajeSena;
-        private NumericUpDown numPorcentajeSena;
-        private Label lblAyuda;
         private TableLayoutPanel tlpBotones;
         private Button btnEditar;
         private Button btnGuardar;

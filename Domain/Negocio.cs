@@ -11,7 +11,6 @@ namespace ProyectoEventos.Domain
         private const int LargoMaximoMail = 100;
         private const int LargoMaximoInstagram = 40;
         private const int LargoMaximoMensajePie = 120;
-        private const int DiasValidezMaximo = 365;
 
         private static readonly Regex FormatoMail = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
         private static readonly Regex FormatoTelefono = new Regex(@"^[0-9 +()\-]+$");
@@ -23,11 +22,9 @@ namespace ProyectoEventos.Domain
         private string cuit = string.Empty;
         private string instagram = string.Empty;
         private string mensajePie = string.Empty;
-        private int diasValidez;
-        private decimal porcentajeSena;
 
         public Negocio(int id, string nombre, string direccion, string telefono, string mail, string cuit,
-            string instagram, string mensajePie, int diasValidez, decimal porcentajeSena)
+            string instagram, string mensajePie)
         {
             Id = id;
             Nombre = nombre;
@@ -37,8 +34,6 @@ namespace ProyectoEventos.Domain
             Cuit = cuit;
             Instagram = instagram;
             MensajePie = mensajePie;
-            DiasValidez = diasValidez;
-            PorcentajeSena = porcentajeSena;
         }
 
         public int Id { get; private set; }
@@ -145,41 +140,6 @@ namespace ProyectoEventos.Domain
             {
                 mensajePie = ValidarLargo(value, LargoMaximoMensajePie, "El mensaje al pie");
             }
-        }
-
-        public int DiasValidez
-        {
-            get { return diasValidez; }
-            set
-            {
-                if (value < 0 || value > DiasValidezMaximo)
-                {
-                    throw new NegocioException("Los días de validez del presupuesto deben estar entre 0 y " + DiasValidezMaximo + ".");
-                }
-                diasValidez = value;
-            }
-        }
-
-        public decimal PorcentajeSena
-        {
-            get { return porcentajeSena; }
-            set
-            {
-                if (value < 0 || value >= 100)
-                {
-                    throw new NegocioException("El porcentaje de seña sugerido debe ser menor a 100 (el 100 % es el pago completo).");
-                }
-                porcentajeSena = value;
-            }
-        }
-
-        public decimal CalcularSenaSugerida(decimal total)
-        {
-            if (total <= 0)
-            {
-                return 0;
-            }
-            return Math.Round(total * porcentajeSena / 100, 2);
         }
 
         private static string ValidarLargo(string? valor, int largoMaximo, string campo)

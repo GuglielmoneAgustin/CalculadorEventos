@@ -78,7 +78,7 @@ namespace ProyectoEventos.Tests.Dominio
         [Fact]
         public void NoGeneraPresupuestoSinMenu()
         {
-            Assert.Throws<NegocioException>(() => Crear().GenerarPresupuesto(DateTime.Now, 15));
+            Assert.Throws<NegocioException>(() => Crear().GenerarPresupuesto(DateTime.Now));
         }
 
         [Fact]
@@ -88,10 +88,10 @@ namespace ProyectoEventos.Tests.Dominio
             Assert.Equal(TipoPendiente.SinPresupuesto, evento.ObtenerTipoPendiente(DateTime.Now));
 
             evento.AgregarPlatosAlMenu(10, 0, new List<Producto> { milanesa });
-            Presupuesto presupuesto = evento.GenerarPresupuesto(DateTime.Now, 15);
+            Presupuesto presupuesto = evento.GenerarPresupuesto(DateTime.Now);
             Assert.Equal(TipoPendiente.EsperandoRespuesta, evento.ObtenerTipoPendiente(DateTime.Now));
 
-            evento.AprobarPresupuesto(presupuesto.Id, false, false, DateTime.Today);
+            evento.AprobarPresupuesto(presupuesto.Id, false);
             Assert.Null(evento.ObtenerTipoPendiente(DateTime.Now));
             Assert.Equal(TipoPendiente.FaltaCobrar, evento.ObtenerTipoPendiente(Fecha.AddDays(-3)));
         }
@@ -101,14 +101,14 @@ namespace ProyectoEventos.Tests.Dominio
         {
             Evento evento = Crear();
             evento.AgregarPlatosAlMenu(10, 0, new List<Producto> { milanesa });
-            Presupuesto presupuesto = evento.GenerarPresupuesto(DateTime.Now, 15);
+            Presupuesto presupuesto = evento.GenerarPresupuesto(DateTime.Now);
 
             evento.AgregarServicio(new ServicioAdicional(1, "DJ", "", 500));
 
             Assert.False(evento.EsVigente(presupuesto));
             Assert.Equal(TipoPendiente.Desactualizado, evento.ObtenerTipoPendiente(DateTime.Now));
             Assert.Contains("Cambiaron los servicios adicionales.", evento.ObtenerMotivosDesactualizacion());
-            Assert.Throws<NegocioException>(() => evento.AprobarPresupuesto(presupuesto.Id, false, false, DateTime.Today));
+            Assert.Throws<NegocioException>(() => evento.AprobarPresupuesto(presupuesto.Id, false));
         }
     }
 }

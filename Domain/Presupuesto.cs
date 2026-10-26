@@ -9,16 +9,10 @@ namespace ProyectoEventos.Domain
         private readonly List<DetalleMenuPresupuestado> itemsMenu;
         private readonly List<ServicioPresupuestado> servicios;
 
-        internal Presupuesto(int id, Evento eventoAsociado, DateTime fechaGeneracion, int diasValidez)
+        internal Presupuesto(int id, Evento eventoAsociado, DateTime fechaGeneracion)
         {
-            if (diasValidez < 0)
-            {
-                throw new NegocioException("Los días de validez del presupuesto no pueden ser negativos.");
-            }
-
             Id = id;
             FechaGeneracion = fechaGeneracion;
-            FechaVencimiento = diasValidez == 0 ? null : fechaGeneracion.Date.AddDays(diasValidez);
             EventoAsociado = eventoAsociado;
             CostoBaseLugar = eventoAsociado.Lugar.CostoBase;
             CostoPorHoraLugar = eventoAsociado.Lugar.CostoPorHora;
@@ -33,11 +27,34 @@ namespace ProyectoEventos.Domain
             Estado = EstadoPresupuesto.EnEspera;
         }
 
+        // Solo para reconstruir el presupuesto al leerlo de la base de datos: recibe la foto tal como se guardó.
+        internal Presupuesto(int id, Evento eventoAsociado, DateTime fechaGeneracion, EstadoPresupuesto estado,
+            decimal costoBaseLugar, decimal costoPorHoraLugar, string nombreCliente, string nombreLugar, DateTime fechaEvento,
+            decimal horasDuracion, int cantidadAdultos, int cantidadNinos, decimal sena, DateTime? fechaSena, DateTime? fechaPago,
+            List<DetalleMenuPresupuestado> itemsMenu, List<ServicioPresupuestado> servicios)
+        {
+            Id = id;
+            EventoAsociado = eventoAsociado;
+            FechaGeneracion = fechaGeneracion;
+            Estado = estado;
+            CostoBaseLugar = costoBaseLugar;
+            CostoPorHoraLugar = costoPorHoraLugar;
+            NombreCliente = nombreCliente;
+            NombreLugar = nombreLugar;
+            FechaEvento = fechaEvento;
+            HorasDuracion = horasDuracion;
+            CantidadAdultos = cantidadAdultos;
+            CantidadNinos = cantidadNinos;
+            Sena = sena;
+            FechaSena = fechaSena;
+            FechaPago = fechaPago;
+            this.itemsMenu = itemsMenu;
+            this.servicios = servicios;
+        }
+
         public int Id { get; private set; }
 
         public DateTime FechaGeneracion { get; private set; }
-
-        public DateTime? FechaVencimiento { get; private set; }
 
         public decimal CostoBaseLugar { get; private set; }
 
@@ -285,20 +302,6 @@ namespace ProyectoEventos.Domain
             FechaSena = anterior.FechaSena;
             anterior.Sena = 0;
             anterior.FechaSena = null;
-        }
-
-        public bool EstaVencido(DateTime hoy)
-        {
-            return Estado != EstadoPresupuesto.Aprobado && FechaVencimiento != null && hoy.Date > FechaVencimiento.Value;
-        }
-
-        public int? DiasParaVencer(DateTime hoy)
-        {
-            if (FechaVencimiento == null)
-            {
-                return null;
-            }
-            return (FechaVencimiento.Value - hoy.Date).Days;
         }
 
         private void ValidarQuePuedeCobrarse()

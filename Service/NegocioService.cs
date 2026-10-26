@@ -1,7 +1,6 @@
 using ProyectoEventos.Domain;
 using ProyectoEventos.Dto;
 using ProyectoEventos.Repository;
-using ProyectoEventos.Repository.Memoria;
 
 namespace ProyectoEventos.Service
 {
@@ -10,7 +9,7 @@ namespace ProyectoEventos.Service
         private readonly IRepository<Negocio> repositorio;
 
         public NegocioService()
-            : this(NegocioRepository.ObtenerInstancia())
+            : this(Repositorios.Negocios)
         {
         }
 
@@ -24,16 +23,6 @@ namespace ProyectoEventos.Service
             return MapearADto(ObtenerNegocio());
         }
 
-        public int ObtenerDiasValidez()
-        {
-            return ObtenerNegocio().DiasValidez;
-        }
-
-        public decimal CalcularSenaSugerida(decimal total)
-        {
-            return ObtenerNegocio().CalcularSenaSugerida(total);
-        }
-
         public void Guardar(NegocioDTO dto)
         {
             if (dto == null)
@@ -43,7 +32,7 @@ namespace ProyectoEventos.Service
 
             Negocio negocio = ObtenerNegocio();
             Negocio validado = new Negocio(negocio.Id, dto.Nombre, dto.Direccion, dto.Telefono, dto.Mail, dto.Cuit,
-                dto.Instagram, dto.MensajePie, dto.DiasValidez, dto.PorcentajeSena);
+                dto.Instagram, dto.MensajePie);
 
             negocio.Nombre = validado.Nombre;
             negocio.Direccion = validado.Direccion;
@@ -52,8 +41,6 @@ namespace ProyectoEventos.Service
             negocio.Cuit = validado.Cuit;
             negocio.Instagram = validado.Instagram;
             negocio.MensajePie = validado.MensajePie;
-            negocio.DiasValidez = validado.DiasValidez;
-            negocio.PorcentajeSena = validado.PorcentajeSena;
             repositorio.Actualizar(negocio);
         }
 
@@ -62,7 +49,7 @@ namespace ProyectoEventos.Service
             if (repositorio.ObtenerTodos().Count == 0)
             {
                 Negocio nuevo = new Negocio(repositorio.ObtenerProximoId(), "Mi negocio", string.Empty, string.Empty, string.Empty,
-                    string.Empty, string.Empty, "Gracias por elegirnos", 15, 30);
+                    string.Empty, string.Empty, "Gracias por elegirnos");
                 repositorio.Agregar(nuevo);
             }
             return repositorio.ObtenerTodos()[0];
@@ -78,8 +65,6 @@ namespace ProyectoEventos.Service
             dto.Cuit = negocio.Cuit;
             dto.Instagram = negocio.Instagram;
             dto.MensajePie = negocio.MensajePie;
-            dto.DiasValidez = negocio.DiasValidez;
-            dto.PorcentajeSena = negocio.PorcentajeSena;
             return dto;
         }
     }
