@@ -118,9 +118,6 @@ namespace ProyectoEventos.Repository.Sqlite
                     HorasDuracion     TEXT NOT NULL,
                     CantidadAdultos   INTEGER NOT NULL,
                     CantidadNinos     INTEGER NOT NULL,
-                    Sena              TEXT NOT NULL,
-                    FechaSena         TEXT,
-                    FechaPago         TEXT,
                     PRIMARY KEY (IdEvento, Id)
                 );
 
@@ -144,6 +141,16 @@ namespace ProyectoEventos.Repository.Sqlite
                     Monto         TEXT NOT NULL,
                     PRIMARY KEY (IdEvento, IdPresupuesto, Orden),
                     FOREIGN KEY (IdEvento, IdPresupuesto) REFERENCES Presupuestos (IdEvento, Id) ON DELETE CASCADE
+                );
+
+                CREATE TABLE IF NOT EXISTS PresupuestoPagos (
+                    IdEvento      INTEGER NOT NULL,
+                    IdPresupuesto INTEGER NOT NULL,
+                    Orden         INTEGER NOT NULL,
+                    Fecha         TEXT NOT NULL,
+                    Monto         TEXT NOT NULL,
+                    PRIMARY KEY (IdEvento, IdPresupuesto, Orden),
+                    FOREIGN KEY (IdEvento, IdPresupuesto) REFERENCES Presupuestos (IdEvento, Id) ON DELETE CASCADE
                 );";
             comando.ExecuteNonQuery();
         }
@@ -158,17 +165,6 @@ namespace ProyectoEventos.Repository.Sqlite
                 "UPDATE Secuencias SET Ultimo = Ultimo + 1 WHERE Tabla = $tabla RETURNING Ultimo;";
             comando.Parameters.AddWithValue("$tabla", tabla);
             return Convert.ToInt32(comando.ExecuteScalar());
-        }
-
-        public static object ValorONulo(DateTime? valor)
-        {
-            return valor == null ? DBNull.Value : valor.Value;
-        }
-
-        public static DateTime? LeerFechaONula(SqliteDataReader lector, string columna)
-        {
-            int indice = lector.GetOrdinal(columna);
-            return lector.IsDBNull(indice) ? null : lector.GetDateTime(indice);
         }
     }
 }

@@ -27,9 +27,9 @@ namespace ProyectoEventos.Controller
             return servicio.Cancelar(idEvento, idPresupuesto);
         }
 
-        public PresupuestoResultadoDTO RegistrarSena(int idEvento, decimal monto)
+        public PresupuestoResultadoDTO RegistrarPago(int idEvento, decimal monto)
         {
-            return servicio.RegistrarSena(idEvento, monto);
+            return servicio.RegistrarPago(idEvento, monto);
         }
 
         public PresupuestoResultadoDTO MarcarPagado(int idEvento)

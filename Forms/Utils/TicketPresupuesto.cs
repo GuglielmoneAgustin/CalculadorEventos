@@ -258,23 +258,16 @@ namespace ProyectoEventos.Forms.Utils
             t.Add("Lugar: " + d.NombreLugar);
             t.Add("Fecha del evento: " + d.FechaEvento.ToString(Formato.FechaHora));
             t.Add(LineaSimple);
-            if (d.Sena > 0)
+            t.Add("PAGOS");
+            foreach (PagoDTO pago in d.Pagos)
             {
-                t.AddRange(Fila("Seña (" + d.FechaSena?.ToString(Formato.Fecha) + ")", d.Sena));
-            }
-            if (d.FechaPago != null)
-            {
-                string concepto = d.Sena > 0 ? "Pago del saldo" : "Pago total";
-                t.AddRange(Fila(concepto + " (" + d.FechaPago.Value.ToString(Formato.Fecha) + ")", d.CostoTotal - d.Sena));
+                t.AddRange(Fila("  " + pago.Fecha.ToString(Formato.Fecha), pago.Monto));
             }
             t.Add(LineaSimple);
             t.AddRange(Fila("Total presupuesto", d.CostoTotal));
             ArmarCobrado(t, d);
             t.Add(LineaDoble);
-            if (d.Sena > 0)
-            {
-                t.Add(Centrar("La seña no es reembolsable."));
-            }
+            t.Add(Centrar("Lo pagado no es reembolsable."));
             t.Add(Centrar("No válido como factura."));
             ArmarPie(t, negocio);
             return t;

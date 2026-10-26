@@ -49,10 +49,10 @@ namespace ProyectoEventos.Service
             return MapearAResultado(presupuesto);
         }
 
-        public PresupuestoResultadoDTO RegistrarSena(int idEvento, decimal monto)
+        public PresupuestoResultadoDTO RegistrarPago(int idEvento, decimal monto)
         {
             Evento evento = eventoRepositorio.ObtenerExistente(idEvento);
-            Presupuesto presupuesto = evento.RegistrarSena(monto, DateTime.Now);
+            Presupuesto presupuesto = evento.RegistrarPago(monto, DateTime.Now);
             eventoRepositorio.Actualizar(evento);
             return MapearAResultado(presupuesto);
         }
@@ -118,8 +118,12 @@ namespace ProyectoEventos.Service
             dto.SubtotalServicios = presupuesto.CalcularSubtotalServicios();
             dto.CostoTotal = presupuesto.CalcularTotal();
             dto.EstadoPago = presupuesto.EstadoPago;
-            dto.Sena = presupuesto.Sena;
-            dto.FechaSena = presupuesto.FechaSena;
+            dto.Pagos = presupuesto.ObtenerPagos().Select(pago => new PagoDTO
+            {
+                Fecha = pago.Fecha,
+                Monto = pago.Monto
+            }).ToList();
+            dto.TotalPagado = presupuesto.TotalPagado;
             dto.FechaPago = presupuesto.FechaPago;
             dto.Saldo = presupuesto.Saldo;
             return dto;
@@ -149,12 +153,13 @@ namespace ProyectoEventos.Service
             dto.CostoTotal = presupuesto.CalcularTotal();
             dto.Estado = presupuesto.Estado;
             dto.EstadoPago = presupuesto.Estado == EstadoPresupuesto.Aprobado ? presupuesto.EstadoPago : null;
-            dto.Sena = presupuesto.Sena;
-            dto.FechaSena = presupuesto.FechaSena;
+            dto.TotalPagado = presupuesto.TotalPagado;
+            IReadOnlyList<Pago> pagos = presupuesto.ObtenerPagos();
+            dto.FechaUltimoPago = pagos.Count == 0 ? null : pagos[pagos.Count - 1].Fecha;
             dto.FechaPago = presupuesto.FechaPago;
             dto.Saldo = presupuesto.Saldo;
             dto.PrecioCongelado = presupuesto.TienePrecioCongelado;
-            dto.SenaParaCongelarPrecio = presupuesto.CalcularSenaParaCongelarPrecio();
+            dto.FaltaParaCongelarPrecio = presupuesto.CalcularFaltanteParaCongelarPrecio();
             dto.Vigente = presupuesto.EventoAsociado.EsVigente(presupuesto);
             dto.Detalle = ArmarDetalle(presupuesto, dto.Vigente);
             return dto;
@@ -162,9 +167,9 @@ namespace ProyectoEventos.Service
 
         private static string ArmarDetalle(Presupuesto presupuesto, bool vigente)
         {
-            if (presupuesto.Estado == EstadoPresupuesto.Cancelado && presupuesto.Sena > 0)
+            if (presupuesto.Estado == EstadoPresupuesto.Cancelado && presupuesto.TotalPagado > 0)
             {
-                return "Seña de " + presupuesto.Sena.ToString(Formato.Moneda) + " no reembolsable.";
+                return "Pagos de " + presupuesto.TotalPagado.ToString(Formato.Moneda) + " no reembolsables.";
             }
             if (!vigente)
             {
@@ -174,7 +179,7 @@ namespace ProyectoEventos.Service
             {
                 return presupuesto.TienePrecioCongelado
                     ? "Precio congelado."
-                    : "Precio sin congelar: falta una seña de " + presupuesto.CalcularSenaParaCongelarPrecio().ToString(Formato.Moneda) + ".";
+                    : "Precio sin congelar: faltan " + presupuesto.CalcularFaltanteParaCongelarPrecio().ToString(Formato.Moneda) + " de seña.";
             }
             return string.Empty;
         }

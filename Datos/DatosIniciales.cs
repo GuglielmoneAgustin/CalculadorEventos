@@ -1,6 +1,8 @@
 using ProyectoEventos.Common.Enums;
 using ProyectoEventos.Controller;
+using ProyectoEventos.Domain;
 using ProyectoEventos.Dto;
+using ProyectoEventos.Repository;
 
 namespace ProyectoEventos.Datos
 {
@@ -33,64 +35,106 @@ namespace ProyectoEventos.Datos
 
             DateTime hoy = DateTime.Today;
 
-            int idCena = CrearEvento(eventos, cli["María González"].Id, lug["Salón Jardín"].Id, hoy.AddDays(7).AddHours(20), 4, 45, 15);
+            // Cena en 5 días: pagó la seña en dos partes hasta llegar al 30 % (precio congelado) y falta cobrar el resto.
+            int idCena = CrearEvento(eventos, cli["María González"].Id, lug["Salón Jardín"].Id, hoy.AddDays(5).AddHours(20), 4, 45, 15);
             AgregarPlatos(eventos, idCena, 45, 15, prod, "Mini hamburguesa", "Papas rústicas", "Limonada", "Brownie sin TACC");
             AgregarServicios(eventos, idCena, serv, "DJ y sonido", "Decoración temática");
-            PresupuestoResultadoDTO presupuestoCena = GenerarPresupuesto(presupuestos, idCena);
-            presupuestos.Aprobar(idCena, presupuestoCena.Id, false);
-            presupuestos.RegistrarSena(idCena, Porcentaje(presupuestoCena.CostoTotal, 30));
+            presupuestos.Aprobar(idCena, GenerarPresupuestoEl(idCena, hoy.AddDays(-40).AddHours(11)), false);
+            RegistrarPagoEl(idCena, 15, hoy.AddDays(-35).AddHours(10));
+            RegistrarPagoEl(idCena, 15, hoy.AddDays(-12).AddHours(17));
 
+            // Reunión: presupuesto enviado hace 3 días, esperando respuesta.
             int idReunion = CrearEvento(eventos, cli["Carlos Rodríguez"].Id, lug["Terraza Norte"].Id, hoy.AddDays(14).AddHours(19), 4, 30, 10);
             AgregarPlatos(eventos, idReunion, 30, 10, prod, "Milanesa napolitana", "Ensalada mixta", "Gaseosas", "Flan con dulce de leche");
-            GenerarPresupuesto(presupuestos, idReunion);
+            GenerarPresupuestoEl(idReunion, hoy.AddDays(-3).AddHours(16));
 
-            int idCasamiento = CrearEvento(eventos, cli["Lucía Fernández"].Id, lug["Quinta Los Sauces"].Id, hoy.AddDays(21).AddHours(21), 5, 120, 30);
+            // Casamiento en dos meses: seña del 40 % en un pago, precio congelado.
+            int idCasamiento = CrearEvento(eventos, cli["Lucía Fernández"].Id, lug["Quinta Los Sauces"].Id, hoy.AddDays(60).AddHours(21), 5, 120, 30);
             AgregarPlatos(eventos, idCasamiento, 120, 30, prod, "Bife de chorizo", "Salmón al horno", "Puré de calabaza", "Papas rústicas", "Jugo natural", "Agua mineral", "Helado artesanal", "Torta de cumpleaños");
             AgregarServicios(eventos, idCasamiento, serv, "DJ y sonido", "Fotografía y video", "Mozos adicionales", "Barra de bebidas", "Decoración temática");
-            PresupuestoResultadoDTO presupuestoCasamiento = GenerarPresupuesto(presupuestos, idCasamiento);
-            presupuestos.Aprobar(idCasamiento, presupuestoCasamiento.Id, false);
-            presupuestos.RegistrarSena(idCasamiento, Porcentaje(presupuestoCasamiento.CostoTotal, 40));
+            presupuestos.Aprobar(idCasamiento, GenerarPresupuestoEl(idCasamiento, hoy.AddDays(-25).AddHours(12)), false);
+            RegistrarPagoEl(idCasamiento, 40, hoy.AddDays(-20).AddHours(15));
 
+            // Bautismo: aprobado con una seña y después cancelado; la seña no se devuelve.
             int idBautismo = CrearEvento(eventos, cli["Martín López"].Id, lug["Loft Palermo"].Id, hoy.AddDays(10).AddHours(18), 3, 25, 5);
             AgregarPlatos(eventos, idBautismo, 25, 5, prod, "Risotto de hongos", "Ensalada de quinoa", "Té helado", "Ensalada de frutas frescas");
             AgregarServicios(eventos, idBautismo, serv, "Decoración temática");
-            PresupuestoResultadoDTO presupuestoBautismo = GenerarPresupuesto(presupuestos, idBautismo);
-            presupuestos.Cancelar(idBautismo, presupuestoBautismo.Id);
+            int idPresupuestoBautismo = GenerarPresupuestoEl(idBautismo, hoy.AddDays(-30).AddHours(10));
+            presupuestos.Aprobar(idBautismo, idPresupuestoBautismo, false);
+            RegistrarPagoEl(idBautismo, 20, hoy.AddDays(-28).AddHours(13));
+            presupuestos.Cancelar(idBautismo, idPresupuestoBautismo);
 
+            // Evento de empresa: se aprobó con un 10 %, después cambió el menú y se aprobó el nuevo presupuesto;
+            // el pago pasó al nuevo, que todavía no llega al 30 %.
             int idEmpresa = CrearEvento(eventos, cli["Sofía Martínez"].Id, lug["Club Náutico"].Id, hoy.AddDays(28).AddHours(20).AddMinutes(30), 4, 80, 20);
             AgregarPlatos(eventos, idEmpresa, 80, 20, prod, "Pollo grillé", "Puré de calabaza", "Limonada", "Mousse de chocolate");
-            PresupuestoResultadoDTO primero = GenerarPresupuesto(presupuestos, idEmpresa);
+            presupuestos.Aprobar(idEmpresa, GenerarPresupuestoEl(idEmpresa, hoy.AddDays(-21).AddHours(9)), false);
+            RegistrarPagoEl(idEmpresa, 10, hoy.AddDays(-20).AddHours(11));
             AgregarPlatos(eventos, idEmpresa, 80, 20, prod, "Helado artesanal");
             AgregarServicios(eventos, idEmpresa, serv, "Barra de bebidas", "Mozos adicionales");
-            presupuestos.Cancelar(idEmpresa, primero.Id);
-            PresupuestoResultadoDTO segundo = GenerarPresupuesto(presupuestos, idEmpresa);
-            presupuestos.Aprobar(idEmpresa, segundo.Id, false);
+            presupuestos.Aprobar(idEmpresa, GenerarPresupuestoEl(idEmpresa, hoy.AddDays(-6).AddHours(14)), true);
 
+            // Evento sin presupuesto todavía.
             int idSinPresupuesto = CrearEvento(eventos, cli["Diego Pereyra"].Id, lug["Salón Jardín"].Id, hoy.AddDays(35).AddHours(20), 4, 100, 20);
             AgregarPlatos(eventos, idSinPresupuesto, 100, 20, prod, "Ravioles de ricota", "Pechuga al vapor sin sal", "Agua mineral", "Brownie sin TACC");
 
+            // Cumpleaños en 3 días: aprobado sin pagos; como el precio no está congelado, el aumento de la
+            // mini hamburguesa (más abajo) lo deja desactualizado.
             int idCumple = CrearEvento(eventos, cli["Valentina Suárez"].Id, lug["Terraza Norte"].Id, hoy.AddDays(3).AddHours(16), 3, 25, 40);
             AgregarPlatos(eventos, idCumple, 25, 40, prod, "Mini hamburguesa", "Papas rústicas", "Gaseosas", "Torta de cumpleaños");
             AgregarServicios(eventos, idCumple, serv, "Animación infantil", "Decoración temática");
-            PresupuestoResultadoDTO presupuestoCumple = GenerarPresupuesto(presupuestos, idCumple);
-            presupuestos.Aprobar(idCumple, presupuestoCumple.Id, false);
+            presupuestos.Aprobar(idCumple, GenerarPresupuestoEl(idCumple, hoy.AddDays(-15).AddHours(18)), false);
 
+            // Club Náutico: presupuesto enviado y después se agregó un servicio, así que está desactualizado.
             int idNautico = CrearEvento(eventos, cli["Martín López"].Id, lug["Club Náutico"].Id, hoy.AddDays(18).AddHours(20), 4, 40, 10);
             AgregarPlatos(eventos, idNautico, 40, 10, prod, "Pollo grillé", "Ensalada mixta", "Limonada", "Helado artesanal");
-            GenerarPresupuesto(presupuestos, idNautico);
+            GenerarPresupuestoEl(idNautico, hoy.AddDays(-8).AddHours(10));
+            AgregarServicios(eventos, idNautico, serv, "DJ y sonido");
 
+            // Evento ya realizado: seña del 30 % y después el pago del resto.
             int idPasado = CrearEvento(eventos, cli["Federico Romero"].Id, lug["Salón Jardín"].Id, hoy.AddDays(-20).AddHours(21), 4, 60, 10);
             AgregarPlatos(eventos, idPasado, 60, 10, prod, "Milanesa napolitana", "Ensalada mixta", "Jugo natural", "Flan con dulce de leche");
             AgregarServicios(eventos, idPasado, serv, "DJ y sonido");
-            PresupuestoResultadoDTO presupuestoPasado = GenerarPresupuesto(presupuestos, idPasado);
-            presupuestos.Aprobar(idPasado, presupuestoPasado.Id, false);
-            presupuestos.RegistrarSena(idPasado, Porcentaje(presupuestoPasado.CostoTotal, 30));
-            presupuestos.MarcarPagado(idPasado);
+            presupuestos.Aprobar(idPasado, GenerarPresupuestoEl(idPasado, hoy.AddDays(-70).AddHours(12)), false);
+            RegistrarPagoEl(idPasado, 30, hoy.AddDays(-65).AddHours(16));
+            MarcarPagadoEl(idPasado, hoy.AddDays(-22).AddHours(10));
+
+            // Aumento de precio después de todo lo anterior: la cena (congelada) no cambia y el cumpleaños queda desactualizado.
+            ProductoDTO hamburguesa = prod["Mini hamburguesa"];
+            hamburguesa.PrecioAdulto = 4900m;
+            hamburguesa.PrecioNino = 3500m;
+            productos.Guardar(hamburguesa);
         }
 
+        // Los controladores usan la fecha de hoy; para que los datos de ejemplo tengan historia,
+        // los presupuestos y los pagos se cargan directo en el evento con fechas pasadas.
+        private static int GenerarPresupuestoEl(int idEvento, DateTime fecha)
+        {
+            Evento evento = Repositorios.Eventos.ObtenerExistente(idEvento);
+            int idPresupuesto = evento.GenerarPresupuesto(fecha).Id;
+            Repositorios.Eventos.Actualizar(evento);
+            return idPresupuesto;
+        }
+
+        private static void RegistrarPagoEl(int idEvento, int porcentaje, DateTime fecha)
+        {
+            Evento evento = Repositorios.Eventos.ObtenerExistente(idEvento);
+            decimal total = evento.ObtenerPresupuestoAprobadoExistente().CalcularTotal();
+            evento.RegistrarPago(Porcentaje(total, porcentaje), fecha);
+            Repositorios.Eventos.Actualizar(evento);
+        }
+
+        private static void MarcarPagadoEl(int idEvento, DateTime fecha)
+        {
+            Evento evento = Repositorios.Eventos.ObtenerExistente(idEvento);
+            evento.MarcarPagado(fecha);
+            Repositorios.Eventos.Actualizar(evento);
+        }
+
+        // Redondea hacia arriba al millar, así un 30 % siempre llega al 30 %.
         private static decimal Porcentaje(decimal total, int porcentaje)
         {
-            return Math.Round(total * porcentaje / 100 / 1000) * 1000;
+            return Math.Ceiling(total * porcentaje / 100 / 1000) * 1000;
         }
 
         private static void CargarNegocio()
@@ -193,12 +237,6 @@ namespace ProyectoEventos.Datos
                 CantidadNinos = ninos
             };
             return eventos.Guardar(datos).Id;
-        }
-
-        private static PresupuestoResultadoDTO GenerarPresupuesto(PresupuestoController presupuestos, int idEvento)
-        {
-            return presupuestos.Generar(idEvento)
-                ?? throw new InvalidOperationException("No se generó el presupuesto del evento " + idEvento + ".");
         }
 
         private static void AgregarPlatos(EventoController eventos, int idEvento, int adultos, int ninos,

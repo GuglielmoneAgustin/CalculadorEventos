@@ -58,12 +58,12 @@ namespace ProyectoEventos.Forms
             dgvPresupuestos.Columna("CantidadAdultos").Visible = false;
             dgvPresupuestos.Columna("CantidadNinos").Visible = false;
             dgvPresupuestos.Columna("Vigente").Visible = false;
-            dgvPresupuestos.Columna("Sena").Visible = false;
-            dgvPresupuestos.Columna("FechaSena").Visible = false;
+            dgvPresupuestos.Columna("TotalPagado").Visible = false;
+            dgvPresupuestos.Columna("FechaUltimoPago").Visible = false;
             dgvPresupuestos.Columna("FechaPago").Visible = false;
             dgvPresupuestos.Columna("Saldo").Visible = false;
             dgvPresupuestos.Columna("PrecioCongelado").Visible = false;
-            dgvPresupuestos.Columna("SenaParaCongelarPrecio").Visible = false;
+            dgvPresupuestos.Columna("FaltaParaCongelarPrecio").Visible = false;
 
             DarFormatoColumnas();
 
@@ -81,7 +81,7 @@ namespace ProyectoEventos.Forms
                 ? "Cobro"
                 : "Cobro del presupuesto N° " + aprobado.Id + ": " + aprobado.EstadoPago?.Texto();
             lblDetallePago.Text = DetalleEstadoPago(aprobado);
-            numSena.Value = 0;
+            numPago.Value = 0;
         }
 
         private static string DetalleEstadoPago(PresupuestoResultadoDTO? aprobado)
@@ -97,14 +97,22 @@ namespace ProyectoEventos.Forms
                 case EstadoPago.Pagado:
                     return total + "  ·  Pagado el " + aprobado.FechaPago?.ToString(Formato.Fecha);
                 case EstadoPago.Senado:
-                    return total + "  ·  Seña " + aprobado.Sena.ToString(Formato.Moneda) + " (" + aprobado.FechaSena?.ToString(Formato.Fecha) + ")" +
-                        "  ·  Falta cobrar " + aprobado.Saldo.ToString(Formato.Moneda) +
-                        (aprobado.PrecioCongelado ? "  ·  Precio congelado" : "  ·  Precio sin congelar (seña menor al " +
-                            Configuracion.PorcentajeSenaParaCongelarPrecio + " %)");
+                    return total + "  ·  Pagado " + aprobado.TotalPagado.ToString(Formato.Moneda) +
+                        " (último pago " + aprobado.FechaUltimoPago?.ToString(Formato.Fecha) + ")" +
+                        "  ·  Falta cobrar " + aprobado.Saldo.ToString(Formato.Moneda) + "  ·  " + DetallePrecioCongelado(aprobado);
                 default:
-                    return total + "  ·  Falta cobrar " + aprobado.Saldo.ToString(Formato.Moneda) +
-                        "  ·  Seña mínima para congelar el precio: " + aprobado.SenaParaCongelarPrecio.ToString(Formato.Moneda);
+                    return total + "  ·  Falta cobrar " + aprobado.Saldo.ToString(Formato.Moneda) + "  ·  " + DetallePrecioCongelado(aprobado);
             }
+        }
+
+        private static string DetallePrecioCongelado(PresupuestoResultadoDTO aprobado)
+        {
+            if (aprobado.PrecioCongelado)
+            {
+                return "Precio congelado";
+            }
+            return "Faltan " + aprobado.FaltaParaCongelarPrecio.ToString(Formato.Moneda) + " para congelar el precio (seña del " +
+                Configuracion.PorcentajeSenaParaCongelarPrecio + " %)";
         }
 
         private PresupuestoResultadoDTO? ObtenerAprobadoParaCobrar()
@@ -112,23 +120,23 @@ namespace ProyectoEventos.Forms
             PresupuestoResultadoDTO? aprobado = controlador.ObtenerAprobado(idEvento);
             if (aprobado == null)
             {
-                Mensajes.Advertencia("El evento no tiene un presupuesto aprobado. Apruebe uno antes de registrar la seña, el pago o ver el comprobante.");
+                Mensajes.Advertencia("El evento no tiene un presupuesto aprobado. Apruebe uno antes de registrar pagos o ver el comprobante.");
             }
             return aprobado;
         }
 
-        private void btnRegistrarSena_Click(object sender, EventArgs e)
+        private void btnRegistrarPago_Click(object sender, EventArgs e)
         {
             PresupuestoResultadoDTO? aprobado = ObtenerAprobadoParaCobrar();
-            if (aprobado == null || !Mensajes.Confirmar("¿Registrar una seña de " + numSena.Value.ToString(Formato.Moneda) +
-                " para el presupuesto N° " + aprobado.Id + "? La seña no es reembolsable."))
+            if (aprobado == null || !Mensajes.Confirmar("¿Registrar un pago de " + numPago.Value.ToString(Formato.Moneda) +
+                " para el presupuesto N° " + aprobado.Id + "? Lo pagado no es reembolsable."))
             {
                 return;
             }
 
             try
             {
-                controlador.RegistrarSena(idEvento, numSena.Value);
+                controlador.RegistrarPago(idEvento, numPago.Value);
                 CargarGrillaPresupuestos();
                 MostrarComprobante();
             }
@@ -177,7 +185,7 @@ namespace ProyectoEventos.Forms
             }
             if (aprobado.EstadoPago == EstadoPago.SinSena)
             {
-                Mensajes.Advertencia("Todavía no se registró una seña ni un pago para el presupuesto N° " + aprobado.Id + ".");
+                Mensajes.Advertencia("Todavía no se registró ningún pago para el presupuesto N° " + aprobado.Id + ".");
                 return;
             }
             MostrarComprobante();
@@ -263,9 +271,9 @@ namespace ProyectoEventos.Forms
                         return;
                     }
                     string pregunta = "Ya hay un presupuesto aprobado para este evento (N° " + aprobado.Id + "). ¿Desea reemplazarlo por este?";
-                    if (aprobado.Sena > 0)
+                    if (aprobado.TotalPagado > 0)
                     {
-                        pregunta += " La seña de " + aprobado.Sena.ToString(Formato.Moneda) + " pasa al nuevo presupuesto.";
+                        pregunta += " Los pagos (" + aprobado.TotalPagado.ToString(Formato.Moneda) + ") pasan al nuevo presupuesto.";
                     }
                     if (!Mensajes.Confirmar(pregunta))
                     {
@@ -330,9 +338,9 @@ namespace ProyectoEventos.Forms
             }
 
             string pregunta = "El presupuesto N° " + presupuesto.Id + " está APROBADO.";
-            if (presupuesto.Sena > 0)
+            if (presupuesto.TotalPagado > 0)
             {
-                pregunta += " Tiene una seña de " + presupuesto.Sena.ToString(Formato.Moneda) + " que no se devuelve.";
+                pregunta += " Tiene pagos por " + presupuesto.TotalPagado.ToString(Formato.Moneda) + " que no se devuelven.";
             }
             return pregunta + " ¿Seguro que desea cancelarlo?";
         }

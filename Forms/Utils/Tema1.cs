@@ -307,7 +307,7 @@ namespace ProyectoEventos.Forms.Utils
                 case "btnSiguiente":
                 case "btnAgregarItem":
                 case "btnAgregarServicio":
-                case "btnRegistrarSena":
+                case "btnRegistrarPago":
                 case "btnMarcarPagado":
                     boton.BackColor = Primario;
                     boton.ForeColor = Color.White;

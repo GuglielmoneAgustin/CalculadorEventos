@@ -24,11 +24,11 @@ namespace ProyectoEventos.Dto
         public EstadoPago? EstadoPago { get; set; }
         public string Detalle { get; set; } = string.Empty;
         public bool Vigente { get; set; }
-        public decimal Sena { get; set; }
-        public DateTime? FechaSena { get; set; }
+        public decimal TotalPagado { get; set; }
+        public DateTime? FechaUltimoPago { get; set; }
         public DateTime? FechaPago { get; set; }
         public decimal Saldo { get; set; }
         public bool PrecioCongelado { get; set; }
-        public decimal SenaParaCongelarPrecio { get; set; }
+        public decimal FaltaParaCongelarPrecio { get; set; }
     }
 }

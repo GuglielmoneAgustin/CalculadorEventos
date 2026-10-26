@@ -103,7 +103,8 @@ namespace ProyectoEventos.Tests.BaseDatos
             Evento evento = CrearEventoGuardado();
             Presupuesto presupuesto = evento.GenerarPresupuesto(new DateTime(2030, 1, 10, 11, 0, 0));
             evento.AprobarPresupuesto(presupuesto.Id, false);
-            evento.RegistrarSena(10000.10m, new DateTime(2030, 1, 12, 9, 0, 0));
+            evento.RegistrarPago(10000.10m, new DateTime(2030, 1, 12, 9, 0, 0));
+            evento.RegistrarPago(5000, new DateTime(2030, 2, 1, 18, 30, 0));
             RepositorioEventos().Actualizar(evento);
 
             // Después de guardar cambian los precios: la foto del presupuesto no tiene que cambiar.
@@ -117,8 +118,10 @@ namespace ProyectoEventos.Tests.BaseDatos
             Assert.Equal(presupuesto.CalcularTotal(), guardado.CalcularTotal());
             Assert.Equal(EstadoPresupuesto.Aprobado, guardado.Estado);
             Assert.Equal(new DateTime(2030, 1, 10, 11, 0, 0), guardado.FechaGeneracion);
-            Assert.Equal(10000.10m, guardado.Sena);
-            Assert.Equal(new DateTime(2030, 1, 12, 9, 0, 0), guardado.FechaSena);
+            Assert.Equal(15000.10m, guardado.TotalPagado);
+            Assert.Equal(new[] { new DateTime(2030, 1, 12, 9, 0, 0), new DateTime(2030, 2, 1, 18, 30, 0) },
+                guardado.ObtenerPagos().Select(p => p.Fecha));
+            Assert.Equal(new[] { 10000.10m, 5000m }, guardado.ObtenerPagos().Select(p => p.Monto));
             Assert.Null(guardado.FechaPago);
             Assert.Equal("DJ", guardado.ObtenerServicios().Single().Nombre);
             Assert.False(leido.EsVigente(guardado));
@@ -161,7 +164,9 @@ namespace ProyectoEventos.Tests.BaseDatos
         public void BorrarUnEventoBorraTodoLoQueContiene()
         {
             Evento evento = CrearEventoGuardado();
-            evento.GenerarPresupuesto(DateTime.Now);
+            Presupuesto presupuesto = evento.GenerarPresupuesto(DateTime.Now);
+            evento.AprobarPresupuesto(presupuesto.Id, false);
+            evento.RegistrarPago(1000, DateTime.Now);
             RepositorioEventos().Actualizar(evento);
 
             RepositorioEventos().Eliminar(1);
@@ -169,7 +174,7 @@ namespace ProyectoEventos.Tests.BaseDatos
             using SqliteConnection conexion = baseDatos.AbrirConexion();
             using SqliteCommand comando = conexion.CreateCommand();
             comando.CommandText = "SELECT (SELECT COUNT(*) FROM ItemsMenu) + (SELECT COUNT(*) FROM EventoServicios) + " +
-                "(SELECT COUNT(*) FROM Presupuestos) + (SELECT COUNT(*) FROM PresupuestoItems) + (SELECT COUNT(*) FROM PresupuestoServicios)";
+                "(SELECT COUNT(*) FROM Presupuestos) + (SELECT COUNT(*) FROM PresupuestoItems) + (SELECT COUNT(*) FROM PresupuestoServicios) + (SELECT COUNT(*) FROM PresupuestoPagos)";
             Assert.Equal(0L, comando.ExecuteScalar());
             Assert.Empty(RepositorioEventos().ObtenerTodos());
         }

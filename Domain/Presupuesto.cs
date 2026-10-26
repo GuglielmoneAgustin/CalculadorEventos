@@ -8,6 +8,7 @@ namespace ProyectoEventos.Domain
     {
         private readonly List<DetalleMenuPresupuestado> itemsMenu;
         private readonly List<ServicioPresupuestado> servicios;
+        private readonly List<Pago> pagos;
 
         internal Presupuesto(int id, Evento eventoAsociado, DateTime fechaGeneracion)
         {
@@ -24,14 +25,15 @@ namespace ProyectoEventos.Domain
             CantidadNinos = eventoAsociado.CantidadNinos;
             itemsMenu = CrearSnapshotMenu(eventoAsociado.Menu);
             servicios = CrearSnapshotServicios(eventoAsociado.ObtenerServicios());
+            pagos = new List<Pago>();
             Estado = EstadoPresupuesto.EnEspera;
         }
 
         // Solo para reconstruir el presupuesto al leerlo de la base de datos: recibe la foto tal como se guardó.
         internal Presupuesto(int id, Evento eventoAsociado, DateTime fechaGeneracion, EstadoPresupuesto estado,
             decimal costoBaseLugar, decimal costoPorHoraLugar, string nombreCliente, string nombreLugar, DateTime fechaEvento,
-            decimal horasDuracion, int cantidadAdultos, int cantidadNinos, decimal sena, DateTime? fechaSena, DateTime? fechaPago,
-            List<DetalleMenuPresupuestado> itemsMenu, List<ServicioPresupuestado> servicios)
+            decimal horasDuracion, int cantidadAdultos, int cantidadNinos,
+            List<DetalleMenuPresupuestado> itemsMenu, List<ServicioPresupuestado> servicios, List<Pago> pagos)
         {
             Id = id;
             EventoAsociado = eventoAsociado;
@@ -45,11 +47,9 @@ namespace ProyectoEventos.Domain
             HorasDuracion = horasDuracion;
             CantidadAdultos = cantidadAdultos;
             CantidadNinos = cantidadNinos;
-            Sena = sena;
-            FechaSena = fechaSena;
-            FechaPago = fechaPago;
             this.itemsMenu = itemsMenu;
             this.servicios = servicios;
+            this.pagos = pagos;
         }
 
         public int Id { get; private set; }
@@ -81,20 +81,33 @@ namespace ProyectoEventos.Domain
 
         public EstadoPresupuesto Estado { get; private set; }
 
-        public decimal Sena { get; private set; }
-
-        public DateTime? FechaSena { get; private set; }
-
-        public DateTime? FechaPago { get; private set; }
+        public decimal TotalPagado
+        {
+            get
+            {
+                decimal total = 0m;
+                foreach (Pago pago in pagos)
+                {
+                    total += pago.Monto;
+                }
+                return total;
+            }
+        }
 
         public bool EstaPagado
         {
-            get { return FechaPago != null; }
+            get { return pagos.Count > 0 && TotalPagado >= CalcularTotal(); }
+        }
+
+        // Fecha del pago con el que se completó el total.
+        public DateTime? FechaPago
+        {
+            get { return EstaPagado ? pagos[pagos.Count - 1].Fecha : null; }
         }
 
         public decimal Saldo
         {
-            get { return EstaPagado ? 0m : CalcularTotal() - Sena; }
+            get { return CalcularTotal() - TotalPagado; }
         }
 
         public EstadoPago EstadoPago
@@ -105,22 +118,33 @@ namespace ProyectoEventos.Domain
                 {
                     return EstadoPago.Pagado;
                 }
-                return Sena > 0 ? EstadoPago.Senado : EstadoPago.SinSena;
+                return TotalPagado > 0 ? EstadoPago.Senado : EstadoPago.SinSena;
             }
         }
 
-        // Aprobado y con seña suficiente (o pagado): los cambios de precios ya no lo desactualizan.
+        // Aprobado y con lo pagado llegando al porcentaje de seña: los cambios de precios ya no lo desactualizan.
         public bool TienePrecioCongelado
         {
             get
             {
-                return Estado == EstadoPresupuesto.Aprobado && (EstaPagado || Sena >= CalcularSenaParaCongelarPrecio());
+                return Estado == EstadoPresupuesto.Aprobado && TotalPagado > 0 && TotalPagado >= CalcularSenaParaCongelarPrecio();
             }
+        }
+
+        public IReadOnlyList<Pago> ObtenerPagos()
+        {
+            return pagos.AsReadOnly();
         }
 
         public decimal CalcularSenaParaCongelarPrecio()
         {
             return Math.Round(CalcularTotal() * Configuracion.PorcentajeSenaParaCongelarPrecio / 100, 2);
+        }
+
+        public decimal CalcularFaltanteParaCongelarPrecio()
+        {
+            decimal faltante = CalcularSenaParaCongelarPrecio() - TotalPagado;
+            return faltante > 0 ? faltante : 0;
         }
 
         public IReadOnlyList<DetalleMenuPresupuestado> ObtenerItemsMenu()
@@ -275,47 +299,38 @@ namespace ProyectoEventos.Domain
             }
         }
 
-        internal void RegistrarSena(decimal monto, DateTime fecha)
+        internal void RegistrarPago(decimal monto, DateTime fecha)
         {
             ValidarQuePuedeCobrarse();
-            if (Sena > 0)
+            Pago pago = new Pago(fecha, monto);
+            if (monto > Saldo)
             {
-                throw new NegocioException("El presupuesto ya tiene una seña registrada.");
+                throw new NegocioException("El pago no puede superar lo que falta cobrar (" + Saldo.ToString(Formato.Moneda) + ").");
             }
-            if (monto <= 0)
-            {
-                throw new NegocioException("La seña debe ser mayor a cero.");
-            }
-            if (monto >= CalcularTotal())
-            {
-                throw new NegocioException("La seña debe ser menor al total del presupuesto (" + CalcularTotal().ToString(Formato.Moneda) +
-                    "). Si el cliente paga todo, use Marcar como pagado.");
-            }
-            Sena = monto;
-            FechaSena = fecha;
+            pagos.Add(pago);
         }
 
+        // Registra un último pago por todo lo que falta.
         internal void MarcarPagado(DateTime fecha)
         {
             ValidarQuePuedeCobrarse();
-            FechaPago = fecha;
+            pagos.Add(new Pago(fecha, Saldo));
         }
 
-        internal void RecibirSenaDe(Presupuesto anterior)
+        // Al reemplazar el presupuesto aprobado, lo que ya pagó el cliente pasa al nuevo.
+        internal void RecibirPagosDe(Presupuesto anterior)
         {
-            if (anterior.Sena == 0)
+            if (anterior.pagos.Count == 0)
             {
                 return;
             }
-            if (anterior.Sena >= CalcularTotal())
+            if (anterior.TotalPagado >= CalcularTotal())
             {
-                throw new NegocioException("La seña del presupuesto aprobado (" + anterior.Sena.ToString(Formato.Moneda) +
+                throw new NegocioException("Lo pagado en el presupuesto aprobado (" + anterior.TotalPagado.ToString(Formato.Moneda) +
                     ") no es menor al total de este presupuesto.");
             }
-            Sena = anterior.Sena;
-            FechaSena = anterior.FechaSena;
-            anterior.Sena = 0;
-            anterior.FechaSena = null;
+            pagos.AddRange(anterior.pagos);
+            anterior.pagos.Clear();
         }
 
         private void ValidarQuePuedeCobrarse()

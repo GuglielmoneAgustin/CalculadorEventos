@@ -29,8 +29,9 @@ Los datos se guardan en una base **SQLite** (archivo `eventos.db`, junto al ejec
 | `Clientes`, `Lugares`, `Productos`, `ServiciosAdicionales`, `Negocio` | Una fila por registro. |
 | `Eventos` | Datos del evento y su estado interno (próximos números de plato y de presupuesto, y si cambió desde el último presupuesto). |
 | `ItemsMenu`, `EventoServicios` | Platos y servicios de cada evento. |
-| `Presupuestos` | Foto de lo cotizado, estado, seña y pago. |
+| `Presupuestos` | Foto de lo cotizado y estado. |
 | `PresupuestoItems`, `PresupuestoServicios` | Platos y servicios tal como se cotizaron. |
+| `PresupuestoPagos` | Pagos del cliente (fecha y monto) a cuenta del presupuesto aprobado. |
 | `Secuencias` | Último id usado de cada tabla. |
 
 ## Pruebas automáticas
@@ -59,7 +60,7 @@ La ventana principal tiene un menú lateral (Inicio, Lugares, Clientes, Servicio
   - **Sin presupuesto:** el evento se cargó pero no tiene presupuesto.
   - **Desactualizado:** el presupuesto en espera ya no vale (por ejemplo, "Cambió el precio de Bife de chorizo.").
   - **Esperando respuesta:** el presupuesto está vigente y se envió hace cierta cantidad de días.
-  - **Falta cobrar:** el evento es dentro de los próximos 7 días, tiene presupuesto aprobado y todavía no está pagado (indica cuánto falta y si tiene seña).
+  - **Falta cobrar:** el evento es dentro de los próximos 7 días, tiene presupuesto aprobado y todavía no está pagado (indica cuánto falta y cuánto pagó).
 - Un botón **Ver presupuesto** sirve para las dos grillas: abre los presupuestos del evento elegido en cualquiera de ellas (al seleccionar en una grilla se deselecciona la otra). Al volver, Inicio se actualiza.
 
 ### Clientes, Lugares, Productos y Servicios adicionales
@@ -114,18 +115,18 @@ Datos propios del negocio, que se usan en los tickets y en la interfaz:
 - Grilla con número, fecha de generación, fecha del evento e invitados cotizados, costo total, estado, **pago** y **detalle**.
 - Cada presupuesto es una foto de lo cotizado: si después cambia el evento, ya no se modifica.
 - **Vigencia:** un presupuesto está vigente si es el último generado y no cambiaron ni el evento ni los precios (costo base o por hora del lugar, productos o servicios). Si no, se marca "(desactualizado)" y la columna Detalle explica el motivo, por ejemplo "Cambió el precio de Bife de chorizo." o "Cambiaron los servicios adicionales.".
-- **Precio congelado:** un presupuesto aprobado con una seña de al menos el 30 % del total (o ya pagado) mantiene sus precios: si después cambian los precios del lugar, productos o servicios, no se desactualiza. Si la seña es menor o no hay seña, un cambio de precio lo desactualiza y se puede generar uno nuevo con los precios actuales y aprobarlo en su lugar (la seña pasa al nuevo). Un cambio en el evento mismo (invitados, menú, servicios, lugar, fecha u horas) siempre pide un presupuesto nuevo, con los precios de ese momento. La columna Detalle del aprobado dice "Precio congelado." o cuánta seña falta para congelarlo.
+- **Precio congelado:** un presupuesto aprobado en el que el cliente ya pagó al menos el 30 % del total (en uno o varios pagos) mantiene sus precios: si después cambian los precios del lugar, productos o servicios, no se desactualiza. Si pagó menos, un cambio de precio lo desactualiza y se puede generar uno nuevo con los precios actuales y aprobarlo en su lugar (los pagos pasan al nuevo). Un cambio en el evento mismo (invitados, menú, servicios, lugar, fecha u horas) siempre pide un presupuesto nuevo, con los precios de ese momento. La columna Detalle del aprobado dice "Precio congelado." o cuánto falta pagar para congelarlo.
 - **Aprobar:** solo se aprueba un presupuesto vigente, que esté en espera o cancelado (por ejemplo, si el cliente se arrepintió). Si ya hay otro aprobado, se pregunta si se reemplaza.
 - **Cancelar:** pide confirmación y avisa especialmente si el presupuesto está aprobado.
 - **Actualizar presupuesto:** genera uno nuevo con los datos y precios actuales (o avisa que ya está al día).
 - **Ver ticket:** muestra en pantalla un ticket con los datos del negocio y todos los datos cotizados. Con **Guardar PDF** se elige dónde guardarlo y se genera el archivo usando la impresora "Microsoft Print to PDF" que trae Windows (si no está instalada, se avisa con un mensaje).
 - **Cobro del presupuesto aprobado:** debajo de la grilla se ve el estado del pago (sin seña, señado o pagado, con cuánto falta cobrar) y no hace falta seleccionar nada:
-  - **Registrar seña:** se carga el monto y se confirma. Debe ser mayor a cero y menor al total; se registra una sola seña. Mientras no hay seña, el estado del pago indica la seña mínima para congelar el precio (30 % del total, configurable en `Common/Configuracion.cs`).
-  - **Marcar como pagado:** confirma que el cliente pagó lo que faltaba.
-  - **Ver comprobante:** comprobante de pago con la seña, el pago del saldo, lo pagado y lo que resta, con **Guardar PDF**. Se abre solo al registrar la seña o el pago.
-  - Si se cancela un presupuesto aprobado con seña, se avisa que la seña no se devuelve y queda indicada en el detalle del presupuesto cancelado. Si se aprueba otro presupuesto en su lugar, la seña pasa al nuevo.
+  - **Registrar pago:** se carga el monto y se confirma. Se puede pagar en partes, todas las veces que haga falta; cada pago debe ser mayor a cero y no superar lo que falta cobrar. Si con un pago se completa el total, queda pagado. El estado del pago indica cuánto falta para congelar el precio (30 % del total, configurable en `Common/Configuracion.cs`).
+  - **Marcar como pagado:** registra un último pago por todo lo que falta.
+  - **Ver comprobante:** comprobante con cada pago (fecha y monto), lo pagado y lo que resta, con **Guardar PDF**. Se abre solo al registrar un pago.
+  - Si se cancela un presupuesto aprobado con pagos, se avisa que no se devuelven y queda indicado en el detalle del presupuesto cancelado. Si se aprueba otro presupuesto en su lugar, los pagos pasan al nuevo.
   - Un presupuesto pagado no se puede cancelar ni reemplazar.
-- El ticket de un presupuesto aprobado con seña o pago muestra también lo pagado y lo que resta.
+- El ticket de un presupuesto aprobado con pagos muestra también lo pagado y lo que resta.
 - El presupuesto aprobado conserva sus precios aunque después cambien.
 - Ningún botón se deshabilita: cada acción valida y avisa con un mensaje si no corresponde.
 
@@ -138,8 +139,8 @@ Datos propios del negocio, que se usan en los tickets y en la interfaz:
 - Los precios de productos y los montos de servicios deben ser mayores a cero; las cantidades no pueden ser negativas y cada plato debe tener al menos un adulto o un niño.
 - No se pueden eliminar clientes, lugares, productos o servicios que estén en uso en algún evento.
 - Solo puede haber un presupuesto aprobado por evento.
-- Solo se cobra el presupuesto aprobado: una seña (no reembolsable) y luego el pago del resto.
-- Con una seña del 30 % o más (o con el pago completo), el presupuesto aprobado conserva sus precios aunque cambien los del catálogo.
+- Solo se cobra el presupuesto aprobado, en uno o varios pagos (no reembolsables), hasta completar el total. No hay formas de pago ni saldo a favor entre eventos.
+- Cuando lo pagado llega al 30 % del total, el presupuesto aprobado conserva sus precios aunque cambien los del catálogo.
 
 ## Tema visual
 

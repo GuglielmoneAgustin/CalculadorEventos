@@ -280,17 +280,17 @@ namespace ProyectoEventos.Domain
             if (otroAprobado != null)
             {
                 otroAprobado.ValidarQuePuedeCancelarse();
-                presupuesto.RecibirSenaDe(otroAprobado);
+                presupuesto.RecibirPagosDe(otroAprobado);
             }
             presupuesto.Aprobar();
             otroAprobado?.Cancelar();
             return presupuesto;
         }
 
-        public Presupuesto RegistrarSena(decimal monto, DateTime fecha)
+        public Presupuesto RegistrarPago(decimal monto, DateTime fecha)
         {
             Presupuesto aprobado = ObtenerPresupuestoAprobadoExistente();
-            aprobado.RegistrarSena(monto, fecha);
+            aprobado.RegistrarPago(monto, fecha);
             return aprobado;
         }
 

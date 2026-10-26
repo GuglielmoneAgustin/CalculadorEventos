@@ -25,11 +25,11 @@ namespace ProyectoEventos.Forms
             lblEstadoPago = new Label();
             flowDatosPago = new FlowLayoutPanel();
             lblDetallePago = new Label();
-            lblMontoSena = new Label();
-            numSena = new NumericUpDown();
+            lblMontoPago = new Label();
+            numPago = new NumericUpDown();
             tlpBotones = new TableLayoutPanel();
             flowPago = new FlowLayoutPanel();
-            btnRegistrarSena = new Button();
+            btnRegistrarPago = new Button();
             btnMarcarPagado = new Button();
             btnComprobante = new Button();
             flowBotones = new FlowLayoutPanel();
@@ -42,7 +42,7 @@ namespace ProyectoEventos.Forms
             tlpGrillaPresupuestos.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvPresupuestos).BeginInit();
             flowDatosPago.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)numSena).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)numPago).BeginInit();
             tlpBotones.SuspendLayout();
             flowPago.SuspendLayout();
             flowBotones.SuspendLayout();
@@ -137,8 +137,8 @@ namespace ProyectoEventos.Forms
             // flowDatosPago
             // 
             flowDatosPago.AutoSize = true;
-            flowDatosPago.Controls.Add(lblMontoSena);
-            flowDatosPago.Controls.Add(numSena);
+            flowDatosPago.Controls.Add(lblMontoPago);
+            flowDatosPago.Controls.Add(numPago);
             flowDatosPago.Dock = DockStyle.Fill;
             flowDatosPago.Location = new Point(3, 580);
             flowDatosPago.Margin = new Padding(3, 10, 3, 0);
@@ -156,27 +156,27 @@ namespace ProyectoEventos.Forms
             lblDetallePago.Size = new Size(0, 20);
             lblDetallePago.TabIndex = 0;
             // 
-            // lblMontoSena
+            // lblMontoPago
             // 
-            lblMontoSena.AutoSize = true;
-            lblMontoSena.Location = new Point(24, 4);
-            lblMontoSena.Margin = new Padding(0, 4, 6, 0);
-            lblMontoSena.Name = "lblMontoSena";
-            lblMontoSena.Size = new Size(44, 20);
-            lblMontoSena.TabIndex = 1;
-            lblMontoSena.Text = "Seña:";
+            lblMontoPago.AutoSize = true;
+            lblMontoPago.Location = new Point(24, 4);
+            lblMontoPago.Margin = new Padding(0, 4, 6, 0);
+            lblMontoPago.Name = "lblMontoPago";
+            lblMontoPago.Size = new Size(44, 20);
+            lblMontoPago.TabIndex = 1;
+            lblMontoPago.Text = "Monto:";
             // 
-            // numSena
+            // numPago
             // 
-            numSena.DecimalPlaces = 2;
-            numSena.Location = new Point(74, 0);
-            numSena.Margin = new Padding(0);
-            numSena.Maximum = new decimal(new int[] { -727379968, 232, 0, 0 });
-            numSena.Minimum = new decimal(new int[] { -727379968, 232, 0, int.MinValue });
-            numSena.Name = "numSena";
-            numSena.Size = new Size(135, 27);
-            numSena.TabIndex = 3;
-            numSena.ThousandsSeparator = true;
+            numPago.DecimalPlaces = 2;
+            numPago.Location = new Point(74, 0);
+            numPago.Margin = new Padding(0);
+            numPago.Maximum = new decimal(new int[] { -727379968, 232, 0, 0 });
+            numPago.Minimum = new decimal(new int[] { -727379968, 232, 0, int.MinValue });
+            numPago.Name = "numPago";
+            numPago.Size = new Size(135, 27);
+            numPago.TabIndex = 3;
+            numPago.ThousandsSeparator = true;
             // 
             // tlpBotones
             // 
@@ -198,7 +198,7 @@ namespace ProyectoEventos.Forms
             // flowPago
             // 
             flowPago.AutoSize = true;
-            flowPago.Controls.Add(btnRegistrarSena);
+            flowPago.Controls.Add(btnRegistrarPago);
             flowPago.Controls.Add(btnMarcarPagado);
             flowPago.Controls.Add(btnComprobante);
             flowPago.Location = new Point(0, 0);
@@ -208,16 +208,16 @@ namespace ProyectoEventos.Forms
             flowPago.TabIndex = 0;
             flowPago.WrapContents = false;
             // 
-            // btnRegistrarSena
+            // btnRegistrarPago
             // 
-            btnRegistrarSena.Location = new Point(0, 0);
-            btnRegistrarSena.Margin = new Padding(0, 0, 10, 0);
-            btnRegistrarSena.Name = "btnRegistrarSena";
-            btnRegistrarSena.Size = new Size(130, 38);
-            btnRegistrarSena.TabIndex = 4;
-            btnRegistrarSena.Text = "Registrar seña";
-            btnRegistrarSena.UseVisualStyleBackColor = true;
-            btnRegistrarSena.Click += btnRegistrarSena_Click;
+            btnRegistrarPago.Location = new Point(0, 0);
+            btnRegistrarPago.Margin = new Padding(0, 0, 10, 0);
+            btnRegistrarPago.Name = "btnRegistrarPago";
+            btnRegistrarPago.Size = new Size(130, 38);
+            btnRegistrarPago.TabIndex = 4;
+            btnRegistrarPago.Text = "Registrar pago";
+            btnRegistrarPago.UseVisualStyleBackColor = true;
+            btnRegistrarPago.Click += btnRegistrarPago_Click;
             // 
             // btnMarcarPagado
             // 
@@ -331,7 +331,7 @@ namespace ProyectoEventos.Forms
             ((System.ComponentModel.ISupportInitialize)dgvPresupuestos).EndInit();
             flowDatosPago.ResumeLayout(false);
             flowDatosPago.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)numSena).EndInit();
+            ((System.ComponentModel.ISupportInitialize)numPago).EndInit();
             tlpBotones.ResumeLayout(false);
             tlpBotones.PerformLayout();
             flowPago.ResumeLayout(false);
@@ -349,11 +349,11 @@ namespace ProyectoEventos.Forms
         private FlowLayoutPanel flowDatosPago;
         private Label lblEstadoPago;
         private Label lblDetallePago;
-        private Label lblMontoSena;
-        private NumericUpDown numSena;
+        private Label lblMontoPago;
+        private NumericUpDown numPago;
         private TableLayoutPanel tlpBotones;
         private FlowLayoutPanel flowPago;
-        private Button btnRegistrarSena;
+        private Button btnRegistrarPago;
         private Button btnMarcarPagado;
         private Button btnComprobante;
         private FlowLayoutPanel flowBotones;

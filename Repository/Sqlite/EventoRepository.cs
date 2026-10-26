@@ -162,10 +162,9 @@ namespace ProyectoEventos.Repository.Sqlite
             {
                 comando.CommandText =
                     "INSERT INTO Presupuestos (IdEvento, Id, FechaGeneracion, Estado, CostoBaseLugar, " +
-                    "CostoPorHoraLugar, NombreCliente, NombreLugar, FechaEvento, HorasDuracion, CantidadAdultos, CantidadNinos, " +
-                    "Sena, FechaSena, FechaPago) VALUES ($idEvento, $id, $fechaGeneracion, $estado, " +
-                    "$costoBase, $costoPorHora, $nombreCliente, $nombreLugar, $fechaEvento, $horas, $adultos, $ninos, " +
-                    "$sena, $fechaSena, $fechaPago)";
+                    "CostoPorHoraLugar, NombreCliente, NombreLugar, FechaEvento, HorasDuracion, CantidadAdultos, CantidadNinos) " +
+                    "VALUES ($idEvento, $id, $fechaGeneracion, $estado, " +
+                    "$costoBase, $costoPorHora, $nombreCliente, $nombreLugar, $fechaEvento, $horas, $adultos, $ninos)";
                 comando.Parameters.AddWithValue("$idEvento", idEvento);
                 comando.Parameters.AddWithValue("$id", presupuesto.Id);
                 comando.Parameters.AddWithValue("$fechaGeneracion", presupuesto.FechaGeneracion);
@@ -178,9 +177,6 @@ namespace ProyectoEventos.Repository.Sqlite
                 comando.Parameters.AddWithValue("$horas", presupuesto.HorasDuracion);
                 comando.Parameters.AddWithValue("$adultos", presupuesto.CantidadAdultos);
                 comando.Parameters.AddWithValue("$ninos", presupuesto.CantidadNinos);
-                comando.Parameters.AddWithValue("$sena", presupuesto.Sena);
-                comando.Parameters.AddWithValue("$fechaSena", BaseDatosSqlite.ValorONulo(presupuesto.FechaSena));
-                comando.Parameters.AddWithValue("$fechaPago", BaseDatosSqlite.ValorONulo(presupuesto.FechaPago));
                 comando.ExecuteNonQuery();
             }
 
@@ -211,6 +207,20 @@ namespace ProyectoEventos.Repository.Sqlite
                 comando.Parameters.AddWithValue("$orden", orden);
                 comando.Parameters.AddWithValue("$nombre", servicios[orden].Nombre);
                 comando.Parameters.AddWithValue("$monto", servicios[orden].Monto);
+                comando.ExecuteNonQuery();
+            }
+
+            IReadOnlyList<Pago> pagos = presupuesto.ObtenerPagos();
+            for (int orden = 0; orden < pagos.Count; orden++)
+            {
+                using SqliteCommand comando = conexion.CreateCommand();
+                comando.CommandText = "INSERT INTO PresupuestoPagos (IdEvento, IdPresupuesto, Orden, Fecha, Monto) " +
+                    "VALUES ($idEvento, $idPresupuesto, $orden, $fecha, $monto)";
+                comando.Parameters.AddWithValue("$idEvento", idEvento);
+                comando.Parameters.AddWithValue("$idPresupuesto", presupuesto.Id);
+                comando.Parameters.AddWithValue("$orden", orden);
+                comando.Parameters.AddWithValue("$fecha", pagos[orden].Fecha);
+                comando.Parameters.AddWithValue("$monto", pagos[orden].Monto);
                 comando.ExecuteNonQuery();
             }
         }
@@ -288,9 +298,24 @@ namespace ProyectoEventos.Repository.Sqlite
                 }
             }
 
+            Dictionary<string, List<Pago>> pagosPresupuestos = new Dictionary<string, List<Pago>>();
+            using (SqliteDataReader lector = Consultar(conexion,
+                "SELECT IdEvento, IdPresupuesto, Fecha, Monto FROM PresupuestoPagos", "IdEvento", idEvento, "IdEvento, IdPresupuesto, Orden"))
+            {
+                while (lector.Read())
+                {
+                    string clave = lector.GetInt32(0) + "-" + lector.GetInt32(1);
+                    if (!pagosPresupuestos.ContainsKey(clave))
+                    {
+                        pagosPresupuestos.Add(clave, new List<Pago>());
+                    }
+                    pagosPresupuestos[clave].Add(new Pago(lector.GetDateTime(2), lector.GetDecimal(3)));
+                }
+            }
+
             using (SqliteDataReader lector = Consultar(conexion,
                 "SELECT IdEvento, Id, FechaGeneracion, Estado, CostoBaseLugar, CostoPorHoraLugar, NombreCliente, " +
-                "NombreLugar, FechaEvento, HorasDuracion, CantidadAdultos, CantidadNinos, Sena, FechaSena, FechaPago FROM Presupuestos",
+                "NombreLugar, FechaEvento, HorasDuracion, CantidadAdultos, CantidadNinos FROM Presupuestos",
                 "IdEvento", idEvento, "IdEvento, Id"))
             {
                 while (lector.Read())
@@ -301,6 +326,7 @@ namespace ProyectoEventos.Repository.Sqlite
                         ? itemsPresupuestados[clave] : new List<DetalleMenuPresupuestado>();
                     List<ServicioPresupuestado> serviciosCotizados = serviciosPresupuestados.ContainsKey(clave)
                         ? serviciosPresupuestados[clave] : new List<ServicioPresupuestado>();
+                    List<Pago> pagos = pagosPresupuestos.ContainsKey(clave) ? pagosPresupuestos[clave] : new List<Pago>();
 
                     evento.CargarPresupuesto(new Presupuesto(
                         lector.GetInt32(1),
@@ -315,11 +341,9 @@ namespace ProyectoEventos.Repository.Sqlite
                         lector.GetDecimal(9),
                         lector.GetInt32(10),
                         lector.GetInt32(11),
-                        lector.GetDecimal(12),
-                        BaseDatosSqlite.LeerFechaONula(lector, "FechaSena"),
-                        BaseDatosSqlite.LeerFechaONula(lector, "FechaPago"),
                         items,
-                        serviciosCotizados));
+                        serviciosCotizados,
+                        pagos));
                 }
             }
 

@@ -233,7 +233,7 @@ namespace ProyectoEventos.Service
                 case TipoPendiente.FaltaCobrar:
                     Presupuesto aprobado = evento.ObtenerPresupuestoAprobadoExistente();
                     return "Falta cobrar " + aprobado.Saldo.ToString(Formato.Moneda) +
-                        (aprobado.Sena > 0 ? " (señado " + aprobado.Sena.ToString(Formato.Moneda) + ")." : " (sin seña).");
+                        (aprobado.TotalPagado > 0 ? " (pagado " + aprobado.TotalPagado.ToString(Formato.Moneda) + ")." : " (sin seña).");
                 default:
                     Presupuesto enEspera = evento.ObtenerPresupuestoEnEspera()!;
                     return "Presupuesto N° " + enEspera.Id + " enviado " + DescribirAntiguedad(enEspera.FechaGeneracion) + ".";

@@ -61,10 +61,10 @@ namespace ProyectoEventos.Tests.Servicios
         {
             PresupuestoResultadoDTO aprobado = GenerarYAprobar();
             Assert.False(aprobado.PrecioCongelado);
-            Assert.Equal(720, aprobado.SenaParaCongelarPrecio);
-            Assert.Equal("Precio sin congelar: falta una seña de $ 720,00.", aprobado.Detalle);
+            Assert.Equal(720, aprobado.FaltaParaCongelarPrecio);
+            Assert.Equal("Precio sin congelar: faltan $ 720,00 de seña.", aprobado.Detalle);
 
-            escenario.PresupuestoServicio.RegistrarSena(idEvento, 720);
+            escenario.PresupuestoServicio.RegistrarPago(idEvento, 720);
             ProductoDTO milanesa = escenario.ProductoServicio.ObtenerTodos().Single();
             milanesa.PrecioAdulto = 150;
             escenario.ProductoServicio.Guardar(milanesa);
@@ -81,7 +81,7 @@ namespace ProyectoEventos.Tests.Servicios
         {
             GenerarYAprobar();
 
-            escenario.PresupuestoServicio.RegistrarSena(idEvento, 500);
+            escenario.PresupuestoServicio.RegistrarPago(idEvento, 500);
 
             PresupuestoResultadoDTO senado = escenario.PresupuestoServicio.ObtenerAprobado(idEvento)!;
             Assert.Equal(EstadoPago.Senado, senado.EstadoPago);
@@ -92,25 +92,26 @@ namespace ProyectoEventos.Tests.Servicios
         public void CancelarUnAprobadoConSenaAvisaQueNoSeDevuelve()
         {
             PresupuestoResultadoDTO aprobado = GenerarYAprobar();
-            escenario.PresupuestoServicio.RegistrarSena(idEvento, 500);
+            escenario.PresupuestoServicio.RegistrarPago(idEvento, 500);
 
             PresupuestoResultadoDTO cancelado = escenario.PresupuestoServicio.Cancelar(idEvento, aprobado.Id);
 
             Assert.Equal(EstadoPresupuesto.Cancelado, cancelado.Estado);
-            Assert.Equal("Seña de $ 500,00 no reembolsable.", cancelado.Detalle);
+            Assert.Equal("Pagos de $ 500,00 no reembolsables.", cancelado.Detalle);
         }
 
         [Fact]
         public void ElComprobanteTieneLoCobrado()
         {
             GenerarYAprobar();
-            escenario.PresupuestoServicio.RegistrarSena(idEvento, 500);
+            escenario.PresupuestoServicio.RegistrarPago(idEvento, 500);
             escenario.PresupuestoServicio.MarcarPagado(idEvento);
 
             PresupuestoDetalleDTO detalle = escenario.PresupuestoServicio.ObtenerDetalleAprobado(idEvento);
 
             Assert.Equal(EstadoPago.Pagado, detalle.EstadoPago);
-            Assert.Equal(500, detalle.Sena);
+            Assert.Equal(new[] { 500m, 1900m }, detalle.Pagos.Select(p => p.Monto));
+            Assert.Equal(2400, detalle.TotalPagado);
             Assert.NotNull(detalle.FechaPago);
             Assert.Equal(0, detalle.Saldo);
         }
