@@ -34,16 +34,6 @@ Los datos se guardan en una base **SQLite** (archivo `eventos.db`, junto al ejec
 | `PresupuestoPagos` | Pagos del cliente (fecha y monto) a cuenta del presupuesto aprobado. |
 | `Secuencias` | Último id usado de cada tabla. |
 
-## Pruebas automáticas
-
-El proyecto `ProyectoEventos.Tests` (xUnit) prueba las reglas de negocio y los servicios: validaciones de las entidades, eventos, menú, presupuestos (vigencia, aprobación y cobro), pendientes y datos del negocio. Cada prueba usa sus propios repositorios, así no dependen entre sí ni de los datos de ejemplo. Las pruebas de los servicios corren dos veces: en memoria y contra un archivo SQLite temporal, y hay pruebas propias de la base (que todo vuelva igual al leerlo, montos exactos, borrado en cascada).
-
-Se corren desde Visual Studio (**Prueba → Explorador de pruebas → Ejecutar todas**) o desde la carpeta del proyecto:
-
-```bash
-dotnet test ProyectoEventos.slnx
-```
-
 ## Pantallas y funciones
 
 La ventana principal tiene un menú lateral (Inicio, Lugares, Clientes, Servicios, Productos, Eventos, Mi negocio y Salir) y cada sección se abre dentro de la misma ventana. Arriba del menú y en el título de la ventana se muestra el nombre del negocio.
@@ -163,11 +153,10 @@ El código está organizado en capas:
 | `Domain` | Entidades y reglas de negocio (`Evento`, `Presupuesto`, `Cliente`, `Lugar`, `Producto`, `ServicioAdicional`, `MenuEvento`, `ItemMenu`, `Negocio`). Cada entidad valida sus datos en el constructor y en los setters de sus propiedades. |
 | `Repository` | Interfaz de acceso a datos `IRepository<T>`, común a todas las entidades. El servicio pide el próximo id con `ObtenerProximoId` y guarda los cambios con `Actualizar`. |
 | `Repository/Sqlite` | Implementación con SQLite (la que usa la app): conexión y creación de tablas (`BaseDatosSqlite`) y un repositorio por entidad con su SQL. |
-| `Repository/Memoria` | Implementación en memoria (la usan las pruebas). Los servicios toman los repositorios de `Repository/Repositorios.cs`, así que cambiar de una a otra no toca los servicios. |
+| `Repository/Memoria` | Implementación en memoria (la que usaba la app antes de SQLite). Los servicios toman los repositorios de `Repository/Repositorios.cs`, así que cambiar de una a otra no toca los servicios. |
 | `Service` | Casos de uso; reciben los repositorios por constructor. |
 | `Controller` | Punto de entrada que usan las pantallas. |
 | `Dto` | Datos que viajan entre las pantallas y los servicios. |
 | `Forms` | Pantallas de Windows Forms y utilidades de interfaz (`Forms/Utils`: tema visual, grillas, búsqueda, avisos, ticket). |
 | `Common` | Formato de montos y fechas, configuración (`Configuracion.DiasProximos`), enumeraciones (`Common/Enums`) y excepciones de negocio. |
 | `Datos` | Datos de ejemplo que se cargan en modo Debug. |
-| `ProyectoEventos.Tests` | Pruebas automáticas (xUnit) del dominio y los servicios. |

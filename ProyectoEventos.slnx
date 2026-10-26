@@ -1,4 +1,3 @@
 <Solution>
   <Project Path="ProyectoEventos.csproj" />
-  <Project Path="ProyectoEventos.Tests/ProyectoEventos.Tests.csproj" />
 </Solution>
