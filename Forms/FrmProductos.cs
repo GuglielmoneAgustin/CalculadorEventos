@@ -296,6 +296,7 @@ namespace ProyectoEventos.Forms
             btnGuardar.Text = "Guardar";
             tlpBotones.SetColumnSpan(btnGuardar, 1);
             btnCancelarEdicion.Visible = true;
+            tlpRestricciones.Visible = false;
             valoresGuardados = Formulario.Valores(tlpFormulario);
         }
 
@@ -312,6 +313,7 @@ namespace ProyectoEventos.Forms
             btnGuardar.Text = "Guardar";
             tlpBotones.SetColumnSpan(btnGuardar, 2);
             btnCancelarEdicion.Visible = false;
+            tlpRestricciones.Visible = true;
             valoresGuardados = Formulario.Valores(tlpFormulario);
         }
 
