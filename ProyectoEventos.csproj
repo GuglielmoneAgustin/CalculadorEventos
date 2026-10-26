@@ -8,4 +8,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <!-- El proyecto de pruebas vive en una subcarpeta: no se compila como parte de la app. -->
+  <ItemGroup>
+    <Compile Remove="ProyectoEventos.Tests/**" />
+    <EmbeddedResource Remove="ProyectoEventos.Tests/**" />
+    <None Remove="ProyectoEventos.Tests/**" />
+  </ItemGroup>
+
 </Project>

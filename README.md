@@ -15,6 +15,16 @@ Al ejecutar en modo **Debug** se cargan automáticamente datos de ejemplo (clien
 
 > Los datos se guardan en memoria: al cerrar la aplicación se pierden.
 
+## Pruebas automáticas
+
+El proyecto `ProyectoEventos.Tests` (xUnit) prueba las reglas de negocio y los servicios: validaciones de las entidades, eventos, menú, presupuestos (vigencia, aprobación, cobro y vencimiento), pendientes y datos del negocio. Cada prueba usa sus propios repositorios en memoria, así no dependen entre sí ni de los datos de ejemplo.
+
+Se corren desde Visual Studio (**Prueba → Explorador de pruebas → Ejecutar todas**) o desde la carpeta del proyecto:
+
+```bash
+dotnet test ProyectoEventos.slnx
+```
+
 ## Pantallas y funciones
 
 La ventana principal tiene un menú lateral (Inicio, Lugares, Clientes, Servicios, Productos, Eventos, Mi negocio y Salir) y cada sección se abre dentro de la misma ventana. Arriba del menú y en el título de la ventana se muestra el nombre del negocio.
@@ -143,3 +153,4 @@ El código está organizado en capas:
 | `Forms` | Pantallas de Windows Forms y utilidades de interfaz (`Forms/Utils`: tema visual, grillas, búsqueda, avisos, ticket). |
 | `Common` | Formato de montos y fechas, configuración (`Configuracion.DiasProximos`), enumeraciones (`Common/Enums`) y excepciones de negocio. |
 | `Datos` | Datos de ejemplo que se cargan en modo Debug. |
+| `ProyectoEventos.Tests` | Pruebas automáticas (xUnit) del dominio y los servicios. |
