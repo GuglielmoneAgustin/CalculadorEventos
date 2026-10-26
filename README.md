@@ -136,11 +136,7 @@ Datos propios del negocio, que se usan en los tickets y en la interfaz:
 
 ## Tema visual
 
-Hay dos temas con la misma forma de uso: `Tema1` (matcha y carob, el original) y `Tema2` (verde inglés con detalles en latón y títulos en Georgia). Todos los formularios usan `Tema`, y cuál de los dos es se elige en una sola línea de `Forms/Utils/TemaActivo.cs`:
-
-```csharp
-global using Tema = ProyectoEventos.Forms.Utils.Tema2;
-```
+Verde inglés con detalles en latón y títulos en Georgia. Todos los colores, letras y estilos de los controles están en `Forms/Utils/Tema.cs`: cada formulario llama a `Tema.Aplicar(this)` al abrirse.
 
 ## Formato
 

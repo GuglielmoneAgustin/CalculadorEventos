@@ -4,48 +4,55 @@ using ProyectoEventos.Common.Enums;
 
 namespace ProyectoEventos.Forms.Utils
 {
-    internal static class Tema1
+    internal static class Tema
     {
-        public static readonly Color Matcha = ColorTranslator.FromHtml("#809671");
-        public static readonly Color Almond = ColorTranslator.FromHtml("#E5E0D8");
-        public static readonly Color Pistache = ColorTranslator.FromHtml("#B3B792");
-        public static readonly Color Chai = ColorTranslator.FromHtml("#D2AB80");
-        public static readonly Color Carob = ColorTranslator.FromHtml("#725C3A");
-        public static readonly Color Vanilla = ColorTranslator.FromHtml("#E5D2B8");
+        public static readonly Color VerdeIngles = ColorTranslator.FromHtml("#1F3A2E");
+        public static readonly Color VerdeInglesHover = ColorTranslator.FromHtml("#2B4A3C");
+        public static readonly Color Laton = ColorTranslator.FromHtml("#B39457");
+        public static readonly Color LatonClaro = ColorTranslator.FromHtml("#E3C98E");
+        public static readonly Color Marfil = ColorTranslator.FromHtml("#F4F0E6");
+        public static readonly Color Pergamino = ColorTranslator.FromHtml("#E2DACA");
 
-        public static readonly Color Fondo = Almond;
-        public static readonly Color Tarjeta = Color.FromArgb(243, 239, 232);
-        public static readonly Color Campo = Color.FromArgb(250, 247, 241);
-        public static readonly Color FilaAlterna = Color.FromArgb(235, 229, 219);
-        public static readonly Color Texto = Color.FromArgb(58, 46, 30);
-        public static readonly Color TextoSuave = Carob;
-        public static readonly Color Borde = Vanilla;
-        public static readonly Color CarobHover = Color.FromArgb(136, 112, 76);
-        public static readonly Color Primario = Matcha;
-        public static readonly Color PrimarioHover = Color.FromArgb(103, 124, 90);
-        public static readonly Color Peligro = Color.FromArgb(170, 85, 66);
-        public static readonly Color PeligroHover = Color.FromArgb(140, 64, 48);
-        public static readonly Color SecundarioHover = Color.FromArgb(222, 197, 160);
-        public static readonly Color TextoApagado = Color.FromArgb(150, 140, 125);
-        public static readonly Color VerdeSuave = Color.FromArgb(205, 218, 193);
-        public static readonly Color VerdeOscuro = Color.FromArgb(52, 74, 40);
-        public static readonly Color TerracotaSuave = Color.FromArgb(235, 203, 195);
-        public static readonly Color TerracotaOscuro = Color.FromArgb(120, 52, 38);
+        public static readonly Color Fondo = Marfil;
+        public static readonly Color Tarjeta = ColorTranslator.FromHtml("#FBF9F3");
+        public static readonly Color Campo = Color.White;
+        public static readonly Color FilaAlterna = ColorTranslator.FromHtml("#F6F2EA");
+        public static readonly Color Texto = ColorTranslator.FromHtml("#2A2A24");
+        public static readonly Color TextoSuave = ColorTranslator.FromHtml("#5E6657");
+        public static readonly Color TextoApagado = ColorTranslator.FromHtml("#A39E91");
+        public static readonly Color Borde = Pergamino;
+        public static readonly Color Seleccion = ColorTranslator.FromHtml("#E3EADF");
+        public static readonly Color Primario = VerdeIngles;
+        public static readonly Color PrimarioHover = VerdeInglesHover;
+        // Botones secundarios (Editar, Volver, etc.): un tono latón suave para que se distingan del fondo de la tarjeta.
+        public static readonly Color Secundario = ColorTranslator.FromHtml("#EDE4CF");
+        public static readonly Color SecundarioHover = ColorTranslator.FromHtml("#E3D6B6");
+        public static readonly Color SecundarioPresionado = ColorTranslator.FromHtml("#D8C8A0");
+        public static readonly Color Peligro = ColorTranslator.FromHtml("#8E3B2E");
+        public static readonly Color PeligroHover = ColorTranslator.FromHtml("#74302A");
+        public static readonly Color VerdeSuave = ColorTranslator.FromHtml("#DDE7DA");
+        public static readonly Color VerdeOscuro = ColorTranslator.FromHtml("#2E4F33");
+        public static readonly Color AmbarSuave = ColorTranslator.FromHtml("#EFE4C9");
+        public static readonly Color AmbarOscuro = ColorTranslator.FromHtml("#6E5520");
+        public static readonly Color OlivaSuave = ColorTranslator.FromHtml("#E1E6D3");
+        public static readonly Color OlivaOscuro = ColorTranslator.FromHtml("#46522B");
+        public static readonly Color PeligroSuave = ColorTranslator.FromHtml("#F1DDD5");
+        public static readonly Color PeligroOscuro = ColorTranslator.FromHtml("#7A2E22");
 
-        public static readonly Color Menu = Carob;
-        public static readonly Color MenuHover = CarobHover;
-        public static readonly Color MenuTexto = Almond;
-        public static readonly Color Encabezado = Vanilla;
-        public static readonly Color PeligroSuave = TerracotaSuave;
-        public static readonly Color PeligroOscuro = TerracotaOscuro;
+        public static readonly Color Menu = VerdeIngles;
+        public static readonly Color MenuHover = VerdeInglesHover;
+        public static readonly Color MenuTexto = ColorTranslator.FromHtml("#CFC9B4");
+        public static readonly Color Encabezado = Marfil;
+
+        private const string Serif = "Georgia";
 
         private static readonly Font FuenteNormal = new Font("Segoe UI", 10F);
         private static readonly Font FuenteEtiqueta = new Font("Segoe UI", 9.5F);
         private static readonly Font FuenteNegrita = new Font("Segoe UI", 10F, FontStyle.Bold);
         private static readonly Font FuenteInfo = new Font("Segoe UI", 10.5F, FontStyle.Bold);
-        private static readonly Font FuenteTitulo = new Font("Segoe UI", 12F, FontStyle.Bold);
+        private static readonly Font FuenteTitulo = new Font(Serif, 13F);
         private static readonly Font FuenteCampo = new Font("Segoe UI", 10.5F);
-        private static readonly Font FuenteResumen = new Font("Segoe UI", 18F, FontStyle.Bold);
+        private static readonly Font FuenteResumen = new Font(Serif, 18F);
 
         public static void Aplicar(Form form)
         {
@@ -56,11 +63,13 @@ namespace ProyectoEventos.Forms.Utils
         public static void EstilarMenu(Panel menu, Label titulo, Panel encabezado, Label pantalla)
         {
             menu.BackColor = Menu;
-            titulo.Font = new Font("Segoe UI", 13F, FontStyle.Bold);
-            titulo.ForeColor = MenuTexto;
+            titulo.Font = new Font(Serif, 15F);
+            titulo.ForeColor = Marfil;
+            titulo.Paint += DibujarLineaInferior;
             encabezado.BackColor = Encabezado;
-            pantalla.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
-            pantalla.ForeColor = Texto;
+            pantalla.Font = new Font(Serif, 18F);
+            pantalla.ForeColor = VerdeIngles;
+            pantalla.Paint += DibujarLineaInferior;
             foreach (Control control in menu.Controls)
             {
                 if (control is Button boton)
@@ -68,13 +77,41 @@ namespace ProyectoEventos.Forms.Utils
                     boton.BackColor = Menu;
                     boton.ForeColor = MenuTexto;
                     boton.FlatAppearance.MouseOverBackColor = MenuHover;
+                    boton.FlatAppearance.MouseDownBackColor = MenuHover;
+                    boton.Paint += DibujarMarcaActivo;
                 }
             }
         }
 
         public static void MarcarBotonMenu(Button boton, bool activo)
         {
-            boton.BackColor = activo ? Matcha : Menu;
+            boton.Tag = activo ? "activo" : null;
+            boton.ForeColor = activo ? LatonClaro : MenuTexto;
+            boton.Invalidate();
+        }
+
+        private static void DibujarMarcaActivo(object? sender, PaintEventArgs e)
+        {
+            if (sender is Button boton && "activo".Equals(boton.Tag))
+            {
+                using (SolidBrush pincel = new SolidBrush(Laton))
+                {
+                    e.Graphics.FillRectangle(pincel, 0, 8, 3, boton.Height - 16);
+                }
+            }
+        }
+
+        private static void DibujarLineaInferior(object? sender, PaintEventArgs e)
+        {
+            if (sender is Control control)
+            {
+                using (Pen lapiz = new Pen(Laton))
+                {
+                    int y = control.Height - 1;
+                    int margen = control.Padding.Left;
+                    e.Graphics.DrawLine(lapiz, margen, y, control.Width - margen, y);
+                }
+            }
         }
 
         private static void EstilarHijos(Control padre)
@@ -201,7 +238,7 @@ namespace ProyectoEventos.Forms.Utils
             }
 
             bool resaltado = (e.State & DrawItemState.Selected) != 0 && (e.State & DrawItemState.ComboBoxEdit) == 0;
-            using (SolidBrush fondo = new SolidBrush(resaltado ? Pistache : Campo))
+            using (SolidBrush fondo = new SolidBrush(resaltado ? Seleccion : Campo))
             {
                 e.Graphics.FillRectangle(fondo, e.Bounds);
             }
@@ -229,21 +266,21 @@ namespace ProyectoEventos.Forms.Utils
                 || nombre == "lblrestricciones")
             {
                 etiqueta.Font = FuenteTitulo;
-                etiqueta.ForeColor = Texto;
+                etiqueta.ForeColor = VerdeIngles;
             }
             else if (nombre == "lblinfoevento")
             {
                 etiqueta.AutoSize = true;
-                etiqueta.BackColor = Vanilla;
+                etiqueta.BackColor = AmbarSuave;
                 etiqueta.Font = FuenteInfo;
                 etiqueta.ForeColor = Texto;
                 etiqueta.Padding = new Padding(14, 10, 14, 10);
             }
             else if (nombre == "lblalerta")
             {
-                etiqueta.BackColor = TerracotaSuave;
+                etiqueta.BackColor = PeligroSuave;
                 etiqueta.Font = FuenteNegrita;
-                etiqueta.ForeColor = TerracotaOscuro;
+                etiqueta.ForeColor = PeligroOscuro;
                 etiqueta.Padding = new Padding(14, 10, 14, 10);
             }
             else if (nombre == "lbltotalmenu")
@@ -254,7 +291,7 @@ namespace ProyectoEventos.Forms.Utils
             else if (nombre.StartsWith("lblresumenvalor", StringComparison.Ordinal) || nombre == "lblsaludo")
             {
                 etiqueta.Font = FuenteResumen;
-                etiqueta.ForeColor = Texto;
+                etiqueta.ForeColor = VerdeIngles;
             }
             else if (nombre.StartsWith("lblresumentitulo", StringComparison.Ordinal))
             {
@@ -269,7 +306,7 @@ namespace ProyectoEventos.Forms.Utils
             else if (nombre == "lblmodo")
             {
                 etiqueta.Font = FuenteTitulo;
-                etiqueta.ForeColor = Texto;
+                etiqueta.ForeColor = VerdeIngles;
             }
             else if (nombre == "lblestadopago")
             {
@@ -329,11 +366,11 @@ namespace ProyectoEventos.Forms.Utils
                     boton.FlatAppearance.MouseDownBackColor = PeligroHover;
                     break;
                 default:
-                    boton.BackColor = Vanilla;
-                    boton.ForeColor = Texto;
-                    boton.FlatAppearance.BorderColor = Chai;
+                    boton.BackColor = Secundario;
+                    boton.ForeColor = VerdeIngles;
+                    boton.FlatAppearance.BorderColor = Laton;
                     boton.FlatAppearance.MouseOverBackColor = SecundarioHover;
-                    boton.FlatAppearance.MouseDownBackColor = Chai;
+                    boton.FlatAppearance.MouseDownBackColor = SecundarioPresionado;
                     break;
             }
         }
@@ -342,7 +379,7 @@ namespace ProyectoEventos.Forms.Utils
         {
             grilla.BorderStyle = BorderStyle.None;
             grilla.BackgroundColor = Tarjeta;
-            grilla.GridColor = Vanilla;
+            grilla.GridColor = Pergamino;
             grilla.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
             grilla.EnableHeadersVisualStyles = false;
             grilla.RowHeadersVisible = false;
@@ -352,35 +389,51 @@ namespace ProyectoEventos.Forms.Utils
             grilla.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
             grilla.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             grilla.ColumnHeadersHeight = 42;
-            grilla.ColumnHeadersDefaultCellStyle.BackColor = Carob;
-            grilla.ColumnHeadersDefaultCellStyle.ForeColor = Almond;
-            grilla.ColumnHeadersDefaultCellStyle.SelectionBackColor = Carob;
-            grilla.ColumnHeadersDefaultCellStyle.SelectionForeColor = Almond;
+            grilla.ColumnHeadersDefaultCellStyle.BackColor = Tarjeta;
+            grilla.ColumnHeadersDefaultCellStyle.ForeColor = VerdeIngles;
+            grilla.ColumnHeadersDefaultCellStyle.SelectionBackColor = Tarjeta;
+            grilla.ColumnHeadersDefaultCellStyle.SelectionForeColor = VerdeIngles;
             grilla.ColumnHeadersDefaultCellStyle.Font = FuenteNegrita;
             grilla.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             grilla.ColumnHeadersDefaultCellStyle.Padding = new Padding(5, 0, 5, 0);
             grilla.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.False;
             grilla.CellPainting -= AjustarAnchoAlTitulo;
             grilla.CellPainting += AjustarAnchoAlTitulo;
+            grilla.CellPainting -= DibujarLineaEncabezado;
+            grilla.CellPainting += DibujarLineaEncabezado;
             grilla.ColumnAdded -= SinOrdenar;
             grilla.ColumnAdded += SinOrdenar;
 
             grilla.RowTemplate.Height = 36;
             grilla.DefaultCellStyle.BackColor = Tarjeta;
             grilla.DefaultCellStyle.ForeColor = Texto;
-            grilla.DefaultCellStyle.SelectionBackColor = Pistache;
+            grilla.DefaultCellStyle.SelectionBackColor = Seleccion;
             grilla.DefaultCellStyle.SelectionForeColor = Texto;
             grilla.DefaultCellStyle.Font = FuenteNormal;
             grilla.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             grilla.DefaultCellStyle.Padding = new Padding(5, 0, 5, 0);
             grilla.AlternatingRowsDefaultCellStyle.BackColor = FilaAlterna;
-            grilla.AlternatingRowsDefaultCellStyle.SelectionBackColor = Pistache;
+            grilla.AlternatingRowsDefaultCellStyle.SelectionBackColor = Seleccion;
             grilla.AlternatingRowsDefaultCellStyle.SelectionForeColor = Texto;
         }
 
         private static void SinOrdenar(object? sender, DataGridViewColumnEventArgs e)
         {
             e.Column.SortMode = DataGridViewColumnSortMode.NotSortable;
+        }
+
+        private static void DibujarLineaEncabezado(object? sender, DataGridViewCellPaintingEventArgs e)
+        {
+            if (e.RowIndex != -1 || e.Graphics == null)
+            {
+                return;
+            }
+            e.Paint(e.CellBounds, DataGridViewPaintParts.All);
+            using (Pen lapiz = new Pen(Laton, 2))
+            {
+                e.Graphics.DrawLine(lapiz, e.CellBounds.Left, e.CellBounds.Bottom - 1, e.CellBounds.Right, e.CellBounds.Bottom - 1);
+            }
+            e.Handled = true;
         }
 
         private static void AjustarAnchoAlTitulo(object? sender, DataGridViewCellPaintingEventArgs e)
@@ -418,10 +471,10 @@ namespace ProyectoEventos.Forms.Utils
                     PintarCelda(e, VerdeSuave, VerdeOscuro);
                     break;
                 case EstadoPresupuesto.Cancelado:
-                    PintarCelda(e, TerracotaSuave, TerracotaOscuro);
+                    PintarCelda(e, PeligroSuave, PeligroOscuro);
                     break;
                 case EstadoPresupuesto.EnEspera:
-                    PintarCelda(e, Vanilla, Carob);
+                    PintarCelda(e, AmbarSuave, AmbarOscuro);
                     break;
             }
         }
@@ -436,10 +489,10 @@ namespace ProyectoEventos.Forms.Utils
                     PintarCelda(e, VerdeSuave, VerdeOscuro);
                     break;
                 case EstadoPago.Senado:
-                    PintarCelda(e, Vanilla, Carob);
+                    PintarCelda(e, AmbarSuave, AmbarOscuro);
                     break;
                 case EstadoPago.SinSena:
-                    PintarCelda(e, TerracotaSuave, TerracotaOscuro);
+                    PintarCelda(e, PeligroSuave, PeligroOscuro);
                     break;
             }
         }
@@ -451,24 +504,24 @@ namespace ProyectoEventos.Forms.Utils
             switch (tipo)
             {
                 case TipoPendiente.SinPresupuesto:
-                    PintarCelda(e, TerracotaSuave, TerracotaOscuro);
+                    PintarCelda(e, PeligroSuave, PeligroOscuro);
                     break;
                 case TipoPendiente.Desactualizado:
-                    PintarCelda(e, Chai, Texto);
+                    PintarCelda(e, AmbarSuave, AmbarOscuro);
                     break;
                 case TipoPendiente.FaltaCobrar:
-                    PintarCelda(e, Pistache, Texto);
+                    PintarCelda(e, OlivaSuave, OlivaOscuro);
                     break;
                 default:
-                    PintarCelda(e, Vanilla, Carob);
+                    PintarCelda(e, Pergamino, TextoSuave);
                     break;
             }
         }
 
         public static void ResaltarFila(DataGridViewCellFormattingEventArgs e, bool negrita)
         {
-            e.CellStyle!.BackColor = Vanilla;
-            e.CellStyle.SelectionBackColor = Chai;
+            e.CellStyle!.BackColor = AmbarSuave;
+            e.CellStyle.SelectionBackColor = Pergamino;
             if (negrita)
             {
                 e.CellStyle.Font = FuenteNegrita;
