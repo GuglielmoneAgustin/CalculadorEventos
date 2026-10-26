@@ -57,7 +57,6 @@ namespace ProyectoEventos.Forms
         }
 
         // Combo del producto: la primera opción (id 0) es "Sin restricción" y después las cargadas por el usuario.
-        // Combo de la tarjeta de restricciones: solo las cargadas, para elegir cuál quitar.
         private void CargarComboRestriccion()
         {
             List<RestriccionDTO> restricciones = restriccionControlador.ObtenerTodas();

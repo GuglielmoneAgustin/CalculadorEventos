@@ -75,7 +75,6 @@ namespace ProyectoEventos.Datos
             AgregarServicios(eventos, idEmpresa, serv, "Barra de bebidas", "Mozos adicionales");
             presupuestos.Aprobar(idEmpresa, GenerarPresupuestoEl(idEmpresa, hoy.AddDays(-6).AddHours(14)), true);
 
-            // Evento sin presupuesto todavía.
             int idSinPresupuesto = CrearEvento(eventos, cli["Diego Pereyra"].Id, lug["Salón Jardín"].Id, hoy.AddDays(35).AddHours(20), 4, 100, 20);
             AgregarPlatos(eventos, idSinPresupuesto, 100, 20, prod, "Ravioles de ricota", "Pechuga al vapor sin sal", "Agua mineral", "Brownie sin TACC");
 
@@ -226,7 +225,6 @@ namespace ProyectoEventos.Datos
             restricciones.Agregar("Sin lactosa");
         }
 
-        // restriccion es el nombre de una restricción ya cargada, o null si el producto no tiene.
         private static void Producto(ProductoController productos, string nombre, decimal precioAdulto, decimal precioNino,
             CategoriasProductos categoria, string? restriccion)
         {

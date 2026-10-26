@@ -4,7 +4,6 @@ using ProyectoEventos.Repository.Sqlite;
 
 namespace ProyectoEventos.Repository
 {
-    // Repositorios que usa toda la app: los servicios los toman de acá.
     // Para volver a trabajar en memoria, cada uno se cambia por su versión de Repository.Memoria (por ejemplo,
     // Memoria.ClienteRepository.ObtenerInstancia()).
     public static class Repositorios
@@ -19,7 +18,6 @@ namespace ProyectoEventos.Repository
         public static readonly IRepository<Negocio> Negocios = new NegocioRepository(baseDatos);
         public static readonly IRepository<Evento> Eventos = new EventoRepository(baseDatos, Clientes, Lugares, Productos, Servicios);
 
-        // La primera vez que se usa un repositorio se crean las tablas que falten.
         private static BaseDatosSqlite AbrirBaseDatos()
         {
             BaseDatosSqlite baseDatos = new BaseDatosSqlite(Configuracion.RutaBaseDatos);

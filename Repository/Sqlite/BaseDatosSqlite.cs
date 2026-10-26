@@ -2,7 +2,6 @@ using Microsoft.Data.Sqlite;
 
 namespace ProyectoEventos.Repository.Sqlite
 {
-    // Archivo de la base de datos: abre conexiones, crea las tablas y entrega los ids nuevos.
     public class BaseDatosSqlite
     {
         private readonly string cadenaConexion;

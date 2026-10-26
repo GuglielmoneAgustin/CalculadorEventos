@@ -92,7 +92,6 @@ namespace ProyectoEventos.Service
                 producto.Id != idAIgnorar && producto.Nombre.Equals(normalizado, StringComparison.OrdinalIgnoreCase));
         }
 
-        // Sin id elegido, el producto queda sin restricción.
         private Restriccion? ObtenerRestriccion(int? idRestriccion)
         {
             if (idRestriccion == null)

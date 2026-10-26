@@ -136,7 +136,31 @@ namespace ProyectoEventos.Forms
 
         private void btnNuevo_Click(object sender, EventArgs e)
         {
+            string? faltante = DescribirFaltanteParaEvento(new ClienteController().ObtenerTodos().Count > 0,
+                new LugarController().ObtenerTodos().Count > 0);
+            if (faltante != null)
+            {
+                Mensajes.Advertencia(faltante);
+                return;
+            }
             AbrirSubpantalla(new FrmEventoDatos());
+        }
+
+        internal static string? DescribirFaltanteParaEvento(bool hayClientes, bool hayLugares)
+        {
+            if (!hayClientes && !hayLugares)
+            {
+                return "Para crear un evento primero cargue al menos un cliente (en Clientes) y un lugar (en Lugares).";
+            }
+            if (!hayClientes)
+            {
+                return "Todavía no hay clientes cargados. Cargue al menos uno en Clientes antes de crear un evento.";
+            }
+            if (!hayLugares)
+            {
+                return "Todavía no hay lugares cargados. Cargue al menos uno en Lugares antes de crear un evento.";
+            }
+            return null;
         }
 
         private void btnEditar_Click(object sender, EventArgs e)

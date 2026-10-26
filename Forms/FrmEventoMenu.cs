@@ -255,6 +255,11 @@ namespace ProyectoEventos.Forms
                 return;
             }
 
+            if (productosDisponibles.Count == 0)
+            {
+                Mensajes.Advertencia("Todavía no hay productos cargados. Cárguelos en Productos para armar el menú.");
+                return;
+            }
             if (idsMarcados.Count == 0)
             {
                 Mensajes.Advertencia("Seleccione al menos un producto para el plato.");
@@ -403,6 +408,11 @@ namespace ProyectoEventos.Forms
 
         private void btnAgregarServicio_Click(object sender, EventArgs e)
         {
+            if (serviciosDisponibles.Count == 0)
+            {
+                Mensajes.Advertencia("Todavía no hay servicios adicionales cargados. Cárguelos en Servicios.");
+                return;
+            }
             if (clbServicios.CheckedIndices.Count == 0)
             {
                 Mensajes.Advertencia("Seleccione al menos un servicio para agregar.");

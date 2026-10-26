@@ -310,14 +310,12 @@ namespace ProyectoEventos.Domain
             pagos.Add(pago);
         }
 
-        // Registra un último pago por todo lo que falta.
         internal void MarcarPagado(DateTime fecha)
         {
             ValidarQuePuedeCobrarse();
             pagos.Add(new Pago(fecha, Saldo));
         }
 
-        // Al reemplazar el presupuesto aprobado, lo que ya pagó el cliente pasa al nuevo.
         internal void RecibirPagosDe(Presupuesto anterior)
         {
             if (anterior.pagos.Count == 0)

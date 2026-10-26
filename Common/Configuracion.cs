@@ -7,7 +7,6 @@ namespace ProyectoEventos.Common
         // Con una seña de al menos este porcentaje del total, el presupuesto aprobado mantiene sus precios.
         public const decimal PorcentajeSenaParaCongelarPrecio = 30;
 
-        // Archivo de la base de datos SQLite, junto al ejecutable de la app.
         public static readonly string RutaBaseDatos = Path.Combine(AppContext.BaseDirectory, "eventos.db");
     }
 }

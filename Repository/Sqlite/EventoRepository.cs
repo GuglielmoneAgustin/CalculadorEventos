@@ -5,7 +5,6 @@ using ProyectoEventos.Domain;
 
 namespace ProyectoEventos.Repository.Sqlite
 {
-    // El evento se guarda completo: sus datos, el menú, los servicios y los presupuestos con su foto.
     public class EventoRepository : IRepository<Evento>
     {
         private readonly BaseDatosSqlite baseDatos;

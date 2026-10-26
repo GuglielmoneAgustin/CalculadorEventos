@@ -2,7 +2,6 @@ using ProyectoEventos.Common.Exceptions;
 
 namespace ProyectoEventos.Domain
 {
-    // Un pago del cliente a cuenta del presupuesto aprobado (no reembolsable).
     public class Pago
     {
         public Pago(DateTime fecha, decimal monto)

@@ -2,7 +2,6 @@ using ProyectoEventos.Common.Exceptions;
 
 namespace ProyectoEventos.Domain
 {
-    // Restricción alimenticia que puede tener un producto (celíaco, vegetariano, etc.). La carga el usuario.
     public class Restriccion : IEntidad
     {
         private const int LargoMaximoNombre = 40;

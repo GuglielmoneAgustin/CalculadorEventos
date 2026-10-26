@@ -220,6 +220,13 @@ namespace ProyectoEventos.Forms
 
         private bool ValidarSeleccionCombos()
         {
+            string? faltante = FrmEventos.DescribirFaltanteParaEvento(cmbCliente.Items.Count > 0, cmbLugar.Items.Count > 0);
+            if (faltante != null)
+            {
+                Mensajes.Advertencia(faltante);
+                return false;
+            }
+
             if (cmbCliente.SelectedValue == null)
             {
                 Mensajes.Advertencia("Debe seleccionar un cliente.");
