@@ -6,7 +6,7 @@ namespace ProyectoEventos.Repository.Memoria
     {
         private static readonly RestriccionRepository instancia = new RestriccionRepository();
 
-        private RestriccionRepository() : base("restricción")
+        private RestriccionRepository() : base("La restricción seleccionada no existe.")
         {
         }
 

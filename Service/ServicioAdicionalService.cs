@@ -87,7 +87,7 @@ namespace ProyectoEventos.Service
                 servicio.Id != idAIgnorar && servicio.Nombre.Equals(normalizado, StringComparison.OrdinalIgnoreCase));
         }
 
-        internal static ServicioAdicionalDTO MapearADto(ServicioAdicional servicio)
+        private static ServicioAdicionalDTO MapearADto(ServicioAdicional servicio)
         {
             ServicioAdicionalDTO dto = new ServicioAdicionalDTO();
             dto.Id = servicio.Id;

@@ -2,11 +2,11 @@ namespace ProyectoEventos.Forms.Utils
 {
     internal static class Navegacion
     {
-        public static void AbrirSubpantalla(Form origen, Form pantalla, Action alVolver)
+        public static void AbrirSubpantalla(Form origen, Form pantalla)
         {
             if (origen.ParentForm is FrmPrincipal principal)
             {
-                principal.AbrirSubpantalla(pantalla, alVolver);
+                principal.AbrirSubpantalla(pantalla);
                 return;
             }
 
@@ -14,7 +14,10 @@ namespace ProyectoEventos.Forms.Utils
             {
                 pantalla.ShowDialog(origen);
             }
-            alVolver();
+            if (origen is IVuelveDeSubpantalla destino)
+            {
+                destino.AlVolverDeSubpantalla(pantalla);
+            }
         }
     }
 }

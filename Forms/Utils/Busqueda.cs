@@ -5,19 +5,27 @@ namespace ProyectoEventos.Forms.Utils
 {
     internal static class Busqueda
     {
-        public static List<T> Filtrar<T>(List<T> elementos, string texto, Func<T, IEnumerable<string>> campos)
+        // Coincide si cada palabra buscada aparece en alguno de los campos, sin distinguir mayúsculas ni tildes.
+        public static bool Coincide(string texto, params string?[] campos)
         {
             string[] palabras = Normalizar(texto).Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            if (palabras.Length == 0)
+            foreach (string palabra in palabras)
             {
-                return elementos;
+                bool encontrada = false;
+                foreach (string? campo in campos)
+                {
+                    if (Normalizar(campo).Contains(palabra))
+                    {
+                        encontrada = true;
+                        break;
+                    }
+                }
+                if (!encontrada)
+                {
+                    return false;
+                }
             }
-
-            return elementos.Where(elemento =>
-            {
-                List<string> valores = campos(elemento).Select(Normalizar).ToList();
-                return palabras.All(palabra => valores.Any(valor => valor.Contains(palabra)));
-            }).ToList();
+            return true;
         }
 
         private static string Normalizar(string? texto)

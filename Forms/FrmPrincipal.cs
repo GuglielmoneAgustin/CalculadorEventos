@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Windows.Forms;
-using ProyectoEventos.Controller;
+﻿using ProyectoEventos.Controller;
 using ProyectoEventos.Forms.Utils;
 
 namespace ProyectoEventos.Forms
@@ -13,7 +9,7 @@ namespace ProyectoEventos.Forms
         private Button? botonActivo;
         private bool descartando;
 
-        private readonly Stack<(Form Pantalla, Action? AlVolver, string Titulo)> historial = new();
+        private readonly Stack<(Form Pantalla, string Titulo)> historial = new();
 
         public FrmPrincipal()
         {
@@ -24,7 +20,7 @@ namespace ProyectoEventos.Forms
         private void FrmPrincipal_Load(object sender, EventArgs e)
         {
             MostrarNombreNegocio();
-            AbrirEnPanel(() => new FrmInicio(), btnInicio);
+            AbrirEnPanel(new FrmInicio(), btnInicio);
         }
 
         public void MostrarNombreNegocio()
@@ -34,14 +30,14 @@ namespace ProyectoEventos.Forms
             Text = nombre + " - Presupuestos para eventos";
         }
 
-        private void AbrirEnPanel(Func<Form> crearPantalla, Button boton)
+        private void AbrirEnPanel(Form pantalla, Button boton)
         {
             if (!CerrarPantallas())
             {
+                pantalla.Dispose();
                 return;
             }
 
-            Form pantalla = crearPantalla();
             foreach (Control volver in pantalla.Controls.Find("btnVolver", true))
             {
                 volver.Visible = false;
@@ -52,10 +48,10 @@ namespace ProyectoEventos.Forms
             MarcarBotonActivo(boton);
         }
 
-        public void AbrirSubpantalla(Form subpantalla, Action? alVolver = null)
+        public void AbrirSubpantalla(Form subpantalla)
         {
             Form anterior = pantallaActual!;
-            historial.Push((anterior, alVolver, lblPantalla.Text));
+            historial.Push((anterior, lblPantalla.Text));
             anterior.Visible = false;
 
             subpantalla.FormClosed += (s, e) => VolverAPantallaAnterior(subpantalla);
@@ -116,7 +112,10 @@ namespace ProyectoEventos.Forms
             pantallaActual = previo.Pantalla;
             previo.Pantalla.Visible = true;
             lblPantalla.Text = previo.Titulo;
-            previo.AlVolver?.Invoke();
+            if (previo.Pantalla is IVuelveDeSubpantalla destino)
+            {
+                destino.AlVolverDeSubpantalla(subpantalla);
+            }
         }
 
         private static bool IntentarCerrar(Form pantalla)
@@ -160,37 +159,37 @@ namespace ProyectoEventos.Forms
 
         private void btnInicio_Click(object sender, EventArgs e)
         {
-            AbrirEnPanel(() => new FrmInicio(), btnInicio);
+            AbrirEnPanel(new FrmInicio(), btnInicio);
         }
 
         private void btnLugares_Click(object sender, EventArgs e)
         {
-            AbrirEnPanel(() => new FrmLugares(), btnLugares);
+            AbrirEnPanel(new FrmLugares(), btnLugares);
         }
 
         private void btnClientes_Click(object sender, EventArgs e)
         {
-            AbrirEnPanel(() => new FrmClientes(), btnClientes);
+            AbrirEnPanel(new FrmClientes(), btnClientes);
         }
 
         private void btnServicios_Click(object sender, EventArgs e)
         {
-            AbrirEnPanel(() => new FrmServiciosAdicionales(), btnServicios);
+            AbrirEnPanel(new FrmServiciosAdicionales(), btnServicios);
         }
 
         private void btnProductos_Click(object sender, EventArgs e)
         {
-            AbrirEnPanel(() => new FrmProductos(), btnProductos);
+            AbrirEnPanel(new FrmProductos(), btnProductos);
         }
 
         private void btnEventos_Click(object sender, EventArgs e)
         {
-            AbrirEnPanel(() => new FrmEventos(), btnEventos);
+            AbrirEnPanel(new FrmEventos(), btnEventos);
         }
 
         private void btnNegocio_Click(object sender, EventArgs e)
         {
-            AbrirEnPanel(() => new FrmNegocio(), btnNegocio);
+            AbrirEnPanel(new FrmNegocio(), btnNegocio);
         }
 
         private void btnSalir_Click(object sender, EventArgs e)

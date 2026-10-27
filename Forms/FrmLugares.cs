@@ -1,5 +1,3 @@
-using System;
-using System.Windows.Forms;
 using ProyectoEventos.Common;
 using ProyectoEventos.Common.Exceptions;
 using ProyectoEventos.Controller;
@@ -21,9 +19,6 @@ namespace ProyectoEventos.Forms
             Tema.Aplicar(this);
             controlador = new LugarController();
             idSeleccionado = 0;
-            dgvLugares.MensajeSinFilas(() => lugares.Count == 0
-                ? "Todavía no hay lugares. Complete el formulario y toque Guardar."
-                : "Ningún lugar coincide con la búsqueda.");
         }
 
         private void btnVolver_Click(object sender, EventArgs e)
@@ -58,8 +53,20 @@ namespace ProyectoEventos.Forms
 
         private void MostrarGrilla()
         {
+            List<LugarDTO> visibles = new List<LugarDTO>();
+            foreach (LugarDTO lugar in lugares)
+            {
+                if (Busqueda.Coincide(txtBuscar.Text, lugar.Nombre, lugar.Ubicacion))
+                {
+                    visibles.Add(lugar);
+                }
+            }
+
+            dgvLugares.MensajeSinFilas(lugares.Count == 0
+                ? "Todavía no hay lugares. Complete el formulario y toque Guardar."
+                : "Ningún lugar coincide con la búsqueda.");
             dgvLugares.DataSource = null;
-            dgvLugares.DataSource = Busqueda.Filtrar(lugares, txtBuscar.Text, l => new[] { l.Nombre, l.Ubicacion });
+            dgvLugares.DataSource = visibles;
             ConfigurarColumnas();
             dgvLugares.QuitarSeleccion();
         }
@@ -117,8 +124,7 @@ namespace ProyectoEventos.Forms
 
                 CargarGrilla();
                 LimpiarFormulario();
-                string nombre = dto.Nombre.Trim();
-                dgvLugares.SeleccionarFila<LugarDTO>(l => l.Nombre.Equals(nombre, StringComparison.OrdinalIgnoreCase));
+                dgvLugares.SeleccionarFila("Nombre", dto.Nombre.Trim());
                 Aviso.Mostrar(lblAviso, eraEdicion ? "Lugar actualizado." : "Lugar guardado.");
             }
             catch (NegocioException ex)

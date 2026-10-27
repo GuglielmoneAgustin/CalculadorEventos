@@ -163,6 +163,16 @@ namespace ProyectoEventos.Service
             }).ToList();
         }
 
+        public decimal CalcularSubtotalPlatos(List<int> idsProductos, int cantidadAdultos, int cantidadNinos)
+        {
+            decimal subtotal = 0m;
+            foreach (int idProducto in idsProductos)
+            {
+                subtotal += productoRepositorio.ObtenerExistente(idProducto).CalcularPrecio(cantidadAdultos, cantidadNinos);
+            }
+            return subtotal;
+        }
+
         public decimal ObtenerTotalMenu(int idEvento)
         {
             return repositorio.ObtenerExistente(idEvento).Menu.CalcularSubtotal();
@@ -196,8 +206,17 @@ namespace ProyectoEventos.Service
 
         public List<ServicioAdicionalDTO> ObtenerServiciosEvento(int idEvento)
         {
-            return repositorio.ObtenerExistente(idEvento).ObtenerServicios()
-                .Select(ServicioAdicionalService.MapearADto).ToList();
+            List<ServicioAdicionalDTO> servicios = new List<ServicioAdicionalDTO>();
+            foreach (ServicioAdicional servicio in repositorio.ObtenerExistente(idEvento).ObtenerServicios())
+            {
+                ServicioAdicionalDTO dto = new ServicioAdicionalDTO();
+                dto.Id = servicio.Id;
+                dto.Nombre = servicio.Nombre;
+                dto.Descripcion = servicio.Descripcion;
+                dto.Monto = servicio.Monto;
+                servicios.Add(dto);
+            }
+            return servicios;
         }
 
         private bool HayEventoEnLugarEnHorario(int idLugar, DateTime fecha, decimal horasDuracion, int idEventoAIgnorar)
@@ -265,6 +284,7 @@ namespace ProyectoEventos.Service
             dto.EstadoPresupuesto = evento.ObtenerEstadoPresupuesto();
             dto.Total = evento.ObtenerPresupuestoDeReferencia()?.CalcularTotal();
             dto.EstadoPago = evento.ObtenerEstadoPago();
+            dto.Realizado = evento.EstaRealizado(DateTime.Now);
             return dto;
         }
     }

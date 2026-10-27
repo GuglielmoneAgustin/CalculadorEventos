@@ -6,12 +6,12 @@ namespace ProyectoEventos.Repository.Memoria
     public abstract class RepositorioBase<T> : IRepository<T> where T : class, IEntidad
     {
         protected readonly List<T> elementos = new List<T>();
-        private readonly string nombreEntidad;
+        private readonly string mensajeNoEncontrado;
         private int proximoId = 1;
 
-        protected RepositorioBase(string nombreEntidad)
+        protected RepositorioBase(string mensajeNoEncontrado)
         {
-            this.nombreEntidad = nombreEntidad;
+            this.mensajeNoEncontrado = mensajeNoEncontrado;
         }
 
         public int ObtenerProximoId()
@@ -31,7 +31,7 @@ namespace ProyectoEventos.Repository.Memoria
             int indice = elementos.FindIndex(existente => existente.Id == elemento.Id);
             if (indice < 0)
             {
-                throw new NoEncontradoException("El " + nombreEntidad + " seleccionado no existe.");
+                throw new NoEncontradoException(mensajeNoEncontrado);
             }
             elementos[indice] = elemento;
         }
@@ -46,7 +46,7 @@ namespace ProyectoEventos.Repository.Memoria
             T? elemento = elementos.Find(e => e.Id == id);
             if (elemento == null)
             {
-                throw new NoEncontradoException("El " + nombreEntidad + " seleccionado no existe.");
+                throw new NoEncontradoException(mensajeNoEncontrado);
             }
             return elemento;
         }
@@ -55,7 +55,7 @@ namespace ProyectoEventos.Repository.Memoria
         {
             if (elementos.RemoveAll(elemento => elemento.Id == id) == 0)
             {
-                throw new NoEncontradoException("El " + nombreEntidad + " seleccionado no existe.");
+                throw new NoEncontradoException(mensajeNoEncontrado);
             }
         }
     }

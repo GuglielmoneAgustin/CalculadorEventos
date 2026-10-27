@@ -1,14 +1,12 @@
-using ProyectoEventos.Common.Enums;
-using System;
-using System.Windows.Forms;
 using ProyectoEventos.Common;
+using ProyectoEventos.Common.Enums;
 using ProyectoEventos.Controller;
 using ProyectoEventos.Dto;
 using ProyectoEventos.Forms.Utils;
 
 namespace ProyectoEventos.Forms
 {
-    public partial class FrmInicio : Form
+    public partial class FrmInicio : Form, IVuelveDeSubpantalla
     {
         private readonly EventoController eventoControlador;
 
@@ -19,8 +17,8 @@ namespace ProyectoEventos.Forms
             lblResumenDetalleHoy.Font = new Font(lblResumenDetalleHoy.Font, FontStyle.Bold);
             tlpGrillaPendientes.Margin = new Padding(0, 20, 0, 0);
             eventoControlador = new EventoController();
-            dgvProximosEventos.MensajeSinFilas(() => "No hay eventos aprobados próximos. Los eventos aparecen acá cuando se aprueba su presupuesto.");
-            dgvPendientes.MensajeSinFilas(() => "No hay nada pendiente: todos los eventos próximos tienen su presupuesto al día.");
+            dgvProximosEventos.MensajeSinFilas("No hay eventos aprobados próximos. Los eventos aparecen acá cuando se aprueba su presupuesto.");
+            dgvPendientes.MensajeSinFilas("No hay nada pendiente: todos los eventos próximos tienen su presupuesto al día.");
         }
 
         private void FrmInicio_Load(object sender, EventArgs e)
@@ -159,7 +157,12 @@ namespace ProyectoEventos.Forms
                 return;
             }
 
-            Navegacion.AbrirSubpantalla(this, new FrmPresupuestos(idEvento.Value), Cargar);
+            Navegacion.AbrirSubpantalla(this, new FrmPresupuestos(idEvento.Value));
+        }
+
+        public void AlVolverDeSubpantalla(Form subpantalla)
+        {
+            Cargar();
         }
 
         private void dgvProximosEventos_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)

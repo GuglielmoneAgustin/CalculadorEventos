@@ -1,5 +1,3 @@
-using System;
-using System.Windows.Forms;
 using ProyectoEventos.Common;
 using ProyectoEventos.Common.Enums;
 using ProyectoEventos.Common.Exceptions;
@@ -9,29 +7,23 @@ using ProyectoEventos.Forms.Utils;
 
 namespace ProyectoEventos.Forms
 {
-    public partial class FrmEventos : Form
+    public partial class FrmEventos : Form, IVuelveDeSubpantalla
     {
         private readonly EventoController controlador;
         private List<EventoResultadoDTO> eventos = new List<EventoResultadoDTO>();
+        private int? idASeleccionarAlVolver;
+        private int ultimoIdAntesDeAbrir;
 
         public FrmEventos()
         {
             InitializeComponent();
             Tema.Aplicar(this);
             controlador = new EventoController();
-            dgvEventos.MensajeSinFilas(() => eventos.Count == 0
-                ? "Todavía no hay eventos. Toque Nuevo evento para empezar."
-                : "Ningún evento coincide con la búsqueda.");
         }
 
         private void chkOcultarRealizados_CheckedChanged(object? sender, EventArgs e)
         {
             MostrarGrilla();
-        }
-
-        private static bool EsRealizado(EventoResultadoDTO evento)
-        {
-            return evento.Fecha.AddHours((double)evento.HorasDuracion) < DateTime.Now;
         }
 
         private void FrmEventos_Load(object sender, EventArgs e)
@@ -57,11 +49,22 @@ namespace ProyectoEventos.Forms
 
         private void MostrarGrilla()
         {
-            List<EventoResultadoDTO> visibles = chkOcultarRealizados.Checked
-                ? eventos.Where(ev => !EsRealizado(ev)).ToList()
-                : eventos;
+            List<EventoResultadoDTO> visibles = new List<EventoResultadoDTO>();
+            foreach (EventoResultadoDTO evento in eventos)
+            {
+                if ((!chkOcultarRealizados.Checked || !evento.Realizado)
+                    && Busqueda.Coincide(txtBuscar.Text, evento.Id.ToString(), evento.NombreCliente, evento.NombreLugar,
+                        evento.Fecha.ToString(Formato.FechaHora), evento.EstadoPresupuesto.Texto()))
+                {
+                    visibles.Add(evento);
+                }
+            }
+
+            dgvEventos.MensajeSinFilas(eventos.Count == 0
+                ? "Todavía no hay eventos. Toque Nuevo evento para empezar."
+                : "Ningún evento coincide con la búsqueda.");
             dgvEventos.DataSource = null;
-            dgvEventos.DataSource = Busqueda.Filtrar(visibles, txtBuscar.Text, ev => new[] { ev.Id.ToString(), ev.NombreCliente, ev.NombreLugar, ev.Fecha.ToString(Formato.FechaHora), ev.EstadoPresupuesto.Texto() });
+            dgvEventos.DataSource = visibles;
             ConfigurarColumnas();
             dgvEventos.QuitarSeleccion();
         }
@@ -81,6 +84,7 @@ namespace ProyectoEventos.Forms
             dgvEventos.Columna("Total").DefaultCellStyle.Format = Formato.Moneda;
             dgvEventos.Columna("IdCliente").Visible = false;
             dgvEventos.Columna("IdLugar").Visible = false;
+            dgvEventos.Columna("Realizado").Visible = false;
             dgvEventos.Columna("Id").FillWeight = 35;
             dgvEventos.Columna("NombreCliente").FillWeight = 130;
             dgvEventos.Columna("NombreLugar").FillWeight = 120;
@@ -108,7 +112,7 @@ namespace ProyectoEventos.Forms
             {
                 Tema.PintarEstadoPago(e, e.Value as EstadoPago?);
             }
-            else if (dgvEventos.Rows[e.RowIndex].DataBoundItem is EventoResultadoDTO evento && EsRealizado(evento))
+            else if (dgvEventos.Rows[e.RowIndex].DataBoundItem is EventoResultadoDTO evento && evento.Realizado)
             {
                 e.CellStyle.ForeColor = Tema.TextoApagado;
                 e.CellStyle.SelectionForeColor = Tema.TextoApagado;
@@ -120,18 +124,39 @@ namespace ProyectoEventos.Forms
             return dgvEventos.Seleccionado<EventoResultadoDTO>();
         }
 
+        // Al volver se selecciona el evento con el que se trabajó, o el recién creado si era uno nuevo.
         private void AbrirSubpantalla(Form pantalla, int? idEvento = null)
         {
-            int ultimoId = eventos.Count == 0 ? 0 : eventos.Max(ev => ev.Id);
-            Navegacion.AbrirSubpantalla(this, pantalla, () =>
+            idASeleccionarAlVolver = idEvento;
+            ultimoIdAntesDeAbrir = 0;
+            foreach (EventoResultadoDTO evento in eventos)
             {
-                CargarGrilla();
-                int? aSeleccionar = idEvento ?? eventos.Where(ev => ev.Id > ultimoId).Select(ev => (int?)ev.Id).Max();
-                if (aSeleccionar != null)
+                if (evento.Id > ultimoIdAntesDeAbrir)
                 {
-                    dgvEventos.SeleccionarFila<EventoResultadoDTO>(ev => ev.Id == aSeleccionar);
+                    ultimoIdAntesDeAbrir = evento.Id;
                 }
-            });
+            }
+            Navegacion.AbrirSubpantalla(this, pantalla);
+        }
+
+        public void AlVolverDeSubpantalla(Form subpantalla)
+        {
+            CargarGrilla();
+            int? aSeleccionar = idASeleccionarAlVolver;
+            if (aSeleccionar == null)
+            {
+                foreach (EventoResultadoDTO evento in eventos)
+                {
+                    if (evento.Id > ultimoIdAntesDeAbrir && (aSeleccionar == null || evento.Id > aSeleccionar))
+                    {
+                        aSeleccionar = evento.Id;
+                    }
+                }
+            }
+            if (aSeleccionar != null)
+            {
+                dgvEventos.SeleccionarFila("Id", aSeleccionar.Value.ToString());
+            }
         }
 
         private void btnNuevo_Click(object sender, EventArgs e)

@@ -6,7 +6,7 @@ namespace ProyectoEventos.Repository.Memoria
     {
         private static readonly ClienteRepository instancia = new ClienteRepository();
 
-        private ClienteRepository() : base("cliente")
+        private ClienteRepository() : base("El cliente seleccionado no existe.")
         {
         }
 

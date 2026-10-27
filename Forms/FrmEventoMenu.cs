@@ -1,11 +1,8 @@
-using ProyectoEventos.Common.Enums;
-using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
 using ProyectoEventos.Common;
+using ProyectoEventos.Common.Enums;
+using ProyectoEventos.Common.Exceptions;
 using ProyectoEventos.Controller;
 using ProyectoEventos.Dto;
-using ProyectoEventos.Common.Exceptions;
 using ProyectoEventos.Forms.Utils;
 
 namespace ProyectoEventos.Forms
@@ -40,8 +37,8 @@ namespace ProyectoEventos.Forms
             servicioControlador = new ServicioAdicionalController();
             presupuestoControlador = new PresupuestoController();
             this.idEvento = idEvento;
-            dgvItemsMenu.MensajeSinFilas(() => "Todavía no hay platos. Marque productos a la izquierda y toque Agregar plato.");
-            dgvServiciosEvento.MensajeSinFilas(() => "Sin servicios adicionales.");
+            dgvItemsMenu.MensajeSinFilas("Todavía no hay platos. Marque productos a la izquierda y toque Agregar plato.");
+            dgvServiciosEvento.MensajeSinFilas("Sin servicios adicionales.");
             FormClosing += FrmEventoMenu_FormClosing;
         }
 
@@ -215,17 +212,15 @@ namespace ProyectoEventos.Forms
                 return;
             }
 
-            List<ProductoDTO> marcados = productosDisponibles.Where(p => idsMarcados.Contains(p.Id)).ToList();
-            if (marcados.Count == 0)
+            if (idsMarcados.Count == 0)
             {
                 lblSubtotalPlato.Text = "Marque uno o más productos para agregarlos al menú.";
                 return;
             }
 
-            decimal adultos = numCantAdultosItem.Value;
-            decimal ninos = numCantNinosItem.Value;
-            decimal subtotal = marcados.Sum(p => p.PrecioAdulto * adultos + p.PrecioNino * ninos);
-            string cantidad = marcados.Count == 1 ? "1 producto marcado" : marcados.Count + " productos marcados";
+            decimal subtotal = controlador.CalcularSubtotalPlatos(new List<int>(idsMarcados),
+                Convert.ToInt32(numCantAdultosItem.Value), Convert.ToInt32(numCantNinosItem.Value));
+            string cantidad = idsMarcados.Count == 1 ? "1 producto marcado" : idsMarcados.Count + " productos marcados";
             lblSubtotalPlato.Text = cantidad + " · Subtotal: " + subtotal.ToString(Formato.Moneda);
         }
 

@@ -67,6 +67,11 @@ namespace ProyectoEventos.Controller
             return servicio.ObtenerItemsMenu(idEvento);
         }
 
+        public decimal CalcularSubtotalPlatos(List<int> idsProductos, int cantidadAdultos, int cantidadNinos)
+        {
+            return servicio.CalcularSubtotalPlatos(idsProductos, cantidadAdultos, cantidadNinos);
+        }
+
         public decimal ObtenerTotalMenu(int idEvento)
         {
             return servicio.ObtenerTotalMenu(idEvento);

@@ -201,7 +201,7 @@ namespace ProyectoEventos.Forms.Utils
             {
                 t.AddRange(Fila("Lugar (base)", d.CostoBaseLugar));
                 t.AddRange(Fila("Lugar (" + d.HorasDuracion.ToString("0.##") + " hs x " + d.CostoPorHoraLugar.ToString(Formato.Moneda) + ")",
-                    d.CostoPorHoraLugar * d.HorasDuracion));
+                    d.CostoHorasLugar));
             }
             t.Add(LineaSimple);
         }

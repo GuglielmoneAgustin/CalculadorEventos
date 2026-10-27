@@ -1,43 +1,41 @@
-using System.Drawing;
-using System.Windows.Forms;
 using ProyectoEventos.Common.Enums;
 
 namespace ProyectoEventos.Forms.Utils
 {
     internal static class Tema
     {
-        public static readonly Color VerdeIngles = ColorTranslator.FromHtml("#1F3A2E");
-        public static readonly Color VerdeInglesHover = ColorTranslator.FromHtml("#2B4A3C");
-        public static readonly Color Laton = ColorTranslator.FromHtml("#B39457");
-        public static readonly Color LatonClaro = ColorTranslator.FromHtml("#E3C98E");
-        public static readonly Color Marfil = ColorTranslator.FromHtml("#F4F0E6");
-        public static readonly Color Pergamino = ColorTranslator.FromHtml("#E2DACA");
+        private static readonly Color VerdeIngles = ColorTranslator.FromHtml("#1F3A2E");
+        private static readonly Color VerdeInglesHover = ColorTranslator.FromHtml("#2B4A3C");
+        private static readonly Color Laton = ColorTranslator.FromHtml("#B39457");
+        private static readonly Color LatonClaro = ColorTranslator.FromHtml("#E3C98E");
+        private static readonly Color Marfil = ColorTranslator.FromHtml("#F4F0E6");
+        private static readonly Color Pergamino = ColorTranslator.FromHtml("#E2DACA");
 
         public static readonly Color Fondo = Marfil;
         public static readonly Color Tarjeta = ColorTranslator.FromHtml("#FBF9F3");
         public static readonly Color Campo = Color.White;
-        public static readonly Color FilaAlterna = ColorTranslator.FromHtml("#F6F2EA");
+        private static readonly Color FilaAlterna = ColorTranslator.FromHtml("#F6F2EA");
         public static readonly Color Texto = ColorTranslator.FromHtml("#2A2A24");
         public static readonly Color TextoSuave = ColorTranslator.FromHtml("#5E6657");
         public static readonly Color TextoApagado = ColorTranslator.FromHtml("#A39E91");
-        public static readonly Color Borde = Pergamino;
-        public static readonly Color Seleccion = ColorTranslator.FromHtml("#E3EADF");
-        public static readonly Color Primario = VerdeIngles;
-        public static readonly Color PrimarioHover = VerdeInglesHover;
+        private static readonly Color Borde = Pergamino;
+        private static readonly Color Seleccion = ColorTranslator.FromHtml("#E3EADF");
+        private static readonly Color Primario = VerdeIngles;
+        private static readonly Color PrimarioHover = VerdeInglesHover;
         // Botones secundarios (Editar, Volver, etc.): un tono latón suave para que se distingan del fondo de la tarjeta.
-        public static readonly Color Secundario = ColorTranslator.FromHtml("#EDE4CF");
-        public static readonly Color SecundarioHover = ColorTranslator.FromHtml("#E3D6B6");
-        public static readonly Color SecundarioPresionado = ColorTranslator.FromHtml("#D8C8A0");
+        private static readonly Color Secundario = ColorTranslator.FromHtml("#EDE4CF");
+        private static readonly Color SecundarioHover = ColorTranslator.FromHtml("#E3D6B6");
+        private static readonly Color SecundarioPresionado = ColorTranslator.FromHtml("#D8C8A0");
         public static readonly Color Peligro = ColorTranslator.FromHtml("#8E3B2E");
-        public static readonly Color PeligroHover = ColorTranslator.FromHtml("#74302A");
-        public static readonly Color VerdeSuave = ColorTranslator.FromHtml("#DDE7DA");
-        public static readonly Color VerdeOscuro = ColorTranslator.FromHtml("#2E4F33");
-        public static readonly Color AmbarSuave = ColorTranslator.FromHtml("#EFE4C9");
-        public static readonly Color AmbarOscuro = ColorTranslator.FromHtml("#6E5520");
-        public static readonly Color OlivaSuave = ColorTranslator.FromHtml("#E1E6D3");
-        public static readonly Color OlivaOscuro = ColorTranslator.FromHtml("#46522B");
-        public static readonly Color PeligroSuave = ColorTranslator.FromHtml("#F1DDD5");
-        public static readonly Color PeligroOscuro = ColorTranslator.FromHtml("#7A2E22");
+        private static readonly Color PeligroHover = ColorTranslator.FromHtml("#74302A");
+        private static readonly Color VerdeSuave = ColorTranslator.FromHtml("#DDE7DA");
+        private static readonly Color VerdeOscuro = ColorTranslator.FromHtml("#2E4F33");
+        private static readonly Color AmbarSuave = ColorTranslator.FromHtml("#EFE4C9");
+        private static readonly Color AmbarOscuro = ColorTranslator.FromHtml("#6E5520");
+        private static readonly Color OlivaSuave = ColorTranslator.FromHtml("#E1E6D3");
+        private static readonly Color OlivaOscuro = ColorTranslator.FromHtml("#46522B");
+        private static readonly Color PeligroSuave = ColorTranslator.FromHtml("#F1DDD5");
+        private static readonly Color PeligroOscuro = ColorTranslator.FromHtml("#7A2E22");
 
         public static readonly Color Menu = VerdeIngles;
         public static readonly Color MenuHover = VerdeInglesHover;
@@ -452,7 +450,7 @@ namespace ProyectoEventos.Forms.Utils
             }
         }
 
-        public static void PintarCelda(DataGridViewCellFormattingEventArgs e, Color fondo, Color color)
+        private static void PintarCelda(DataGridViewCellFormattingEventArgs e, Color fondo, Color color)
         {
             e.CellStyle!.BackColor = fondo;
             e.CellStyle.ForeColor = color;

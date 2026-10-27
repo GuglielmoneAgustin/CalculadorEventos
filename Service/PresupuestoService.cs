@@ -101,6 +101,7 @@ namespace ProyectoEventos.Service
             dto.CantidadNinos = presupuesto.CantidadNinos;
             dto.CostoBaseLugar = presupuesto.CostoBaseLugar;
             dto.CostoPorHoraLugar = presupuesto.CostoPorHoraLugar;
+            dto.CostoHorasLugar = presupuesto.CostoHorasLugar;
             dto.CostoLugar = presupuesto.CostoLugar;
             dto.Items = presupuesto.ObtenerItemsMenu().Select(item => new ItemMenuResultadoDTO
             {

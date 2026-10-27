@@ -6,7 +6,7 @@ namespace ProyectoEventos.Repository.Memoria
     {
         private static readonly EventoRepository instancia = new EventoRepository();
 
-        private EventoRepository() : base("evento")
+        private EventoRepository() : base("El evento seleccionado no existe.")
         {
         }
 

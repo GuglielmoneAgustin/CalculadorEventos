@@ -66,11 +66,6 @@ namespace ProyectoEventos.Domain
             get { return cantidadNinos; }
         }
 
-        public DateTime FechaFin
-        {
-            get { return Fecha.AddHours((double)HorasDuracion); }
-        }
-
         public bool RequierePresupuestoNuevo
         {
             get
@@ -112,26 +107,20 @@ namespace ProyectoEventos.Domain
             }
         }
 
-        private bool HayCambios(Cliente cliente, Lugar lugar, DateTime fecha, decimal horasDuracion, int cantidadAdultos, int cantidadNinos)
-        {
-            return this.cliente == null || this.lugar == null
-                || this.cliente.Id != cliente.Id
-                || this.lugar.Id != lugar.Id
-                || this.fecha != fecha
-                || this.horasDuracion != horasDuracion
-                || this.cantidadAdultos != cantidadAdultos
-                || this.cantidadNinos != cantidadNinos;
-        }
-
         public int TotalInvitados()
         {
             return CantidadAdultos + CantidadNinos;
         }
 
+        public bool EstaRealizado(DateTime ahora)
+        {
+            return CalcularFechaFin() < ahora;
+        }
+
         public bool SeSuperponeCon(DateTime inicio, decimal horasDuracion)
         {
             DateTime fin = inicio.AddHours((double)horasDuracion);
-            return inicio < FechaFin && Fecha < fin;
+            return inicio < CalcularFechaFin() && Fecha < fin;
         }
 
         public bool TieneCliente(int idCliente)
@@ -311,7 +300,7 @@ namespace ProyectoEventos.Domain
             Presupuesto? aprobado = ObtenerPresupuestoAprobado();
             if (aprobado == null)
             {
-                throw new NegocioException("El evento no tiene un presupuesto aprobado. Apruebe uno antes de registrar la seña, el pago o ver el comprobante.");
+                throw new NegocioException("El evento no tiene un presupuesto aprobado. Apruebe uno antes de registrar pagos o ver el comprobante.");
             }
             return aprobado;
         }
@@ -381,11 +370,6 @@ namespace ProyectoEventos.Domain
             return presupuestos.AsReadOnly();
         }
 
-        private Presupuesto? ObtenerPresupuestoAprobado()
-        {
-            return presupuestos.Find(presupuesto => presupuesto.Estado == EstadoPresupuesto.Aprobado);
-        }
-
         public bool EsVigente(Presupuesto presupuesto)
         {
             return presupuesto == ObtenerUltimoPresupuesto()
@@ -440,6 +424,27 @@ namespace ProyectoEventos.Domain
             this.proximoIdPresupuesto = proximoIdPresupuesto;
             this.huboCambiosDesdeUltimoPresupuesto = huboCambiosDesdeUltimoPresupuesto;
             menu.CargarProximoIdItem(proximoIdItem);
+        }
+
+        private bool HayCambios(Cliente cliente, Lugar lugar, DateTime fecha, decimal horasDuracion, int cantidadAdultos, int cantidadNinos)
+        {
+            return this.cliente == null || this.lugar == null
+                || this.cliente.Id != cliente.Id
+                || this.lugar.Id != lugar.Id
+                || this.fecha != fecha
+                || this.horasDuracion != horasDuracion
+                || this.cantidadAdultos != cantidadAdultos
+                || this.cantidadNinos != cantidadNinos;
+        }
+
+        private DateTime CalcularFechaFin()
+        {
+            return Fecha.AddHours((double)HorasDuracion);
+        }
+
+        private Presupuesto? ObtenerPresupuestoAprobado()
+        {
+            return presupuestos.Find(presupuesto => presupuesto.Estado == EstadoPresupuesto.Aprobado);
         }
 
         private Presupuesto? ObtenerUltimoPresupuesto()

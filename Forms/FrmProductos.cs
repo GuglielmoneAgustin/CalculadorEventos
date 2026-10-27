@@ -1,10 +1,8 @@
-using ProyectoEventos.Common.Enums;
-using System;
-using System.Windows.Forms;
-using ProyectoEventos.Controller;
 using ProyectoEventos.Common;
-using ProyectoEventos.Dto;
+using ProyectoEventos.Common.Enums;
 using ProyectoEventos.Common.Exceptions;
+using ProyectoEventos.Controller;
+using ProyectoEventos.Dto;
 using ProyectoEventos.Forms.Utils;
 
 namespace ProyectoEventos.Forms
@@ -23,9 +21,6 @@ namespace ProyectoEventos.Forms
             Tema.Aplicar(this);
             controlador = new ProductoController();
             idSeleccionado = 0;
-            dgvProductos.MensajeSinFilas(() => productos.Count == 0
-                ? "Todavía no hay productos. Complete el formulario y toque Guardar."
-                : "Ningún producto coincide con la búsqueda.");
         }
 
         private void btnVolver_Click(object sender, EventArgs e)
@@ -165,8 +160,20 @@ namespace ProyectoEventos.Forms
 
         private void MostrarGrilla()
         {
+            List<ProductoDTO> visibles = new List<ProductoDTO>();
+            foreach (ProductoDTO producto in productos)
+            {
+                if (Busqueda.Coincide(txtBuscar.Text, producto.Nombre, producto.Categoria.Texto(), producto.Restriccion))
+                {
+                    visibles.Add(producto);
+                }
+            }
+
+            dgvProductos.MensajeSinFilas(productos.Count == 0
+                ? "Todavía no hay productos. Complete el formulario y toque Guardar."
+                : "Ningún producto coincide con la búsqueda.");
             dgvProductos.DataSource = null;
-            dgvProductos.DataSource = Busqueda.Filtrar(productos, txtBuscar.Text, p => new[] { p.Nombre, p.Categoria.Texto(), p.Restriccion });
+            dgvProductos.DataSource = visibles;
             ConfigurarColumnas();
             dgvProductos.QuitarSeleccion();
         }
@@ -225,8 +232,7 @@ namespace ProyectoEventos.Forms
 
                 CargarGrilla();
                 LimpiarFormulario();
-                string nombre = dto.Nombre.Trim();
-                dgvProductos.SeleccionarFila<ProductoDTO>(p => p.Nombre.Equals(nombre, StringComparison.OrdinalIgnoreCase));
+                dgvProductos.SeleccionarFila("Nombre", dto.Nombre.Trim());
                 Aviso.Mostrar(lblAviso, eraEdicion ? "Producto actualizado." : "Producto guardado.");
             }
             catch (NegocioException ex)

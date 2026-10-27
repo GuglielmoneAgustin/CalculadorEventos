@@ -16,6 +16,7 @@ namespace ProyectoEventos.Dto
         public int CantidadNinos { get; set; }
         public decimal CostoBaseLugar { get; set; }
         public decimal CostoPorHoraLugar { get; set; }
+        public decimal CostoHorasLugar { get; set; }
         public decimal CostoLugar { get; set; }
         public List<ItemMenuResultadoDTO> Items { get; set; } = new List<ItemMenuResultadoDTO>();
         public List<PresupuestoServicioDTO> Servicios { get; set; } = new List<PresupuestoServicioDTO>();

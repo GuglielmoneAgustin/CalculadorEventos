@@ -1,11 +1,8 @@
-using ProyectoEventos.Common.Enums;
-using System;
-using System.Drawing;
-using System.Windows.Forms;
 using ProyectoEventos.Common;
+using ProyectoEventos.Common.Enums;
+using ProyectoEventos.Common.Exceptions;
 using ProyectoEventos.Controller;
 using ProyectoEventos.Dto;
-using ProyectoEventos.Common.Exceptions;
 using ProyectoEventos.Forms.Utils;
 
 namespace ProyectoEventos.Forms
@@ -24,7 +21,7 @@ namespace ProyectoEventos.Forms
             controlador = new PresupuestoController();
             eventoControlador = new EventoController();
             negocio = new NegocioController().Obtener();
-            dgvPresupuestos.MensajeSinFilas(() => "Este evento todavía no tiene presupuestos. Arme el menú y toque Finalizar, o toque Actualizar presupuesto.");
+            dgvPresupuestos.MensajeSinFilas("Este evento todavía no tiene presupuestos. Arme el menú y toque Finalizar, o toque Actualizar presupuesto.");
             this.idEvento = idEvento;
         }
 

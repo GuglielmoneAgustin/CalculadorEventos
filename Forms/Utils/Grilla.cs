@@ -19,16 +19,20 @@ namespace ProyectoEventos.Forms.Utils
             return grilla.CurrentRow?.DataBoundItem as T;
         }
 
-        public static void SeleccionarFila<T>(this DataGridView grilla, Func<T, bool> condicion) where T : class
+        public static void SeleccionarFila(this DataGridView grilla, string columna, string valor)
         {
             foreach (DataGridViewRow fila in grilla.Rows)
             {
-                if (fila.DataBoundItem is T elemento && condicion(elemento))
+                string? valorFila = fila.Cells[columna].Value?.ToString();
+                if (valor.Equals(valorFila, StringComparison.OrdinalIgnoreCase))
                 {
-                    DataGridViewCell? primeraVisible = fila.Cells.Cast<DataGridViewCell>().FirstOrDefault(celda => celda.Visible);
-                    if (primeraVisible != null)
+                    foreach (DataGridViewCell celda in fila.Cells)
                     {
-                        grilla.CurrentCell = primeraVisible;
+                        if (celda.Visible)
+                        {
+                            grilla.CurrentCell = celda;
+                            break;
+                        }
                     }
                     fila.Selected = true;
                     return;
@@ -36,22 +40,37 @@ namespace ProyectoEventos.Forms.Utils
             }
         }
 
-        public static void MensajeSinFilas(this DataGridView grilla, Func<string> mensaje)
+        // El mensaje se guarda en el Tag de la grilla y se dibuja mientras no tenga filas.
+        public static void MensajeSinFilas(this DataGridView grilla, string mensaje)
         {
-            grilla.Paint += (sender, e) =>
-            {
-                if (grilla.Rows.Count > 0)
-                {
-                    return;
-                }
+            grilla.Tag = mensaje;
+            grilla.Paint -= DibujarMensajeSinFilas;
+            grilla.Paint += DibujarMensajeSinFilas;
+            grilla.Resize -= Redibujar;
+            grilla.Resize += Redibujar;
+            grilla.Invalidate();
+        }
 
-                int arriba = grilla.ColumnHeadersVisible ? grilla.ColumnHeadersHeight : 0;
-                Rectangle area = new Rectangle(20, arriba + 20, Math.Max(grilla.Width - 40, 0), 80);
-                Font fuente = grilla.DefaultCellStyle.Font ?? grilla.Font;
-                TextRenderer.DrawText(e.Graphics, mensaje(), fuente, area, Tema.TextoSuave,
-                    TextFormatFlags.HorizontalCenter | TextFormatFlags.Top | TextFormatFlags.WordBreak);
-            };
-            grilla.Resize += (sender, e) => grilla.Invalidate();
+        private static void DibujarMensajeSinFilas(object? sender, PaintEventArgs e)
+        {
+            if (sender is not DataGridView grilla || grilla.Rows.Count > 0 || grilla.Tag is not string mensaje)
+            {
+                return;
+            }
+
+            int arriba = grilla.ColumnHeadersVisible ? grilla.ColumnHeadersHeight : 0;
+            Rectangle area = new Rectangle(20, arriba + 20, Math.Max(grilla.Width - 40, 0), 80);
+            Font fuente = grilla.DefaultCellStyle.Font ?? grilla.Font;
+            TextRenderer.DrawText(e.Graphics, mensaje, fuente, area, Tema.TextoSuave,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.Top | TextFormatFlags.WordBreak);
+        }
+
+        private static void Redibujar(object? sender, EventArgs e)
+        {
+            if (sender is Control control)
+            {
+                control.Invalidate();
+            }
         }
     }
 }

@@ -1,8 +1,6 @@
-using System;
-using System.Windows.Forms;
+using ProyectoEventos.Common.Exceptions;
 using ProyectoEventos.Controller;
 using ProyectoEventos.Dto;
-using ProyectoEventos.Common.Exceptions;
 using ProyectoEventos.Forms.Utils;
 
 namespace ProyectoEventos.Forms
@@ -20,9 +18,6 @@ namespace ProyectoEventos.Forms
             Tema.Aplicar(this);
             controlador = new ClienteController();
             idSeleccionado = 0;
-            dgvClientes.MensajeSinFilas(() => clientes.Count == 0
-                ? "Todavía no hay clientes. Complete el formulario y toque Guardar."
-                : "Ningún cliente coincide con la búsqueda.");
         }
 
         private void btnVolver_Click(object sender, EventArgs e)
@@ -57,8 +52,20 @@ namespace ProyectoEventos.Forms
 
         private void MostrarGrilla()
         {
+            List<ClienteDTO> visibles = new List<ClienteDTO>();
+            foreach (ClienteDTO cliente in clientes)
+            {
+                if (Busqueda.Coincide(txtBuscar.Text, cliente.Nombre, cliente.Dni, cliente.Mail, cliente.Telefono))
+                {
+                    visibles.Add(cliente);
+                }
+            }
+
+            dgvClientes.MensajeSinFilas(clientes.Count == 0
+                ? "Todavía no hay clientes. Complete el formulario y toque Guardar."
+                : "Ningún cliente coincide con la búsqueda.");
             dgvClientes.DataSource = null;
-            dgvClientes.DataSource = Busqueda.Filtrar(clientes, txtBuscar.Text, c => new[] { c.Nombre, c.Dni, c.Mail, c.Telefono });
+            dgvClientes.DataSource = visibles;
             ConfigurarColumnas();
             dgvClientes.QuitarSeleccion();
         }
@@ -115,8 +122,7 @@ namespace ProyectoEventos.Forms
 
                 CargarGrilla();
                 LimpiarFormulario();
-                string dni = dto.Dni.Trim();
-                dgvClientes.SeleccionarFila<ClienteDTO>(c => c.Dni.Equals(dni, StringComparison.OrdinalIgnoreCase));
+                dgvClientes.SeleccionarFila("Dni", dto.Dni.Trim());
                 Aviso.Mostrar(lblAviso, eraEdicion ? "Cliente actualizado." : "Cliente guardado.");
             }
             catch (NegocioException ex)

@@ -6,7 +6,7 @@ namespace ProyectoEventos.Repository.Memoria
     {
         private static readonly ProductoRepository instancia = new ProductoRepository();
 
-        private ProductoRepository() : base("producto")
+        private ProductoRepository() : base("El producto seleccionado no existe.")
         {
         }
 

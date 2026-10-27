@@ -148,7 +148,7 @@ El código está organizado en capas:
 
 | Carpeta | Contenido |
 |---|---|
-| `Domain` | Entidades y reglas de negocio (`Evento`, `Presupuesto`, `Cliente`, `Lugar`, `Producto`, `ServicioAdicional`, `MenuEvento`, `ItemMenu`, `Negocio`). Cada entidad valida sus datos en el constructor y en los setters de sus propiedades. |
+| `Domain` | Entidades y reglas de negocio (`Evento`, `Presupuesto`, `Pago`, `Cliente`, `Lugar`, `Producto`, `Restriccion`, `ServicioAdicional`, `MenuEvento`, `ItemMenu`, `Negocio`). Cada entidad valida sus datos en el constructor y en los setters de sus propiedades. |
 | `Repository` | Interfaz de acceso a datos `IRepository<T>`, común a todas las entidades. El servicio pide el próximo id con `ObtenerProximoId` y guarda los cambios con `Actualizar`. |
 | `Repository/Sqlite` | Implementación con SQLite (la que usa la app): conexión y creación de tablas (`BaseDatosSqlite`) y un repositorio por entidad con su SQL. |
 | `Repository/Memoria` | Implementación en memoria (la que usaba la app antes de SQLite). Los servicios toman los repositorios de `Repository/Repositorios.cs`, así que cambiar de una a otra no toca los servicios. |
@@ -156,5 +156,5 @@ El código está organizado en capas:
 | `Controller` | Punto de entrada que usan las pantallas. |
 | `Dto` | Datos que viajan entre las pantallas y los servicios. |
 | `Forms` | Pantallas de Windows Forms y utilidades de interfaz (`Forms/Utils`: tema visual, grillas, búsqueda, avisos, ticket). |
-| `Common` | Formato de montos y fechas, configuración (`Configuracion.DiasProximos`), enumeraciones (`Common/Enums`) y excepciones de negocio. |
+| `Common` | Formato de montos y fechas, configuración (`Configuracion`: días próximos, porcentaje de seña que congela el precio y ruta de la base), enumeraciones (`Common/Enums`) y excepciones de negocio. |
 | `Datos` | Datos de ejemplo que se cargan en modo Debug. |

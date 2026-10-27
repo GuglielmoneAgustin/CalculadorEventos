@@ -1,14 +1,12 @@
 using ProyectoEventos.Common;
-using System;
-using System.Windows.Forms;
+using ProyectoEventos.Common.Exceptions;
 using ProyectoEventos.Controller;
 using ProyectoEventos.Dto;
-using ProyectoEventos.Common.Exceptions;
 using ProyectoEventos.Forms.Utils;
 
 namespace ProyectoEventos.Forms
 {
-    public partial class FrmEventoDatos : Form
+    public partial class FrmEventoDatos : Form, IVuelveDeSubpantalla
     {
         private readonly EventoController controlador;
         private readonly ClienteController clienteControlador;
@@ -184,13 +182,15 @@ namespace ProyectoEventos.Forms
         {
             FrmEventoMenu pantallaMenu = new FrmEventoMenu(idEvento);
             pantallaMenu.Text += " — Paso 2 de 2";
-            Navegacion.AbrirSubpantalla(this, pantallaMenu, () =>
+            Navegacion.AbrirSubpantalla(this, pantallaMenu);
+        }
+
+        public void AlVolverDeSubpantalla(Form subpantalla)
+        {
+            if (subpantalla is FrmEventoMenu pantallaMenu && pantallaMenu.Finalizado)
             {
-                if (pantallaMenu.Finalizado)
-                {
-                    MarcarFinalizadoYCerrar();
-                }
-            });
+                MarcarFinalizadoYCerrar();
+            }
         }
 
         private void CargarComboCliente()

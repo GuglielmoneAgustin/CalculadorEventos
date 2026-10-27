@@ -6,7 +6,7 @@ namespace ProyectoEventos.Repository.Memoria
     {
         private static readonly NegocioRepository instancia = new NegocioRepository();
 
-        private NegocioRepository() : base("negocio")
+        private NegocioRepository() : base("El negocio seleccionado no existe.")
         {
         }
 

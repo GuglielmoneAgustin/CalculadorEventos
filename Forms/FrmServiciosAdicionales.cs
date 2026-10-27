@@ -1,9 +1,7 @@
 using ProyectoEventos.Common;
-using System;
-using System.Windows.Forms;
+using ProyectoEventos.Common.Exceptions;
 using ProyectoEventos.Controller;
 using ProyectoEventos.Dto;
-using ProyectoEventos.Common.Exceptions;
 using ProyectoEventos.Forms.Utils;
 
 namespace ProyectoEventos.Forms
@@ -21,9 +19,6 @@ namespace ProyectoEventos.Forms
             Tema.Aplicar(this);
             controlador = new ServicioAdicionalController();
             idSeleccionado = 0;
-            dgvServicios.MensajeSinFilas(() => servicios.Count == 0
-                ? "Todavía no hay servicios. Complete el formulario y toque Guardar."
-                : "Ningún servicio coincide con la búsqueda.");
         }
 
         private void btnVolver_Click(object sender, EventArgs e)
@@ -58,8 +53,20 @@ namespace ProyectoEventos.Forms
 
         private void MostrarGrilla()
         {
+            List<ServicioAdicionalDTO> visibles = new List<ServicioAdicionalDTO>();
+            foreach (ServicioAdicionalDTO servicio in servicios)
+            {
+                if (Busqueda.Coincide(txtBuscar.Text, servicio.Nombre, servicio.Descripcion))
+                {
+                    visibles.Add(servicio);
+                }
+            }
+
+            dgvServicios.MensajeSinFilas(servicios.Count == 0
+                ? "Todavía no hay servicios. Complete el formulario y toque Guardar."
+                : "Ningún servicio coincide con la búsqueda.");
             dgvServicios.DataSource = null;
-            dgvServicios.DataSource = Busqueda.Filtrar(servicios, txtBuscar.Text, s => new[] { s.Nombre, s.Descripcion });
+            dgvServicios.DataSource = visibles;
             ConfigurarColumnas();
             dgvServicios.QuitarSeleccion();
         }
@@ -113,8 +120,7 @@ namespace ProyectoEventos.Forms
 
                 CargarGrilla();
                 LimpiarFormulario();
-                string nombre = dto.Nombre.Trim();
-                dgvServicios.SeleccionarFila<ServicioAdicionalDTO>(s => s.Nombre.Equals(nombre, StringComparison.OrdinalIgnoreCase));
+                dgvServicios.SeleccionarFila("Nombre", dto.Nombre.Trim());
                 Aviso.Mostrar(lblAviso, eraEdicion ? "Servicio actualizado." : "Servicio guardado.");
             }
             catch (NegocioException ex)

@@ -71,7 +71,7 @@ namespace ProyectoEventos.Domain
 
         public decimal Subtotal()
         {
-            return (producto.PrecioAdulto * cantidadAdultos) + (producto.PrecioNino * cantidadNinos);
+            return producto.CalcularPrecio(cantidadAdultos, cantidadNinos);
         }
     }
 }

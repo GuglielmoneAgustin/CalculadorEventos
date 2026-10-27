@@ -75,5 +75,10 @@ namespace ProyectoEventos.Domain
 
         // Nula cuando el producto no tiene ninguna restricción (apto para todos).
         public Restriccion? Restriccion { get; set; }
+
+        public decimal CalcularPrecio(int cantidadAdultos, int cantidadNinos)
+        {
+            return (PrecioAdulto * cantidadAdultos) + (PrecioNino * cantidadNinos);
+        }
     }
 }

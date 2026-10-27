@@ -6,7 +6,7 @@ namespace ProyectoEventos.Repository.Memoria
     {
         private static readonly ServicioAdicionalRepository instancia = new ServicioAdicionalRepository();
 
-        private ServicioAdicionalRepository() : base("servicio")
+        private ServicioAdicionalRepository() : base("El servicio seleccionado no existe.")
         {
         }
 

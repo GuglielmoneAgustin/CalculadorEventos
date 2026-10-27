@@ -6,7 +6,7 @@ namespace ProyectoEventos.Repository.Memoria
     {
         private static readonly LugarRepository instancia = new LugarRepository();
 
-        private LugarRepository() : base("lugar")
+        private LugarRepository() : base("El lugar seleccionado no existe.")
         {
         }
 

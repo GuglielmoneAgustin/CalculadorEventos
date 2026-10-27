@@ -1,6 +1,6 @@
-using ProyectoEventos.Common;
 using ProyectoEventos.Common.Enums;
 using ProyectoEventos.Common.Exceptions;
+using ProyectoEventos.Common;
 
 namespace ProyectoEventos.Domain
 {
@@ -60,9 +60,14 @@ namespace ProyectoEventos.Domain
 
         public decimal CostoPorHoraLugar { get; private set; }
 
+        public decimal CostoHorasLugar
+        {
+            get { return CostoPorHoraLugar * HorasDuracion; }
+        }
+
         public decimal CostoLugar
         {
-            get { return CostoBaseLugar + CostoPorHoraLugar * HorasDuracion; }
+            get { return CostoBaseLugar + CostoHorasLugar; }
         }
 
         public string NombreCliente { get; private set; }

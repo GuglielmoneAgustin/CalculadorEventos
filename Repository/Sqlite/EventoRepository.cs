@@ -33,48 +33,20 @@ namespace ProyectoEventos.Repository.Sqlite
             using SqliteConnection conexion = baseDatos.AbrirConexion();
             using SqliteTransaction transaccion = conexion.BeginTransaction();
 
-            using (SqliteCommand comando = conexion.CreateCommand())
-            {
-                comando.CommandText =
-                    "INSERT INTO Eventos (Id, IdCliente, IdLugar, Fecha, HorasDuracion, CantidadAdultos, CantidadNinos, " +
-                    "ProximoIdItem, ProximoIdPresupuesto, HuboCambios) VALUES ($id, $idCliente, $idLugar, $fecha, $horas, " +
-                    "$adultos, $ninos, $proximoIdItem, $proximoIdPresupuesto, $huboCambios)";
-                CargarParametros(comando, evento);
-                comando.ExecuteNonQuery();
-            }
+            InsertarEvento(conexion, evento);
             GuardarDetalle(conexion, evento);
 
             transaccion.Commit();
         }
 
+        // El menú, los servicios y los presupuestos se borran y se vuelven a insertar como están ahora.
         public void Actualizar(Evento evento)
         {
             using SqliteConnection conexion = baseDatos.AbrirConexion();
             using SqliteTransaction transaccion = conexion.BeginTransaction();
 
-            using (SqliteCommand comando = conexion.CreateCommand())
-            {
-                comando.CommandText =
-                    "UPDATE Eventos SET IdCliente = $idCliente, IdLugar = $idLugar, Fecha = $fecha, HorasDuracion = $horas, " +
-                    "CantidadAdultos = $adultos, CantidadNinos = $ninos, ProximoIdItem = $proximoIdItem, " +
-                    "ProximoIdPresupuesto = $proximoIdPresupuesto, HuboCambios = $huboCambios WHERE Id = $id";
-                CargarParametros(comando, evento);
-                if (comando.ExecuteNonQuery() == 0)
-                {
-                    throw new NoEncontradoException("El evento seleccionado no existe.");
-                }
-            }
-
-            // El menú, los servicios y los presupuestos se reemplazan por los actuales.
-            using (SqliteCommand comando = conexion.CreateCommand())
-            {
-                comando.CommandText =
-                    "DELETE FROM ItemsMenu WHERE IdEvento = $id; " +
-                    "DELETE FROM EventoServicios WHERE IdEvento = $id; " +
-                    "DELETE FROM Presupuestos WHERE IdEvento = $id;";
-                comando.Parameters.AddWithValue("$id", evento.Id);
-                comando.ExecuteNonQuery();
-            }
+            ActualizarFilaEvento(conexion, evento);
+            BorrarDetalle(conexion, evento.Id);
             GuardarDetalle(conexion, evento);
 
             transaccion.Commit();
@@ -109,6 +81,43 @@ namespace ProyectoEventos.Repository.Sqlite
             }
         }
 
+        private static void InsertarEvento(SqliteConnection conexion, Evento evento)
+        {
+            using SqliteCommand comando = conexion.CreateCommand();
+            comando.CommandText =
+                "INSERT INTO Eventos (Id, IdCliente, IdLugar, Fecha, HorasDuracion, CantidadAdultos, CantidadNinos, " +
+                "ProximoIdItem, ProximoIdPresupuesto, HuboCambios) VALUES ($id, $idCliente, $idLugar, $fecha, $horas, " +
+                "$adultos, $ninos, $proximoIdItem, $proximoIdPresupuesto, $huboCambios)";
+            CargarParametros(comando, evento);
+            comando.ExecuteNonQuery();
+        }
+
+        private static void ActualizarFilaEvento(SqliteConnection conexion, Evento evento)
+        {
+            using SqliteCommand comando = conexion.CreateCommand();
+            comando.CommandText =
+                "UPDATE Eventos SET IdCliente = $idCliente, IdLugar = $idLugar, Fecha = $fecha, HorasDuracion = $horas, " +
+                "CantidadAdultos = $adultos, CantidadNinos = $ninos, ProximoIdItem = $proximoIdItem, " +
+                "ProximoIdPresupuesto = $proximoIdPresupuesto, HuboCambios = $huboCambios WHERE Id = $id";
+            CargarParametros(comando, evento);
+            if (comando.ExecuteNonQuery() == 0)
+            {
+                throw new NoEncontradoException("El evento seleccionado no existe.");
+            }
+        }
+
+        // Al borrar los presupuestos, sus platos, servicios y pagos se borran en cascada.
+        private static void BorrarDetalle(SqliteConnection conexion, int idEvento)
+        {
+            using SqliteCommand comando = conexion.CreateCommand();
+            comando.CommandText =
+                "DELETE FROM ItemsMenu WHERE IdEvento = $id; " +
+                "DELETE FROM EventoServicios WHERE IdEvento = $id; " +
+                "DELETE FROM Presupuestos WHERE IdEvento = $id;";
+            comando.Parameters.AddWithValue("$id", idEvento);
+            comando.ExecuteNonQuery();
+        }
+
         private static void CargarParametros(SqliteCommand comando, Evento evento)
         {
             comando.Parameters.AddWithValue("$id", evento.Id);
@@ -125,6 +134,16 @@ namespace ProyectoEventos.Repository.Sqlite
 
         private static void GuardarDetalle(SqliteConnection conexion, Evento evento)
         {
+            GuardarItemsMenu(conexion, evento);
+            GuardarServicios(conexion, evento);
+            foreach (Presupuesto presupuesto in evento.ObtenerPresupuestos())
+            {
+                GuardarPresupuesto(conexion, evento.Id, presupuesto);
+            }
+        }
+
+        private static void GuardarItemsMenu(SqliteConnection conexion, Evento evento)
+        {
             foreach (ItemMenu item in evento.Menu.ObtenerItems())
             {
                 using SqliteCommand comando = conexion.CreateCommand();
@@ -137,7 +156,10 @@ namespace ProyectoEventos.Repository.Sqlite
                 comando.Parameters.AddWithValue("$ninos", item.CantidadNinos);
                 comando.ExecuteNonQuery();
             }
+        }
 
+        private static void GuardarServicios(SqliteConnection conexion, Evento evento)
+        {
             IReadOnlyList<ServicioAdicional> servicios = evento.ObtenerServicios();
             for (int orden = 0; orden < servicios.Count; orden++)
             {
@@ -148,37 +170,41 @@ namespace ProyectoEventos.Repository.Sqlite
                 comando.Parameters.AddWithValue("$orden", orden);
                 comando.ExecuteNonQuery();
             }
-
-            foreach (Presupuesto presupuesto in evento.ObtenerPresupuestos())
-            {
-                GuardarPresupuesto(conexion, evento.Id, presupuesto);
-            }
         }
 
         private static void GuardarPresupuesto(SqliteConnection conexion, int idEvento, Presupuesto presupuesto)
         {
-            using (SqliteCommand comando = conexion.CreateCommand())
-            {
-                comando.CommandText =
-                    "INSERT INTO Presupuestos (IdEvento, Id, FechaGeneracion, Estado, CostoBaseLugar, " +
-                    "CostoPorHoraLugar, NombreCliente, NombreLugar, FechaEvento, HorasDuracion, CantidadAdultos, CantidadNinos) " +
-                    "VALUES ($idEvento, $id, $fechaGeneracion, $estado, " +
-                    "$costoBase, $costoPorHora, $nombreCliente, $nombreLugar, $fechaEvento, $horas, $adultos, $ninos)";
-                comando.Parameters.AddWithValue("$idEvento", idEvento);
-                comando.Parameters.AddWithValue("$id", presupuesto.Id);
-                comando.Parameters.AddWithValue("$fechaGeneracion", presupuesto.FechaGeneracion);
-                comando.Parameters.AddWithValue("$estado", (int)presupuesto.Estado);
-                comando.Parameters.AddWithValue("$costoBase", presupuesto.CostoBaseLugar);
-                comando.Parameters.AddWithValue("$costoPorHora", presupuesto.CostoPorHoraLugar);
-                comando.Parameters.AddWithValue("$nombreCliente", presupuesto.NombreCliente);
-                comando.Parameters.AddWithValue("$nombreLugar", presupuesto.NombreLugar);
-                comando.Parameters.AddWithValue("$fechaEvento", presupuesto.FechaEvento);
-                comando.Parameters.AddWithValue("$horas", presupuesto.HorasDuracion);
-                comando.Parameters.AddWithValue("$adultos", presupuesto.CantidadAdultos);
-                comando.Parameters.AddWithValue("$ninos", presupuesto.CantidadNinos);
-                comando.ExecuteNonQuery();
-            }
+            InsertarPresupuesto(conexion, idEvento, presupuesto);
+            GuardarItemsPresupuestados(conexion, idEvento, presupuesto);
+            GuardarServiciosPresupuestados(conexion, idEvento, presupuesto);
+            GuardarPagos(conexion, idEvento, presupuesto);
+        }
 
+        private static void InsertarPresupuesto(SqliteConnection conexion, int idEvento, Presupuesto presupuesto)
+        {
+            using SqliteCommand comando = conexion.CreateCommand();
+            comando.CommandText =
+                "INSERT INTO Presupuestos (IdEvento, Id, FechaGeneracion, Estado, CostoBaseLugar, " +
+                "CostoPorHoraLugar, NombreCliente, NombreLugar, FechaEvento, HorasDuracion, CantidadAdultos, CantidadNinos) " +
+                "VALUES ($idEvento, $id, $fechaGeneracion, $estado, " +
+                "$costoBase, $costoPorHora, $nombreCliente, $nombreLugar, $fechaEvento, $horas, $adultos, $ninos)";
+            comando.Parameters.AddWithValue("$idEvento", idEvento);
+            comando.Parameters.AddWithValue("$id", presupuesto.Id);
+            comando.Parameters.AddWithValue("$fechaGeneracion", presupuesto.FechaGeneracion);
+            comando.Parameters.AddWithValue("$estado", (int)presupuesto.Estado);
+            comando.Parameters.AddWithValue("$costoBase", presupuesto.CostoBaseLugar);
+            comando.Parameters.AddWithValue("$costoPorHora", presupuesto.CostoPorHoraLugar);
+            comando.Parameters.AddWithValue("$nombreCliente", presupuesto.NombreCliente);
+            comando.Parameters.AddWithValue("$nombreLugar", presupuesto.NombreLugar);
+            comando.Parameters.AddWithValue("$fechaEvento", presupuesto.FechaEvento);
+            comando.Parameters.AddWithValue("$horas", presupuesto.HorasDuracion);
+            comando.Parameters.AddWithValue("$adultos", presupuesto.CantidadAdultos);
+            comando.Parameters.AddWithValue("$ninos", presupuesto.CantidadNinos);
+            comando.ExecuteNonQuery();
+        }
+
+        private static void GuardarItemsPresupuestados(SqliteConnection conexion, int idEvento, Presupuesto presupuesto)
+        {
             IReadOnlyList<DetalleMenuPresupuestado> items = presupuesto.ObtenerItemsMenu();
             for (int orden = 0; orden < items.Count; orden++)
             {
@@ -194,7 +220,10 @@ namespace ProyectoEventos.Repository.Sqlite
                 comando.Parameters.AddWithValue("$subtotal", items[orden].Subtotal);
                 comando.ExecuteNonQuery();
             }
+        }
 
+        private static void GuardarServiciosPresupuestados(SqliteConnection conexion, int idEvento, Presupuesto presupuesto)
+        {
             IReadOnlyList<ServicioPresupuestado> servicios = presupuesto.ObtenerServicios();
             for (int orden = 0; orden < servicios.Count; orden++)
             {
@@ -208,7 +237,10 @@ namespace ProyectoEventos.Repository.Sqlite
                 comando.Parameters.AddWithValue("$monto", servicios[orden].Monto);
                 comando.ExecuteNonQuery();
             }
+        }
 
+        private static void GuardarPagos(SqliteConnection conexion, int idEvento, Presupuesto presupuesto)
+        {
             IReadOnlyList<Pago> pagos = presupuesto.ObtenerPagos();
             for (int orden = 0; orden < pagos.Count; orden++)
             {
@@ -224,134 +256,149 @@ namespace ProyectoEventos.Repository.Sqlite
             }
         }
 
-        // Lee todos los eventos (idEvento nulo) o uno solo, con todo lo que contienen.
+        // Lee todos los eventos (idEvento nulo) o uno solo, con todo lo que contienen: una consulta por tabla.
         private List<Evento> Cargar(SqliteConnection conexion, int? idEvento)
+        {
+            Dictionary<int, Evento> eventos = LeerEventos(conexion, idEvento);
+            LeerItemsMenu(conexion, idEvento, eventos);
+            LeerServicios(conexion, idEvento, eventos);
+
+            Dictionary<string, List<DetalleMenuPresupuestado>> itemsPresupuestados = LeerItemsPresupuestados(conexion, idEvento);
+            Dictionary<string, List<ServicioPresupuestado>> serviciosPresupuestados = LeerServiciosPresupuestados(conexion, idEvento);
+            Dictionary<string, List<Pago>> pagos = LeerPagos(conexion, idEvento);
+            LeerPresupuestos(conexion, idEvento, eventos, itemsPresupuestados, serviciosPresupuestados, pagos);
+
+            return eventos.Values.OrderBy(e => e.Id).ToList();
+        }
+
+        private Dictionary<int, Evento> LeerEventos(SqliteConnection conexion, int? idEvento)
         {
             Dictionary<int, Cliente> clientes = clienteRepositorio.ObtenerTodos().ToDictionary(c => c.Id);
             Dictionary<int, Lugar> lugares = lugarRepositorio.ObtenerTodos().ToDictionary(l => l.Id);
-            Dictionary<int, Producto> productos = productoRepositorio.ObtenerTodos().ToDictionary(p => p.Id);
-            Dictionary<int, ServicioAdicional> servicios = servicioRepositorio.ObtenerTodos().ToDictionary(s => s.Id);
 
             Dictionary<int, Evento> eventos = new Dictionary<int, Evento>();
-            Dictionary<int, int[]> estados = new Dictionary<int, int[]>();
-            using (SqliteDataReader lector = Consultar(conexion,
+            using SqliteDataReader lector = Consultar(conexion,
                 "SELECT Id, IdCliente, IdLugar, Fecha, HorasDuracion, CantidadAdultos, CantidadNinos, ProximoIdItem, " +
-                "ProximoIdPresupuesto, HuboCambios FROM Eventos", "Id", idEvento, "Id"))
+                "ProximoIdPresupuesto, HuboCambios FROM Eventos", "Id", idEvento, "Id");
+            while (lector.Read())
             {
-                while (lector.Read())
-                {
-                    int id = lector.GetInt32(0);
-                    eventos.Add(id, new Evento(id, clientes[lector.GetInt32(1)], lugares[lector.GetInt32(2)], lector.GetDateTime(3),
-                        lector.GetDecimal(4), lector.GetInt32(5), lector.GetInt32(6)));
-                    estados.Add(id, new int[] { lector.GetInt32(7), lector.GetInt32(8), lector.GetInt32(9) });
-                }
+                Evento evento = new Evento(lector.GetInt32(0), clientes[lector.GetInt32(1)], lugares[lector.GetInt32(2)],
+                    lector.GetDateTime(3), lector.GetDecimal(4), lector.GetInt32(5), lector.GetInt32(6));
+                evento.CargarEstado(lector.GetInt32(8), lector.GetInt32(7), lector.GetBoolean(9));
+                eventos.Add(evento.Id, evento);
             }
+            return eventos;
+        }
 
-            using (SqliteDataReader lector = Consultar(conexion,
-                "SELECT IdEvento, Id, IdProducto, CantidadAdultos, CantidadNinos FROM ItemsMenu", "IdEvento", idEvento, "IdEvento, Id"))
+        private void LeerItemsMenu(SqliteConnection conexion, int? idEvento, Dictionary<int, Evento> eventos)
+        {
+            Dictionary<int, Producto> productos = productoRepositorio.ObtenerTodos().ToDictionary(p => p.Id);
+
+            using SqliteDataReader lector = Consultar(conexion,
+                "SELECT IdEvento, Id, IdProducto, CantidadAdultos, CantidadNinos FROM ItemsMenu", "IdEvento", idEvento, "IdEvento, Id");
+            while (lector.Read())
             {
-                while (lector.Read())
-                {
-                    ItemMenu item = new ItemMenu(lector.GetInt32(1), productos[lector.GetInt32(2)], lector.GetInt32(3), lector.GetInt32(4));
-                    eventos[lector.GetInt32(0)].Menu.CargarItem(item);
-                }
+                ItemMenu item = new ItemMenu(lector.GetInt32(1), productos[lector.GetInt32(2)], lector.GetInt32(3), lector.GetInt32(4));
+                eventos[lector.GetInt32(0)].Menu.CargarItem(item);
             }
+        }
 
-            using (SqliteDataReader lector = Consultar(conexion,
-                "SELECT IdEvento, IdServicio FROM EventoServicios", "IdEvento", idEvento, "IdEvento, Orden"))
+        private void LeerServicios(SqliteConnection conexion, int? idEvento, Dictionary<int, Evento> eventos)
+        {
+            Dictionary<int, ServicioAdicional> servicios = servicioRepositorio.ObtenerTodos().ToDictionary(s => s.Id);
+
+            using SqliteDataReader lector = Consultar(conexion,
+                "SELECT IdEvento, IdServicio FROM EventoServicios", "IdEvento", idEvento, "IdEvento, Orden");
+            while (lector.Read())
             {
-                while (lector.Read())
-                {
-                    eventos[lector.GetInt32(0)].CargarServicio(servicios[lector.GetInt32(1)]);
-                }
+                eventos[lector.GetInt32(0)].CargarServicio(servicios[lector.GetInt32(1)]);
             }
+        }
 
-            Dictionary<string, List<DetalleMenuPresupuestado>> itemsPresupuestados = new Dictionary<string, List<DetalleMenuPresupuestado>>();
-            using (SqliteDataReader lector = Consultar(conexion,
+        // Las listas de cada presupuesto se agrupan por la clave "idEvento-idPresupuesto".
+        private static Dictionary<string, List<DetalleMenuPresupuestado>> LeerItemsPresupuestados(SqliteConnection conexion, int? idEvento)
+        {
+            Dictionary<string, List<DetalleMenuPresupuestado>> items = new Dictionary<string, List<DetalleMenuPresupuestado>>();
+            using SqliteDataReader lector = Consultar(conexion,
                 "SELECT IdEvento, IdPresupuesto, Descripcion, CantidadAdultos, CantidadNinos, Subtotal FROM PresupuestoItems",
-                "IdEvento", idEvento, "IdEvento, IdPresupuesto, Orden"))
+                "IdEvento", idEvento, "IdEvento, IdPresupuesto, Orden");
+            while (lector.Read())
             {
-                while (lector.Read())
+                string clave = lector.GetInt32(0) + "-" + lector.GetInt32(1);
+                if (!items.ContainsKey(clave))
                 {
-                    string clave = lector.GetInt32(0) + "-" + lector.GetInt32(1);
-                    if (!itemsPresupuestados.ContainsKey(clave))
-                    {
-                        itemsPresupuestados.Add(clave, new List<DetalleMenuPresupuestado>());
-                    }
-                    itemsPresupuestados[clave].Add(new DetalleMenuPresupuestado(lector.GetString(2), lector.GetInt32(3), lector.GetInt32(4), lector.GetDecimal(5)));
+                    items.Add(clave, new List<DetalleMenuPresupuestado>());
                 }
+                items[clave].Add(new DetalleMenuPresupuestado(lector.GetString(2), lector.GetInt32(3), lector.GetInt32(4), lector.GetDecimal(5)));
             }
+            return items;
+        }
 
-            Dictionary<string, List<ServicioPresupuestado>> serviciosPresupuestados = new Dictionary<string, List<ServicioPresupuestado>>();
-            using (SqliteDataReader lector = Consultar(conexion,
-                "SELECT IdEvento, IdPresupuesto, Nombre, Monto FROM PresupuestoServicios", "IdEvento", idEvento, "IdEvento, IdPresupuesto, Orden"))
+        private static Dictionary<string, List<ServicioPresupuestado>> LeerServiciosPresupuestados(SqliteConnection conexion, int? idEvento)
+        {
+            Dictionary<string, List<ServicioPresupuestado>> servicios = new Dictionary<string, List<ServicioPresupuestado>>();
+            using SqliteDataReader lector = Consultar(conexion,
+                "SELECT IdEvento, IdPresupuesto, Nombre, Monto FROM PresupuestoServicios", "IdEvento", idEvento, "IdEvento, IdPresupuesto, Orden");
+            while (lector.Read())
             {
-                while (lector.Read())
+                string clave = lector.GetInt32(0) + "-" + lector.GetInt32(1);
+                if (!servicios.ContainsKey(clave))
                 {
-                    string clave = lector.GetInt32(0) + "-" + lector.GetInt32(1);
-                    if (!serviciosPresupuestados.ContainsKey(clave))
-                    {
-                        serviciosPresupuestados.Add(clave, new List<ServicioPresupuestado>());
-                    }
-                    serviciosPresupuestados[clave].Add(new ServicioPresupuestado(lector.GetString(2), lector.GetDecimal(3)));
+                    servicios.Add(clave, new List<ServicioPresupuestado>());
                 }
+                servicios[clave].Add(new ServicioPresupuestado(lector.GetString(2), lector.GetDecimal(3)));
             }
+            return servicios;
+        }
 
-            Dictionary<string, List<Pago>> pagosPresupuestos = new Dictionary<string, List<Pago>>();
-            using (SqliteDataReader lector = Consultar(conexion,
-                "SELECT IdEvento, IdPresupuesto, Fecha, Monto FROM PresupuestoPagos", "IdEvento", idEvento, "IdEvento, IdPresupuesto, Orden"))
+        private static Dictionary<string, List<Pago>> LeerPagos(SqliteConnection conexion, int? idEvento)
+        {
+            Dictionary<string, List<Pago>> pagos = new Dictionary<string, List<Pago>>();
+            using SqliteDataReader lector = Consultar(conexion,
+                "SELECT IdEvento, IdPresupuesto, Fecha, Monto FROM PresupuestoPagos", "IdEvento", idEvento, "IdEvento, IdPresupuesto, Orden");
+            while (lector.Read())
             {
-                while (lector.Read())
+                string clave = lector.GetInt32(0) + "-" + lector.GetInt32(1);
+                if (!pagos.ContainsKey(clave))
                 {
-                    string clave = lector.GetInt32(0) + "-" + lector.GetInt32(1);
-                    if (!pagosPresupuestos.ContainsKey(clave))
-                    {
-                        pagosPresupuestos.Add(clave, new List<Pago>());
-                    }
-                    pagosPresupuestos[clave].Add(new Pago(lector.GetDateTime(2), lector.GetDecimal(3)));
+                    pagos.Add(clave, new List<Pago>());
                 }
+                pagos[clave].Add(new Pago(lector.GetDateTime(2), lector.GetDecimal(3)));
             }
+            return pagos;
+        }
 
-            using (SqliteDataReader lector = Consultar(conexion,
+        private static void LeerPresupuestos(SqliteConnection conexion, int? idEvento, Dictionary<int, Evento> eventos,
+            Dictionary<string, List<DetalleMenuPresupuestado>> itemsPresupuestados,
+            Dictionary<string, List<ServicioPresupuestado>> serviciosPresupuestados,
+            Dictionary<string, List<Pago>> pagos)
+        {
+            using SqliteDataReader lector = Consultar(conexion,
                 "SELECT IdEvento, Id, FechaGeneracion, Estado, CostoBaseLugar, CostoPorHoraLugar, NombreCliente, " +
                 "NombreLugar, FechaEvento, HorasDuracion, CantidadAdultos, CantidadNinos FROM Presupuestos",
-                "IdEvento", idEvento, "IdEvento, Id"))
+                "IdEvento", idEvento, "IdEvento, Id");
+            while (lector.Read())
             {
-                while (lector.Read())
-                {
-                    Evento evento = eventos[lector.GetInt32(0)];
-                    string clave = evento.Id + "-" + lector.GetInt32(1);
-                    List<DetalleMenuPresupuestado> items = itemsPresupuestados.ContainsKey(clave)
-                        ? itemsPresupuestados[clave] : new List<DetalleMenuPresupuestado>();
-                    List<ServicioPresupuestado> serviciosCotizados = serviciosPresupuestados.ContainsKey(clave)
-                        ? serviciosPresupuestados[clave] : new List<ServicioPresupuestado>();
-                    List<Pago> pagos = pagosPresupuestos.ContainsKey(clave) ? pagosPresupuestos[clave] : new List<Pago>();
+                Evento evento = eventos[lector.GetInt32(0)];
+                string clave = evento.Id + "-" + lector.GetInt32(1);
 
-                    evento.CargarPresupuesto(new Presupuesto(
-                        lector.GetInt32(1),
-                        evento,
-                        lector.GetDateTime(2),
-                        (EstadoPresupuesto)lector.GetInt32(3),
-                        lector.GetDecimal(4),
-                        lector.GetDecimal(5),
-                        lector.GetString(6),
-                        lector.GetString(7),
-                        lector.GetDateTime(8),
-                        lector.GetDecimal(9),
-                        lector.GetInt32(10),
-                        lector.GetInt32(11),
-                        items,
-                        serviciosCotizados,
-                        pagos));
-                }
+                evento.CargarPresupuesto(new Presupuesto(
+                    lector.GetInt32(1),
+                    evento,
+                    lector.GetDateTime(2),
+                    (EstadoPresupuesto)lector.GetInt32(3),
+                    lector.GetDecimal(4),
+                    lector.GetDecimal(5),
+                    lector.GetString(6),
+                    lector.GetString(7),
+                    lector.GetDateTime(8),
+                    lector.GetDecimal(9),
+                    lector.GetInt32(10),
+                    lector.GetInt32(11),
+                    itemsPresupuestados.ContainsKey(clave) ? itemsPresupuestados[clave] : new List<DetalleMenuPresupuestado>(),
+                    serviciosPresupuestados.ContainsKey(clave) ? serviciosPresupuestados[clave] : new List<ServicioPresupuestado>(),
+                    pagos.ContainsKey(clave) ? pagos[clave] : new List<Pago>()));
             }
-
-            foreach (Evento evento in eventos.Values)
-            {
-                int[] estado = estados[evento.Id];
-                evento.CargarEstado(estado[1], estado[0], estado[2] == 1);
-            }
-            return eventos.Values.OrderBy(e => e.Id).ToList();
         }
 
         private static SqliteDataReader Consultar(SqliteConnection conexion, string select, string columnaEvento, int? idEvento, string orden)
